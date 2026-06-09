@@ -262,7 +262,8 @@ export default function App() {
   const [lang, setLangState] = useState("fr");
   const t = (k: string) => T[lang]?.[k] ?? T.fr[k] ?? k;
 
-  const [view, setView] = useState<"client"|"admin">("client");
+  const isAdminUrl = new URLSearchParams(window.location.search).get("admin") === "1";
+  const [view, setView] = useState<"client"|"admin">(isAdminUrl ? "admin" : "client");
   const [showLang, setShowLang] = useState(false);
   const [toasts, setToasts] = useState<{id:number;msg:string;type:string}[]>([]);
   const [loading, setLoading] = useState(false);
@@ -525,14 +526,16 @@ export default function App() {
             <div className="hdr-sub">powered by AutoReach+ &amp; AutoDeliv</div>
           </div>
           <div className="hdr-right">
-            <button className={`nav-btn${view==="client"?" active":""}`} onClick={() => setView("client")}>{t("btn_track").replace(" →","")}</button>
-            {adminUser ? (
-              <>
-                <button className={`nav-btn${view==="admin"?" active":""}`} onClick={() => setView("admin")}>⚙️ Admin</button>
-                <button className="nav-btn" onClick={doLogout} title={t("logout")}>🚪</button>
-              </>
-            ) : (
-              <button className="nav-btn" onClick={() => { setShowLogin(true); setLoginErr(""); }}>🔐 Admin</button>
+            {isAdminUrl && (
+              adminUser ? (
+                <>
+                  <button className={`nav-btn${view==="client"?" active":""}`} onClick={() => setView("client")}>Suivi</button>
+                  <button className={`nav-btn${view==="admin"?" active":""}`} onClick={() => setView("admin")}>⚙️ Admin</button>
+                  <button className="nav-btn" onClick={doLogout} title={t("logout")}>🚪</button>
+                </>
+              ) : (
+                <button className="nav-btn" onClick={() => { setShowLogin(true); setLoginErr(""); }}>🔐 Admin</button>
+              )
             )}
             <div className="lang-wrap" onClick={e => e.stopPropagation()}>
               <button className="lang-btn" onClick={() => setShowLang(p => !p)}>
