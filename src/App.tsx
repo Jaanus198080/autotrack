@@ -288,9 +288,41 @@ export default function App() {
   const [genId, setGenId] = useState<string|null>(null);
   const [history, setHistory] = useState<[string,any][]>([]);
   const [selectedId, setSelectedId] = useState<string|null>(null);
-  const [upd, setUpd] = useState({ city:"", date:"", time:"", status:"st0", note:"" });
+  const [upd, setUpd] = useState({ city:"", date:"", time:"", status:"st0", note:"", newArr:"" });
   const [genBusy, setGenBusy] = useState(false);
   const [updBusy, setUpdBusy] = useState(false);
+
+  // MARQUES / ENTREPRISES (dynamique — l'admin peut en ajouter d'autres que AutoDeliv/AutoReach+)
+  const [companies, setCompanies] = useState<string[]>(() => {
+    try {
+      const saved = localStorage.getItem("autotrack_companies");
+      return saved ? JSON.parse(saved) : ["AutoDeliv", "AutoReach+"];
+    } catch { return ["AutoDeliv", "AutoReach+"]; }
+  });
+  const [addingCo, setAddingCo] = useState(false);
+  const [newCoName, setNewCoName] = useState("");
+
+  function persistCompanies(list: string[]) {
+    setCompanies(list);
+    try { localStorage.setItem("autotrack_companies", JSON.stringify(list)); } catch {}
+  }
+
+  function confirmAddCompany() {
+    const name = newCoName.trim();
+    if (!name) { setAddingCo(false); return; }
+    if (!companies.includes(name)) persistCompanies([...companies, name]);
+    setForm(p => ({ ...p, co: name }));
+    setNewCoName("");
+    setAddingCo(false);
+  }
+
+  // Couleur stable et distincte par nom de marque (plutôt qu'un mapping figé bleu/orange)
+  const coColors = ["#1a6fd4", "#e85d04", "#5a9e2f", "#a05ad4", "#d4a843", "#2fb6a8"];
+  function coColor(name: string) {
+    let h = 0;
+    for (let i = 0; i < name.length; i++) h = (h * 31 + name.charCodeAt(i)) >>> 0;
+    return coColors[h % coColors.length];
+  }
 
   const toast = (msg: string, type="ok") => {
     const id = Date.now();
@@ -358,18 +390,14 @@ export default function App() {
 
   async function doTrackById(raw: string) {
     setLoading(true);
-    // Try direct lookup first
-    let data = await dbReadOne(raw);
-    let id = raw;
-    if (!data) {
-      // Fallback: search all
-      const all = await dbRead();
-      const found = Object.keys(all).find(k =>
-        k.replace(/-/g,"") === raw.replace(/-/g,"") ||
-        k.replace(/-/g,"").endsWith(raw.replace(/-/g,"").slice(-5))
-      );
-      if (found) { id = found; data = all[found]; }
-    }
+    // Normalise le format (espaces/tirets) puis tente une lecture EXACTE d'un seul document.
+    // Aucune lecture de la collection entière ici : un client ne doit jamais pouvoir
+    // récupérer les données d'autres clients en cherchant "à peu près".
+    const clean = raw.replace(/\s/g, "").toUpperCase();
+    const normalized = clean.includes("-") ? clean : clean.replace(/^(ATK)(\d{4})([A-Z]{2})([A-Z0-9]+)$/, "$1-$2-$3-$4");
+    let data = await dbReadOne(normalized);
+    let id = normalized;
+    if (!data && normalized !== clean) { data = await dbReadOne(clean); id = clean; }
     setLoading(false);
     if (!data) { setTrackError(true); setTrackData(null); return; }
     setTrackId(id);
@@ -378,6 +406,15 @@ export default function App() {
   }
 
   /* ── GENERATE ── */
+  // Génère un suffixe aléatoire cryptographiquement sûr (8 caractères alphanumériques,
+  // beaucoup moins prévisible/devinable que 5 chiffres tirés avec Math.random)
+  function secureSuffix(len = 8) {
+    const chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789"; // sans 0/O/1/I pour éviter la confusion visuelle
+    const arr = new Uint32Array(len);
+    crypto.getRandomValues(arr);
+    return Array.from(arr, n => chars[n % chars.length]).join("");
+  }
+
   async function genTracking() {
     const { name, from, to, veh } = form;
     if (!name || !from || !to || !veh) { toast(t("err_fill"), "err"); return; }
@@ -385,8 +422,16 @@ export default function App() {
     const words = from.split(/[,\s]+/).filter((w: string) => /^[A-Za-zÀ-ÿ]{2,}$/.test(w));
     const cc = (words[words.length - 1] || "XX").substring(0, 2).toUpperCase();
     const yr = new Date().getFullYear();
-    const num = String(Math.floor(Math.random() * 90000) + 10000);
-    const id = `ATK-${yr}-${cc}-${num}`;
+
+    // Vérifie l'unicité (collision extrêmement improbable, mais on s'assure de ne jamais écraser un suivi existant)
+    let id = "";
+    for (let attempt = 0; attempt < 5; attempt++) {
+      const candidate = `ATK-${yr}-${cc}-${secureSuffix()}`;
+      const exists = await dbReadOne(candidate);
+      if (!exists) { id = candidate; break; }
+    }
+    if (!id) { toast("❌ Erreur de génération, réessayez", "err"); setGenBusy(false); return; }
+
     const dep = fmt(form.dep), arr = fmt(form.arr);
     const rec = {
       client: name, email: form.email, phone: form.phone,
@@ -434,6 +479,22 @@ export default function App() {
     const di = data.route.findIndex((r: any) => r.type === "dest");
     data.route.splice(di, 0, { city: upd.city, lk:"lbl_pos", type:"current", time: dt, note: upd.note || null });
     data.timeline.unshift({ icon:"●", type:"active", title:`${t(upd.status)} — ${upd.city}${upd.note ? " · " + upd.note : ""}`, time: dt });
+
+    // Mise à jour de la date d'arrivée estimée (en cas de retard ou d'avance)
+    if (upd.newArr) {
+      const newArrFmt = fmt(upd.newArr);
+      if (!data.originalArr) data.originalArr = data.arr; // garde la première estimation
+      if (newArrFmt !== data.arr) {
+        data.timeline.unshift({ icon:"⏱", type:"active", title:`Nouvelle date d'arrivée estimée : ${newArrFmt}${data.originalArr && data.originalArr !== newArrFmt ? ` (initialement prévu le ${data.originalArr})` : ""}`, time: dt });
+        data.arr = newArrFmt;
+        // Met aussi à jour la destination dans l'itinéraire
+        const dest = data.route.find((r: any) => r.type === "dest");
+        if (dest) dest.time = `Estimé ${newArrFmt}`;
+        const etaInfo = data.info?.find((i: any) => i.lk === "lbl_eta");
+        if (etaInfo) etaInfo.val = newArrFmt;
+      }
+    }
+
     let first = true;
     data.timeline = data.timeline.map((e: any) => {
       if (e.type === "active") { if (first) { first = false; return e; } return { ...e, type:"done", icon:"✓" }; }
@@ -442,7 +503,7 @@ export default function App() {
     await dbWrite(selectedId, data);
     await loadHistory();
     toast(t("toast_upd"), "ok");
-    setUpd(p => ({ ...p, city:"", note:"" }));
+    setUpd(p => ({ ...p, city:"", note:"", newArr:"" }));
     setUpdBusy(false);
   }
 
@@ -517,13 +578,16 @@ export default function App() {
         {/* HEADER */}
         <header className="hdr">
           <div className="hdr-badges">
-            <span className="bdg bdg-ar">AutoReach+</span>
-            <span style={{color:"var(--muted)"}}>×</span>
-            <span className="bdg bdg-ad">AutoDeliv</span>
+            {companies.map((c, i) => (
+              <span key={c}>
+                {i > 0 && <span style={{color:"var(--muted)",margin:"0 4px"}}>×</span>}
+                <span className="bdg" style={{color:coColor(c),borderColor:coColor(c),background:coColor(c)+"14"}}>{c}</span>
+              </span>
+            ))}
           </div>
           <div className="hdr-brand">
             <div className="hdr-title">AUTO<span>TRACK</span></div>
-            <div className="hdr-sub">powered by AutoReach+ &amp; AutoDeliv</div>
+            <div className="hdr-sub">powered by {companies.join(" & ")}</div>
           </div>
           <div className="hdr-right">
             {isAdminUrl && (
@@ -588,7 +652,14 @@ export default function App() {
                 <div className="res-right">
                   <div className="res-name">{trackData.client}</div>
                   <div className="res-veh">{trackData.vehicle}{trackData.color&&trackData.color!=="—"?" — "+trackData.color:""}</div>
-                  <div className="res-eta">{t("eta_pre")} {trackData.arr}</div>
+                  <div className="res-eta">
+                    {t("eta_pre")} {trackData.arr}
+                    {trackData.originalArr && trackData.originalArr !== trackData.arr && (
+                      <span style={{display:"block",fontSize:11,color:"var(--orange)",fontWeight:600,marginTop:2}}>
+                        ⏱ Date mise à jour — initialement prévu le {trackData.originalArr}
+                      </span>
+                    )}
+                  </div>
                   <div className="res-co">{trackData.company}</div>
                 </div>
               </div>
@@ -685,10 +756,23 @@ export default function App() {
                   ))}
                   <div className="fgroup">
                     <div className="flabel">{t("l_co")}</div>
-                    <select className="fs" value={form.co} onChange={e => setForm(p=>({...p,co:e.target.value}))}>
-                      <option value="AutoDeliv">AutoDeliv</option>
-                      <option value="AutoReach+">AutoReach+</option>
-                    </select>
+                    {!addingCo ? (
+                      <div style={{display:"flex",gap:8}}>
+                        <select className="fs" value={form.co} onChange={e => {
+                          if (e.target.value === "__new__") { setAddingCo(true); return; }
+                          setForm(p=>({...p,co:e.target.value}));
+                        }}>
+                          {companies.map(c => <option key={c} value={c}>{c}</option>)}
+                          <option value="__new__">+ Ajouter une nouvelle marque…</option>
+                        </select>
+                      </div>
+                    ) : (
+                      <div style={{display:"flex",gap:8}}>
+                        <input className="fi" autoFocus value={newCoName} onChange={e => setNewCoName(e.target.value)} onKeyDown={e => e.key==="Enter" && confirmAddCompany()} placeholder="Nom de la nouvelle marque" />
+                        <button className="nav-btn" onClick={confirmAddCompany}>✓</button>
+                        <button className="nav-btn" onClick={() => { setAddingCo(false); setNewCoName(""); }}>✕</button>
+                      </div>
+                    )}
                   </div>
                   <div className="sdivider">{t("s_veh")}</div>
                   {([["l_veh","veh","BMW X5 2021"],["l_col","col","Blanc perle"],["l_vin","vin","WBA3A5G5XDNX00001"],["l_plate","plate","AB-123-CD"]] as [string,string,string][]).map(([lk,k,ph]) => (
@@ -766,8 +850,12 @@ export default function App() {
                         </div>
                         <div className="fgroup">
                           <div className="flabel">{t("u_note")}</div>
-                          <input className="fi" value={upd.note} onChange={e=>setUpd(p=>({...p,note:e.target.value}))} placeholder="Contrôle douanier en cours…" />
+                          <input className="fi" value={upd.note} onChange={e => setUpd(p=>({...p,note:e.target.value}))} placeholder="Contrôle douanier en cours…" />
                         </div>
+                      </div>
+                      <div className="fgroup" style={{marginBottom:13}}>
+                        <div className="flabel" style={{color:"var(--orange)"}}>🕓 Nouvelle date d'arrivée estimée (en cas de retard)</div>
+                        <input className="fi" type="date" value={upd.newArr} onChange={e => setUpd(p=>({...p,newArr:e.target.value}))} />
                       </div>
                       <button className="btn-upd" onClick={pushUpdate} disabled={updBusy}>
                         {updBusy ? <><span className="spin" /> Envoi…</> : t("btn_upd")}
@@ -801,7 +889,7 @@ export default function App() {
                             <td>{d.vehicle}</td>
                             <td>{d.fromCity} → {d.toCity}</td>
                             <td><span className="dstatus"><span className="dot" style={{background:stc}} />{t((d.statusKey||"st0")+"f")}</span></td>
-                            <td><span style={{color:co==="AutoDeliv"?"var(--blue)":"var(--orange)"}}>{co}</span></td>
+                            <td><span style={{color:coColor(co)}}>{co}</span></td>
                           </tr>
                         );
                       })}
@@ -826,9 +914,12 @@ export default function App() {
         {/* FOOTER */}
         <footer>
           <div className="fl">
-            <span style={{color:"var(--orange)"}}>AutoReach+</span>
-            <span style={{color:"var(--border)"}}>|</span>
-            <span style={{color:"var(--blue)"}}>AutoDeliv</span>
+            {companies.map((c, i) => (
+              <span key={c} style={{display:"flex",alignItems:"center",gap:11}}>
+                {i > 0 && <span style={{color:"var(--border)"}}>|</span>}
+                <span style={{color:coColor(c)}}>{c}</span>
+              </span>
+            ))}
           </div>
           <p>{t("ft_tag")}</p>
           <p>© 2026 AUTOTRACK — {t("ft_r")}</p>
