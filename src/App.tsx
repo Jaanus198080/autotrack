@@ -1,7 +1,7 @@
 // src/App.tsx
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import {
-  doc, getDoc, setDoc, collection, getDocs
+  doc, getDoc, setDoc, collection, getDocs, onSnapshot
 } from "firebase/firestore";
 import {
   signInWithEmailAndPassword, signOut, onAuthStateChanged, User
@@ -287,6 +287,7 @@ export default function App() {
   const [trackError, setTrackError] = useState(false);
   const [trackData, setTrackData] = useState<any>(null);
   const [trackId, setTrackId] = useState("");
+  const unsubTrackRef = useRef<(() => void) | null>(null);
 
   // ADMIN
   const [form, setForm] = useState({ name:"", email:"", phone:"", co:"AutoDeliv", veh:"", col:"", vin:"", plate:"", from:"", to:"", dep:"", arr:"", mode:"Camion porte-voiture", carrier:"" });
@@ -363,11 +364,13 @@ export default function App() {
 
   async function doTrackById(raw: string) {
     setLoading(true);
+    // Unsubscribe previous listener
+    if (unsubTrackRef.current) { unsubTrackRef.current(); unsubTrackRef.current = null; }
+
     // Try direct lookup first
     let data = await dbReadOne(raw);
     let id = raw;
     if (!data) {
-      // Fallback: search all
       const all = await dbRead();
       const found = Object.keys(all).find(k =>
         k.replace(/-/g,"") === raw.replace(/-/g,"") ||
@@ -380,6 +383,14 @@ export default function App() {
     setTrackId(id);
     setTrackData(data);
     setTrackError(false);
+
+    // Subscribe to real-time updates
+    const unsub = onSnapshot(doc(db, "trackings", id), (snap) => {
+      if (snap.exists()) {
+        setTrackData(snap.data());
+      }
+    });
+    unsubTrackRef.current = unsub;
   }
 
   /* ── GENERATE ── */
@@ -603,7 +614,7 @@ export default function App() {
         {view === "client" && trackData && (
           <div className="z1">
             <div className="res-wrap">
-              <div className="back-btn" onClick={() => { setTrackData(null); setTrackError(false); setTrackInput(""); }}>← {t("back")}</div>
+              <div className="back-btn" onClick={() => { if (unsubTrackRef.current) { unsubTrackRef.current(); unsubTrackRef.current = null; } setTrackData(null); setTrackError(false); setTrackInput(""); }}>← {t("back")}</div>
               <div className="top-card">
                 <div>
                   <div className="res-id">{trackId}</div>
