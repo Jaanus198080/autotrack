@@ -2,8 +2,23 @@
 <html lang="fr">
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="theme-color" content="#2278e8" />
+    <meta name="description" content="AutoTrack — Suivi de transport de véhicules en temps réel" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="apple-mobile-web-app-title" content="AutoTrack" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <link rel="manifest" href="%PUBLIC_URL%/manifest.json" />
+    <link rel="apple-touch-icon" href="https://api.dicebear.com/7.x/initials/svg?seed=AT&backgroundColor=2278e8&fontSize=40" />
     <title>AutoTrack — Suivi de transport</title>
+    <script>
+      if ('serviceWorker' in navigator) {
+        window.addEventListener('load', function() {
+          navigator.serviceWorker.register('/service-worker.js');
+        });
+      }
+    </script>
   </head>
   <body>
     <div id="root"></div>
