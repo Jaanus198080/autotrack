@@ -1,56 +1,47 @@
-// src/App.tsx
+// src/App.tsx — VERSION FINALE COMPLÈTE
 import { useState, useEffect, useCallback, useRef } from "react";
-import {
-  doc, getDoc, setDoc, collection, getDocs, onSnapshot
-} from "firebase/firestore";
-import {
-  signInWithEmailAndPassword, signOut, onAuthStateChanged, User
-} from "firebase/auth";
+import { doc, getDoc, setDoc, collection, getDocs, onSnapshot, deleteDoc } from "firebase/firestore";
+import { signInWithEmailAndPassword, signOut, onAuthStateChanged, User } from "firebase/auth";
 import { db, auth } from "./firebase";
-import { getStorage, ref, uploadBytes, getDownloadURL, listAll, deleteObject } from "firebase/storage";
-const storage = getStorage();
 import emailjs from "@emailjs/browser";
-import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, Legend } from "recharts";
+import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from "recharts";
 
 const EMAILJS_SERVICE = "service_tbg6vp7";
 const EMAILJS_TEMPLATE = "template_petii59";
 const EMAILJS_PUBLIC = "sycumEw72eiYqMsyK";
 
-/* ═══════════════════════════════════════════
-   TRANSLATIONS
-═══════════════════════════════════════════ */
+/* ═══════════════════ TRANSLATIONS ═══════════════════ */
 const T: Record<string, Record<string, string>> = {
-  fr: { flag:"🇫🇷", code:"FR", h1a:"Suivez votre", h1b:"véhicule", h1c:"en temps réel", h1sub:"Entrez votre numéro de suivi pour voir l'état de votre transport", btn_track:"SUIVRE →", hint:"Numéro reçu par email à la confirmation de commande", not_found:"❌ Numéro introuvable. Vérifiez et réessayez.", loading:"Chargement…", back:"Nouvelle recherche", prog:"Progression du transport", itin:"Itinéraire", tl:"Historique des événements", info:"Informations transport", eta_pre:"⏱ Arrivée estimée :", lbl_dep:"Départ", lbl_step:"Étape", lbl_pos:"Position actuelle", lbl_dest:"Destination", lbl_mt:"Mode transport", lbl_carr:"Transporteur", lbl_dd:"Date départ", lbl_eta:"Arrivée est.", lbl_vin:"VIN", lbl_pl:"Plaque", st0:"En attente", st1:"Chargé", st2:"En transit", st3:"Douane", st4:"Livraison", st5:"Livré", st0f:"En attente de chargement", st1f:"Véhicule chargé", st2f:"En transit", st3f:"Passage en douane", st4f:"Livraison en cours", st5f:"Livré ✓", adm_title:"Créer un suivi de transport", adm_sub:"Remplissez les informations pour générer un numéro de suivi", s_cli:"Informations Client", s_veh:"Véhicule", s_rou:"Itinéraire", l_name:"Nom complet", l_email:"Email", l_phone:"Téléphone", l_co:"Entreprise", l_veh:"Marque & Modèle", l_col:"Couleur", l_vin:"Numéro VIN", l_plate:"Immatriculation", l_from:"Adresse de départ (chargement)", l_to:"Adresse de livraison", l_dep:"Date de départ", l_arr:"Arrivée estimée", l_mode:"Mode de transport", l_carrier:"Transporteur", m1:"Camion porte-voiture", m2:"Transport maritime (RoRo)", m3:"Transport aérien cargo", m4:"Transport combiné", btn_gen:"🚗 GÉNÉRER LE NUMÉRO DE SUIVI", gen_ok:"✅ Numéro de suivi créé avec succès", btn_copy:"Copier le numéro", lbl_link:"🔗 Lien à envoyer au client :", link_note:"Le client verra uniquement ses informations — sans accès admin.", upd_h:"📍 Mettre à jour la position du transporteur", u_city:"Ville / Localisation actuelle", u_date:"Date de l'événement", u_time:"Heure", u_status:"Statut", u_note:"Note / Détail", btn_upd:"📡 ENVOYER LA MISE À JOUR", hist_h:"📦 Suivis actifs", th1:"N° Suivi", th2:"Client", th3:"Véhicule", th4:"Trajet", th5:"Statut", th6:"Entreprise", ft_tag:"Import Auto · Livraison mondiale · Votre confiance, notre mission", ft_r:"Tous droits réservés.", toast_gen:"✅ Suivi créé :", toast_cop:"📋 Copié !", toast_upd:"📡 Mise à jour envoyée !", err_fill:"⚠️ Champs obligatoires manquants", err_city:"⚠️ Entrez la ville actuelle", err_nosel:"⚠️ Aucun suivi sélectionné", sel:"Suivi sélectionné :", login_title:"Accès Administrateur", login_email:"Email", login_pass:"Mot de passe", login_btn:"SE CONNECTER", login_err:"Email ou mot de passe incorrect.", logout:"Déconnexion" },
-  en: { flag:"🇬🇧", code:"EN", h1a:"Track your", h1b:"vehicle", h1c:"in real time", h1sub:"Enter your tracking number to check your transport status", btn_track:"TRACK →", hint:"Tracking number received by email upon order confirmation", not_found:"❌ Number not found. Please check and try again.", loading:"Loading…", back:"New search", prog:"Transport progress", itin:"Route", tl:"Event history", info:"Transport information", eta_pre:"⏱ Estimated arrival:", lbl_dep:"Departure", lbl_step:"Stop", lbl_pos:"Current position", lbl_dest:"Destination", lbl_mt:"Transport mode", lbl_carr:"Carrier", lbl_dd:"Departure", lbl_eta:"Est. arrival", lbl_vin:"VIN", lbl_pl:"Plate", st0:"Waiting", st1:"Loaded", st2:"In transit", st3:"Customs", st4:"Delivery", st5:"Delivered", st0f:"Awaiting loading", st1f:"Vehicle loaded", st2f:"In transit", st3f:"Customs clearance", st4f:"Out for delivery", st5f:"Delivered ✓", adm_title:"Create a transport tracking", adm_sub:"Fill in the information to generate a tracking number", s_cli:"Client Information", s_veh:"Vehicle", s_rou:"Route", l_name:"Full name", l_email:"Email", l_phone:"Phone", l_co:"Company", l_veh:"Make & Model", l_col:"Color", l_vin:"VIN number", l_plate:"License plate", l_from:"Pickup address (loading)", l_to:"Delivery address", l_dep:"Departure date", l_arr:"Estimated arrival", l_mode:"Transport mode", l_carrier:"Carrier", m1:"Car transporter truck", m2:"Maritime transport (RoRo)", m3:"Air cargo", m4:"Combined transport", btn_gen:"🚗 GENERATE TRACKING NUMBER", gen_ok:"✅ Tracking number created", btn_copy:"Copy number", lbl_link:"🔗 Link to send to client:", link_note:"The client will only see their transport info — no admin access.", upd_h:"📍 Update carrier position", u_city:"City / Current location", u_date:"Event date", u_time:"Time", u_status:"Status", u_note:"Note / Detail", btn_upd:"📡 SEND UPDATE", hist_h:"📦 Active shipments", th1:"Tracking #", th2:"Client", th3:"Vehicle", th4:"Route", th5:"Status", th6:"Company", ft_tag:"Car Import · Global Delivery · Your Trust, Our Mission", ft_r:"All rights reserved.", toast_gen:"✅ Tracking created:", toast_cop:"📋 Copied!", toast_upd:"📡 Update sent!", err_fill:"⚠️ Required fields missing", err_city:"⚠️ Please enter current city", err_nosel:"⚠️ No tracking selected", sel:"Tracking selected:", login_title:"Admin Access", login_email:"Email", login_pass:"Password", login_btn:"SIGN IN", login_err:"Incorrect email or password.", logout:"Sign out" },
-  de: { flag:"🇩🇪", code:"DE", h1a:"Verfolgen Sie Ihr", h1b:"Fahrzeug", h1c:"in Echtzeit", h1sub:"Sendungsnummer eingeben, um den Transportstatus zu prüfen", btn_track:"VERFOLGEN →", hint:"Sendungsnummer per E-Mail erhalten", not_found:"❌ Nummer nicht gefunden.", loading:"Wird geladen…", back:"Neue Suche", prog:"Transportfortschritt", itin:"Route", tl:"Ereignisverlauf", info:"Transportinformationen", eta_pre:"⏱ Ankunft:", lbl_dep:"Abfahrt", lbl_step:"Stopp", lbl_pos:"Standort", lbl_dest:"Ziel", lbl_mt:"Transport", lbl_carr:"Spediteur", lbl_dd:"Abfahrt", lbl_eta:"Ankunft", lbl_vin:"VIN", lbl_pl:"Kennzeichen", st0:"Warten", st1:"Verladen", st2:"Unterwegs", st3:"Zoll", st4:"Zustellung", st5:"Zugestellt", st0f:"Warten auf Verladung", st1f:"Fahrzeug verladen", st2f:"Unterwegs", st3f:"Zollabfertigung", st4f:"Zustellung läuft", st5f:"Zugestellt ✓", adm_title:"Transport-Tracking erstellen", adm_sub:"Ausfüllen zum Generieren einer Sendungsnummer", s_cli:"Kundeninformationen", s_veh:"Fahrzeug", s_rou:"Route", l_name:"Vollständiger Name", l_email:"E-Mail", l_phone:"Telefon", l_co:"Unternehmen", l_veh:"Marke & Modell", l_col:"Farbe", l_vin:"VIN", l_plate:"Kennzeichen", l_from:"Abholadresse", l_to:"Lieferadresse", l_dep:"Abfahrtsdatum", l_arr:"Voraussichtliche Ankunft", l_mode:"Transportmittel", l_carrier:"Spediteur", m1:"Autotransporter-LKW", m2:"Seetransport (RoRo)", m3:"Luftfracht", m4:"Kombinierter Transport", btn_gen:"🚗 SENDUNGSNUMMER GENERIEREN", gen_ok:"✅ Sendungsnummer erstellt", btn_copy:"Kopieren", lbl_link:"🔗 Link für den Kunden:", link_note:"Der Kunde sieht nur seine Transportinformationen.", upd_h:"📍 Standort aktualisieren", u_city:"Stadt / Standort", u_date:"Datum", u_time:"Uhrzeit", u_status:"Status", u_note:"Notiz", btn_upd:"📡 UPDATE SENDEN", hist_h:"📦 Aktive Sendungen", th1:"Sendungs-Nr.", th2:"Kunde", th3:"Fahrzeug", th4:"Route", th5:"Status", th6:"Unternehmen", ft_tag:"Fahrzeugimport · Weltweite Lieferung · Ihr Vertrauen", ft_r:"Alle Rechte vorbehalten.", toast_gen:"✅ Sendung erstellt:", toast_cop:"📋 Kopiert!", toast_upd:"📡 Update gesendet!", err_fill:"⚠️ Pflichtfelder ausfüllen", err_city:"⚠️ Bitte Stadt eingeben", err_nosel:"⚠️ Keine Sendung ausgewählt", sel:"Sendung ausgewählt:", login_title:"Admin-Zugang", login_email:"E-Mail", login_pass:"Passwort", login_btn:"ANMELDEN", login_err:"Falsche E-Mail oder Passwort.", logout:"Abmelden" },
-  hr: { flag:"🇭🇷", code:"HR", h1a:"Pratite svoje", h1b:"vozilo", h1c:"u realnom vremenu", h1sub:"Unesite broj praćenja za provjeru statusa", btn_track:"PRATITI →", hint:"Broj praćenja primljen emailom", not_found:"❌ Broj nije pronađen.", loading:"Učitavanje…", back:"Nova pretraga", prog:"Napredak transporta", itin:"Ruta", tl:"Povijest događaja", info:"Informacije o transportu", eta_pre:"⏱ Dolazak:", lbl_dep:"Polazak", lbl_step:"Postaja", lbl_pos:"Pozicija", lbl_dest:"Odredište", lbl_mt:"Prijevoz", lbl_carr:"Prijevoznik", lbl_dd:"Polazak", lbl_eta:"Dolazak", lbl_vin:"VIN", lbl_pl:"Registracija", st0:"Čeka", st1:"Natovareno", st2:"U tranzitu", st3:"Carina", st4:"Dostava", st5:"Isporučeno", st0f:"Čeka se utovar", st1f:"Vozilo natovareno", st2f:"U tranzitu", st3f:"Carinjenje", st4f:"Dostava u tijeku", st5f:"Isporučeno ✓", adm_title:"Kreiranje praćenja", adm_sub:"Ispunite informacije za generiranje broja praćenja", s_cli:"Podaci o klijentu", s_veh:"Vozilo", s_rou:"Ruta", l_name:"Puno ime", l_email:"Email", l_phone:"Telefon", l_co:"Tvrtka", l_veh:"Marka i model", l_col:"Boja", l_vin:"VIN", l_plate:"Registracija", l_from:"Adresa preuzimanja", l_to:"Adresa dostave", l_dep:"Datum polaska", l_arr:"Procijenjeni dolazak", l_mode:"Prijevoz", l_carrier:"Prijevoznik", m1:"Kamion", m2:"Pomorski (RoRo)", m3:"Zračni teret", m4:"Kombinirani", btn_gen:"🚗 GENERIRAJ BROJ", gen_ok:"✅ Broj praćenja kreiran", btn_copy:"Kopirati", lbl_link:"🔗 Link za klijenta:", link_note:"Klijent vidi samo transportne podatke.", upd_h:"📍 Ažuriraj lokaciju", u_city:"Grad / Lokacija", u_date:"Datum", u_time:"Vrijeme", u_status:"Status", u_note:"Napomena", btn_upd:"📡 POŠALJI", hist_h:"📦 Aktivne pošiljke", th1:"Br.", th2:"Klijent", th3:"Vozilo", th4:"Ruta", th5:"Status", th6:"Tvrtka", ft_tag:"Uvoz automobila · Globalna dostava · Vaše povjerenje", ft_r:"Sva prava pridržana.", toast_gen:"✅ Kreiran:", toast_cop:"📋 Kopirano!", toast_upd:"📡 Ažurirano!", err_fill:"⚠️ Nedostaju polja", err_city:"⚠️ Unesite grad", err_nosel:"⚠️ Nije odabrano", sel:"Odabrano:", login_title:"Admin pristup", login_email:"Email", login_pass:"Lozinka", login_btn:"PRIJAVA", login_err:"Pogrešan email ili lozinka.", logout:"Odjava" },
-  it: { flag:"🇮🇹", code:"IT", h1a:"Segui il tuo", h1b:"veicolo", h1c:"in tempo reale", h1sub:"Inserisci il numero di tracciamento per controllare lo stato", btn_track:"TRACCIA →", hint:"Numero ricevuto via email", not_found:"❌ Numero non trovato.", loading:"Caricamento…", back:"Nuova ricerca", prog:"Avanzamento", itin:"Itinerario", tl:"Cronologia", info:"Informazioni", eta_pre:"⏱ Arrivo:", lbl_dep:"Partenza", lbl_step:"Tappa", lbl_pos:"Posizione", lbl_dest:"Destinazione", lbl_mt:"Trasporto", lbl_carr:"Vettore", lbl_dd:"Partenza", lbl_eta:"Arrivo", lbl_vin:"VIN", lbl_pl:"Targa", st0:"Attesa", st1:"Caricato", st2:"In transito", st3:"Dogana", st4:"Consegna", st5:"Consegnato", st0f:"In attesa di carico", st1f:"Veicolo caricato", st2f:"In transito", st3f:"Sdoganamento", st4f:"Consegna in corso", st5f:"Consegnato ✓", adm_title:"Crea tracciamento", adm_sub:"Compila le informazioni", s_cli:"Cliente", s_veh:"Veicolo", s_rou:"Itinerario", l_name:"Nome completo", l_email:"Email", l_phone:"Telefono", l_co:"Azienda", l_veh:"Marca e Modello", l_col:"Colore", l_vin:"VIN", l_plate:"Targa", l_from:"Indirizzo di partenza", l_to:"Indirizzo di consegna", l_dep:"Data partenza", l_arr:"Arrivo stimato", l_mode:"Modalità", l_carrier:"Vettore", m1:"Camion", m2:"Marittimo (RoRo)", m3:"Aereo cargo", m4:"Combinato", btn_gen:"🚗 GENERA NUMERO", gen_ok:"✅ Numero generato", btn_copy:"Copia", lbl_link:"🔗 Link cliente:", link_note:"Il cliente vede solo le sue informazioni.", upd_h:"📍 Aggiorna posizione", u_city:"Città", u_date:"Data", u_time:"Ora", u_status:"Stato", u_note:"Nota", btn_upd:"📡 INVIA", hist_h:"📦 Spedizioni attive", th1:"N°", th2:"Cliente", th3:"Veicolo", th4:"Percorso", th5:"Stato", th6:"Azienda", ft_tag:"Importazione Auto · Consegna Globale · La Tua Fiducia", ft_r:"Tutti i diritti riservati.", toast_gen:"✅ Creato:", toast_cop:"📋 Copiato!", toast_upd:"📡 Aggiornato!", err_fill:"⚠️ Campi mancanti", err_city:"⚠️ Inserisci città", err_nosel:"⚠️ Nessun tracciamento", sel:"Selezionato:", login_title:"Accesso Admin", login_email:"Email", login_pass:"Password", login_btn:"ACCEDI", login_err:"Email o password errati.", logout:"Esci" },
-  bg: { flag:"🇧🇬", code:"BG", h1a:"Проследете вашето", h1b:"превозно средство", h1c:"в реално време", h1sub:"Въведете номера за проследяване", btn_track:"СЛЕДИ →", hint:"Номерът е изпратен по имейл", not_found:"❌ Номерът не е намерен.", loading:"Зареждане…", back:"Ново търсене", prog:"Напредък", itin:"Маршрут", tl:"История", info:"Информация", eta_pre:"⏱ Пристигане:", lbl_dep:"Заминаване", lbl_step:"Спирка", lbl_pos:"Позиция", lbl_dest:"Дестинация", lbl_mt:"Транспорт", lbl_carr:"Превозвач", lbl_dd:"Заминаване", lbl_eta:"Пристигане", lbl_vin:"VIN", lbl_pl:"Регистрация", st0:"Изчаква", st1:"Натоварено", st2:"В транзит", st3:"Митница", st4:"Доставка", st5:"Доставено", st0f:"Изчаква товарене", st1f:"Натоварено", st2f:"В транзит", st3f:"Митническо оформление", st4f:"Доставката е в ход", st5f:"Доставено ✓", adm_title:"Създаване на проследяване", adm_sub:"Попълнете информацията", s_cli:"Клиент", s_veh:"Превозно средство", s_rou:"Маршрут", l_name:"Пълно име", l_email:"Имейл", l_phone:"Телефон", l_co:"Компания", l_veh:"Марка и модел", l_col:"Цвят", l_vin:"VIN", l_plate:"Регистрация", l_from:"Адрес за товарене", l_to:"Адрес за доставка", l_dep:"Дата", l_arr:"Пристигане", l_mode:"Транспорт", l_carrier:"Превозвач", m1:"Камион", m2:"Морски (RoRo)", m3:"Въздушен", m4:"Комбиниран", btn_gen:"🚗 ГЕНЕРИРАЙ", gen_ok:"✅ Номерът е създаден", btn_copy:"Копиране", lbl_link:"🔗 Линк за клиента:", link_note:"Клиентът вижда само своите данни.", upd_h:"📍 Актуализиране", u_city:"Град", u_date:"Дата", u_time:"Час", u_status:"Статус", u_note:"Бележка", btn_upd:"📡 ИЗПРАТИ", hist_h:"📦 Активни пратки", th1:"№", th2:"Клиент", th3:"Превозно средство", th4:"Маршрут", th5:"Статус", th6:"Компания", ft_tag:"Внос на автомобили · Глобална доставка · Вашето доверие", ft_r:"Всички права запазени.", toast_gen:"✅ Създадено:", toast_cop:"📋 Копирано!", toast_upd:"📡 Актуализирано!", err_fill:"⚠️ Попълнете полетата", err_city:"⚠️ Въведете град", err_nosel:"⚠️ Не е избрано", sel:"Избрано:", login_title:"Администраторски достъп", login_email:"Имейл", login_pass:"Парола", login_btn:"ВЛЕЗ", login_err:"Грешен имейл или парола.", logout:"Изход" },
-  ro: { flag:"🇷🇴", code:"RO", h1a:"Urmăriți-vă", h1b:"vehiculul", h1c:"în timp real", h1sub:"Introduceți numărul de urmărire", btn_track:"URMĂRIRE →", hint:"Numărul a fost trimis prin email", not_found:"❌ Numărul nu a fost găsit.", loading:"Se încarcă…", back:"Căutare nouă", prog:"Progresul", itin:"Itinerar", tl:"Istoricul", info:"Informații", eta_pre:"⏱ Sosire:", lbl_dep:"Plecare", lbl_step:"Oprire", lbl_pos:"Poziție", lbl_dest:"Destinație", lbl_mt:"Transport", lbl_carr:"Transportator", lbl_dd:"Plecare", lbl_eta:"Sosire", lbl_vin:"VIN", lbl_pl:"Înmatriculare", st0:"Așteptare", st1:"Încărcat", st2:"În tranzit", st3:"Vamă", st4:"Livrare", st5:"Livrat", st0f:"În așteptare încărcare", st1f:"Vehicul încărcat", st2f:"În tranzit", st3f:"Vămuire", st4f:"Livrare în curs", st5f:"Livrat ✓", adm_title:"Creare urmărire", adm_sub:"Completați informațiile", s_cli:"Client", s_veh:"Vehicul", s_rou:"Itinerar", l_name:"Nume complet", l_email:"Email", l_phone:"Telefon", l_co:"Companie", l_veh:"Marcă și Model", l_col:"Culoare", l_vin:"VIN", l_plate:"Înmatriculare", l_from:"Adresă plecare", l_to:"Adresă livrare", l_dep:"Data plecare", l_arr:"Sosire estimată", l_mode:"Transport", l_carrier:"Transportator", m1:"Camion", m2:"Maritim (RoRo)", m3:"Aerian cargo", m4:"Combinat", btn_gen:"🚗 GENEREAZĂ NUMĂRUL", gen_ok:"✅ Numărul a fost creat", btn_copy:"Copiați", lbl_link:"🔗 Link client:", link_note:"Clientul vede doar informațiile sale.", upd_h:"📍 Actualizați poziția", u_city:"Orașul", u_date:"Data", u_time:"Ora", u_status:"Status", u_note:"Notă", btn_upd:"📡 TRIMITE", hist_h:"📦 Expedieri active", th1:"Nr.", th2:"Client", th3:"Vehicul", th4:"Traseu", th5:"Status", th6:"Companie", ft_tag:"Import Auto · Livrare globală · Încrederea dvs.", ft_r:"Toate drepturile rezervate.", toast_gen:"✅ Creat:", toast_cop:"📋 Copiat!", toast_upd:"📡 Actualizat!", err_fill:"⚠️ Câmpuri lipsesc", err_city:"⚠️ Introduceți orașul", err_nosel:"⚠️ Nicio urmărire", sel:"Selectat:", login_title:"Acces Administrator", login_email:"Email", login_pass:"Parolă", login_btn:"CONECTARE", login_err:"Email sau parolă incorectă.", logout:"Deconectare" }
+  fr: { flag:"🇫🇷", code:"FR", h1a:"Suivez votre", h1b:"véhicule", h1c:"en temps réel", h1sub:"Entrez votre numéro de suivi pour voir l'état de votre transport", btn_track:"SUIVRE →", hint:"Numéro reçu par email à la confirmation de commande", not_found:"❌ Numéro introuvable. Vérifiez et réessayez.", loading:"Chargement…", back:"Nouvelle recherche", prog:"Progression du transport", itin:"Itinéraire", tl:"Historique des événements", info:"Informations transport", eta_pre:"⏱ Arrivée estimée :", lbl_dep:"Départ", lbl_step:"Étape", lbl_pos:"Position actuelle", lbl_dest:"Destination", lbl_mt:"Mode transport", lbl_carr:"Transporteur", lbl_dd:"Date départ", lbl_eta:"Arrivée est.", lbl_vin:"VIN", lbl_pl:"Plaque", st0:"En attente", st1:"Chargé", st2:"En transit", st3:"Douane", st4:"Livraison", st5:"Livré", st6:"Suspendu", st0f:"En attente de chargement", st1f:"Véhicule chargé", st2f:"En transit", st3f:"Passage en douane", st4f:"Livraison en cours", st5f:"Livré ✓", st6f:"⚠️ Suspendu — Défaut de paiement", adm_title:"Créer un suivi de transport", adm_sub:"Remplissez les informations pour générer un numéro de suivi", s_cli:"Informations Client", s_veh:"Véhicule", s_rou:"Itinéraire", l_name:"Nom complet", l_email:"Email", l_phone:"Téléphone", l_co:"Entreprise", l_veh:"Marque & Modèle", l_col:"Couleur", l_vin:"Numéro VIN", l_plate:"Immatriculation", l_from:"Adresse de départ", l_to:"Adresse de livraison", l_dep:"Date de départ", l_arr:"Arrivée estimée", l_mode:"Mode de transport", l_carrier:"Transporteur", m1:"Camion porte-voiture", m2:"Transport maritime (RoRo)", m3:"Transport aérien cargo", m4:"Transport combiné", btn_gen:"🚗 GÉNÉRER LE NUMÉRO DE SUIVI", gen_ok:"✅ Numéro de suivi créé avec succès", btn_copy:"Copier le numéro", lbl_link:"🔗 Lien à envoyer au client :", link_note:"Le client verra uniquement ses informations — sans accès admin.", upd_h:"📍 Mettre à jour la position", u_city:"Ville / Localisation actuelle", u_date:"Date", u_time:"Heure", u_status:"Statut", u_note:"Note / Détail", btn_upd:"📡 ENVOYER LA MISE À JOUR", hist_h:"📦 Suivis actifs", th1:"N° Suivi", th2:"Client", th3:"Véhicule", th4:"Trajet", th5:"Statut", th6:"Entreprise", ft_tag:"Import Auto · Livraison mondiale · Votre confiance, notre mission", ft_r:"Tous droits réservés.", toast_gen:"✅ Suivi créé :", toast_cop:"📋 Copié !", toast_upd:"📡 Mise à jour envoyée !", err_fill:"⚠️ Champs obligatoires manquants", err_city:"⚠️ Entrez la ville actuelle", err_nosel:"⚠️ Aucun suivi sélectionné", sel:"Suivi sélectionné :", login_title:"Accès Administrateur", login_email:"Email", login_pass:"Mot de passe", login_btn:"SE CONNECTER", login_err:"Email ou mot de passe incorrect.", logout:"Déconnexion", susp_msg:"⚠️ Votre livraison est temporairement suspendue. Veuillez contacter notre service client pour régulariser votre situation.", susp_contact:"Contacter le service client" },
+  en: { flag:"🇬🇧", code:"EN", h1a:"Track your", h1b:"vehicle", h1c:"in real time", h1sub:"Enter your tracking number to check your transport status", btn_track:"TRACK →", hint:"Number received by email upon order confirmation", not_found:"❌ Number not found. Please check and try again.", loading:"Loading…", back:"New search", prog:"Transport progress", itin:"Route", tl:"Event history", info:"Transport information", eta_pre:"⏱ Estimated arrival:", lbl_dep:"Departure", lbl_step:"Stop", lbl_pos:"Current position", lbl_dest:"Destination", lbl_mt:"Transport mode", lbl_carr:"Carrier", lbl_dd:"Departure", lbl_eta:"Est. arrival", lbl_vin:"VIN", lbl_pl:"Plate", st0:"Waiting", st1:"Loaded", st2:"In transit", st3:"Customs", st4:"Delivery", st5:"Delivered", st6:"Suspended", st0f:"Awaiting loading", st1f:"Vehicle loaded", st2f:"In transit", st3f:"Customs clearance", st4f:"Out for delivery", st5f:"Delivered ✓", st6f:"⚠️ Suspended — Payment issue", adm_title:"Create transport tracking", adm_sub:"Fill in the information to generate a tracking number", s_cli:"Client Information", s_veh:"Vehicle", s_rou:"Route", l_name:"Full name", l_email:"Email", l_phone:"Phone", l_co:"Company", l_veh:"Make & Model", l_col:"Color", l_vin:"VIN", l_plate:"License plate", l_from:"Pickup address", l_to:"Delivery address", l_dep:"Departure date", l_arr:"Estimated arrival", l_mode:"Transport mode", l_carrier:"Carrier", m1:"Car transporter truck", m2:"Maritime (RoRo)", m3:"Air cargo", m4:"Combined", btn_gen:"🚗 GENERATE TRACKING NUMBER", gen_ok:"✅ Tracking number created", btn_copy:"Copy number", lbl_link:"🔗 Link to send to client:", link_note:"The client will only see their info — no admin access.", upd_h:"📍 Update position", u_city:"City / Location", u_date:"Date", u_time:"Time", u_status:"Status", u_note:"Note", btn_upd:"📡 SEND UPDATE", hist_h:"📦 Active shipments", th1:"Tracking #", th2:"Client", th3:"Vehicle", th4:"Route", th5:"Status", th6:"Company", ft_tag:"Car Import · Global Delivery · Your Trust, Our Mission", ft_r:"All rights reserved.", toast_gen:"✅ Created:", toast_cop:"📋 Copied!", toast_upd:"📡 Updated!", err_fill:"⚠️ Required fields missing", err_city:"⚠️ Enter current city", err_nosel:"⚠️ No tracking selected", sel:"Selected:", login_title:"Admin Access", login_email:"Email", login_pass:"Password", login_btn:"SIGN IN", login_err:"Incorrect email or password.", logout:"Sign out", susp_msg:"⚠️ Your delivery is temporarily suspended. Please contact our customer service to resolve your situation.", susp_contact:"Contact customer service" },
+  de: { flag:"🇩🇪", code:"DE", h1a:"Verfolgen Sie Ihr", h1b:"Fahrzeug", h1c:"in Echtzeit", h1sub:"Sendungsnummer eingeben", btn_track:"VERFOLGEN →", hint:"Nummer per E-Mail erhalten", not_found:"❌ Nummer nicht gefunden.", loading:"Wird geladen…", back:"Neue Suche", prog:"Fortschritt", itin:"Route", tl:"Verlauf", info:"Informationen", eta_pre:"⏱ Ankunft:", lbl_dep:"Abfahrt", lbl_step:"Stopp", lbl_pos:"Standort", lbl_dest:"Ziel", lbl_mt:"Transport", lbl_carr:"Spediteur", lbl_dd:"Abfahrt", lbl_eta:"Ankunft", lbl_vin:"VIN", lbl_pl:"Kennzeichen", st0:"Warten", st1:"Verladen", st2:"Unterwegs", st3:"Zoll", st4:"Zustellung", st5:"Zugestellt", st6:"Ausgesetzt", st0f:"Warten auf Verladung", st1f:"Fahrzeug verladen", st2f:"Unterwegs", st3f:"Zollabfertigung", st4f:"Zustellung läuft", st5f:"Zugestellt ✓", st6f:"⚠️ Ausgesetzt — Zahlungsproblem", adm_title:"Tracking erstellen", adm_sub:"Daten eingeben", s_cli:"Kunde", s_veh:"Fahrzeug", s_rou:"Route", l_name:"Name", l_email:"E-Mail", l_phone:"Telefon", l_co:"Unternehmen", l_veh:"Marke & Modell", l_col:"Farbe", l_vin:"VIN", l_plate:"Kennzeichen", l_from:"Abholadresse", l_to:"Lieferadresse", l_dep:"Abfahrt", l_arr:"Ankunft", l_mode:"Transport", l_carrier:"Spediteur", m1:"LKW", m2:"Seetransport", m3:"Luftfracht", m4:"Kombiniert", btn_gen:"🚗 NUMMER GENERIEREN", gen_ok:"✅ Nummer erstellt", btn_copy:"Kopieren", lbl_link:"🔗 Link:", link_note:"Kunde sieht nur seine Daten.", upd_h:"📍 Standort aktualisieren", u_city:"Stadt", u_date:"Datum", u_time:"Uhrzeit", u_status:"Status", u_note:"Notiz", btn_upd:"📡 SENDEN", hist_h:"📦 Sendungen", th1:"Nr.", th2:"Kunde", th3:"Fahrzeug", th4:"Route", th5:"Status", th6:"Firma", ft_tag:"Fahrzeugimport · Weltweite Lieferung", ft_r:"Alle Rechte vorbehalten.", toast_gen:"✅ Erstellt:", toast_cop:"📋 Kopiert!", toast_upd:"📡 Aktualisiert!", err_fill:"⚠️ Fehlende Felder", err_city:"⚠️ Stadt eingeben", err_nosel:"⚠️ Nichts ausgewählt", sel:"Ausgewählt:", login_title:"Admin-Zugang", login_email:"E-Mail", login_pass:"Passwort", login_btn:"ANMELDEN", login_err:"Falsche Daten.", logout:"Abmelden", susp_msg:"⚠️ Ihre Lieferung ist vorübergehend ausgesetzt. Bitte kontaktieren Sie unseren Kundendienst.", susp_contact:"Kundendienst kontaktieren" },
+  hr: { flag:"🇭🇷", code:"HR", h1a:"Pratite svoje", h1b:"vozilo", h1c:"u realnom vremenu", h1sub:"Unesite broj praćenja", btn_track:"PRATITI →", hint:"Broj primljen emailom", not_found:"❌ Broj nije pronađen.", loading:"Učitavanje…", back:"Nova pretraga", prog:"Napredak", itin:"Ruta", tl:"Povijest", info:"Informacije", eta_pre:"⏱ Dolazak:", lbl_dep:"Polazak", lbl_step:"Postaja", lbl_pos:"Pozicija", lbl_dest:"Odredište", lbl_mt:"Prijevoz", lbl_carr:"Prijevoznik", lbl_dd:"Polazak", lbl_eta:"Dolazak", lbl_vin:"VIN", lbl_pl:"Registracija", st0:"Čeka", st1:"Natovareno", st2:"U tranzitu", st3:"Carina", st4:"Dostava", st5:"Isporučeno", st6:"Suspendirano", st0f:"Čeka utovar", st1f:"Natovareno", st2f:"U tranzitu", st3f:"Carinjenje", st4f:"Dostava u tijeku", st5f:"Isporučeno ✓", st6f:"⚠️ Suspendirano — Problem s plaćanjem", adm_title:"Kreiranje praćenja", adm_sub:"Ispunite podatke", s_cli:"Klijent", s_veh:"Vozilo", s_rou:"Ruta", l_name:"Ime", l_email:"Email", l_phone:"Telefon", l_co:"Tvrtka", l_veh:"Marka", l_col:"Boja", l_vin:"VIN", l_plate:"Reg.", l_from:"Preuzimanje", l_to:"Dostava", l_dep:"Datum", l_arr:"Dolazak", l_mode:"Prijevoz", l_carrier:"Prijevoznik", m1:"Kamion", m2:"Pomorski", m3:"Zračni", m4:"Kombinirani", btn_gen:"🚗 GENERIRAJ", gen_ok:"✅ Kreiran", btn_copy:"Kopirati", lbl_link:"🔗 Link:", link_note:"Klijent vidi samo svoje podatke.", upd_h:"📍 Ažuriraj lokaciju", u_city:"Grad", u_date:"Datum", u_time:"Vrijeme", u_status:"Status", u_note:"Napomena", btn_upd:"📡 POŠALJI", hist_h:"📦 Pošiljke", th1:"Br.", th2:"Klijent", th3:"Vozilo", th4:"Ruta", th5:"Status", th6:"Tvrtka", ft_tag:"Uvoz automobila · Globalna dostava", ft_r:"Sva prava pridržana.", toast_gen:"✅ Kreiran:", toast_cop:"📋 Kopirano!", toast_upd:"📡 Ažurirano!", err_fill:"⚠️ Nedostaju polja", err_city:"⚠️ Unesite grad", err_nosel:"⚠️ Nije odabrano", sel:"Odabrano:", login_title:"Admin pristup", login_email:"Email", login_pass:"Lozinka", login_btn:"PRIJAVA", login_err:"Pogrešni podaci.", logout:"Odjava", susp_msg:"⚠️ Vaša dostava je privremeno obustavljena. Kontaktirajte korisničku službu.", susp_contact:"Kontaktirajte podršku" },
+  it: { flag:"🇮🇹", code:"IT", h1a:"Segui il tuo", h1b:"veicolo", h1c:"in tempo reale", h1sub:"Inserisci il numero di tracciamento", btn_track:"TRACCIA →", hint:"Numero ricevuto via email", not_found:"❌ Numero non trovato.", loading:"Caricamento…", back:"Nuova ricerca", prog:"Avanzamento", itin:"Itinerario", tl:"Cronologia", info:"Informazioni", eta_pre:"⏱ Arrivo:", lbl_dep:"Partenza", lbl_step:"Tappa", lbl_pos:"Posizione", lbl_dest:"Destinazione", lbl_mt:"Trasporto", lbl_carr:"Vettore", lbl_dd:"Partenza", lbl_eta:"Arrivo", lbl_vin:"VIN", lbl_pl:"Targa", st0:"Attesa", st1:"Caricato", st2:"In transito", st3:"Dogana", st4:"Consegna", st5:"Consegnato", st6:"Sospeso", st0f:"In attesa", st1f:"Caricato", st2f:"In transito", st3f:"Sdoganamento", st4f:"Consegna in corso", st5f:"Consegnato ✓", st6f:"⚠️ Sospeso — Problema di pagamento", adm_title:"Crea tracciamento", adm_sub:"Compila i dati", s_cli:"Cliente", s_veh:"Veicolo", s_rou:"Itinerario", l_name:"Nome", l_email:"Email", l_phone:"Telefono", l_co:"Azienda", l_veh:"Marca", l_col:"Colore", l_vin:"VIN", l_plate:"Targa", l_from:"Partenza", l_to:"Consegna", l_dep:"Data", l_arr:"Arrivo", l_mode:"Trasporto", l_carrier:"Vettore", m1:"Camion", m2:"Marittimo", m3:"Aereo", m4:"Combinato", btn_gen:"🚗 GENERA", gen_ok:"✅ Creato", btn_copy:"Copia", lbl_link:"🔗 Link:", link_note:"Il cliente vede solo i suoi dati.", upd_h:"📍 Aggiorna posizione", u_city:"Città", u_date:"Data", u_time:"Ora", u_status:"Stato", u_note:"Nota", btn_upd:"📡 INVIA", hist_h:"📦 Spedizioni", th1:"N°", th2:"Cliente", th3:"Veicolo", th4:"Percorso", th5:"Stato", th6:"Azienda", ft_tag:"Importazione Auto · Consegna Globale", ft_r:"Tutti i diritti riservati.", toast_gen:"✅ Creato:", toast_cop:"📋 Copiato!", toast_upd:"📡 Aggiornato!", err_fill:"⚠️ Campi mancanti", err_city:"⚠️ Inserisci città", err_nosel:"⚠️ Nessun tracciamento", sel:"Selezionato:", login_title:"Accesso Admin", login_email:"Email", login_pass:"Password", login_btn:"ACCEDI", login_err:"Dati errati.", logout:"Esci", susp_msg:"⚠️ La sua consegna è temporaneamente sospesa. Si prega di contattare il servizio clienti.", susp_contact:"Contatta il servizio clienti" },
+  ro: { flag:"🇷🇴", code:"RO", h1a:"Urmăriți-vă", h1b:"vehiculul", h1c:"în timp real", h1sub:"Introduceți numărul de urmărire", btn_track:"URMĂRIRE →", hint:"Numărul trimis prin email", not_found:"❌ Numărul nu a fost găsit.", loading:"Se încarcă…", back:"Căutare nouă", prog:"Progresul", itin:"Itinerar", tl:"Istoricul", info:"Informații", eta_pre:"⏱ Sosire:", lbl_dep:"Plecare", lbl_step:"Oprire", lbl_pos:"Poziție", lbl_dest:"Destinație", lbl_mt:"Transport", lbl_carr:"Transportator", lbl_dd:"Plecare", lbl_eta:"Sosire", lbl_vin:"VIN", lbl_pl:"Înmatriculare", st0:"Așteptare", st1:"Încărcat", st2:"În tranzit", st3:"Vamă", st4:"Livrare", st5:"Livrat", st6:"Suspendat", st0f:"În așteptare", st1f:"Încărcat", st2f:"În tranzit", st3f:"Vămuire", st4f:"Livrare în curs", st5f:"Livrat ✓", st6f:"⚠️ Suspendat — Problemă de plată", adm_title:"Creare urmărire", adm_sub:"Completați informațiile", s_cli:"Client", s_veh:"Vehicul", s_rou:"Itinerar", l_name:"Nume", l_email:"Email", l_phone:"Telefon", l_co:"Companie", l_veh:"Marcă", l_col:"Culoare", l_vin:"VIN", l_plate:"Înmatriculare", l_from:"Plecare", l_to:"Livrare", l_dep:"Data", l_arr:"Sosire", l_mode:"Transport", l_carrier:"Transportator", m1:"Camion", m2:"Maritim", m3:"Aerian", m4:"Combinat", btn_gen:"🚗 GENEREAZĂ", gen_ok:"✅ Creat", btn_copy:"Copiați", lbl_link:"🔗 Link:", link_note:"Clientul vede doar datele sale.", upd_h:"📍 Actualizați poziția", u_city:"Orașul", u_date:"Data", u_time:"Ora", u_status:"Status", u_note:"Notă", btn_upd:"📡 TRIMITE", hist_h:"📦 Expedieri", th1:"Nr.", th2:"Client", th3:"Vehicul", th4:"Traseu", th5:"Status", th6:"Companie", ft_tag:"Import Auto · Livrare globală", ft_r:"Toate drepturile rezervate.", toast_gen:"✅ Creat:", toast_cop:"📋 Copiat!", toast_upd:"📡 Actualizat!", err_fill:"⚠️ Câmpuri lipsesc", err_city:"⚠️ Introduceți orașul", err_nosel:"⚠️ Nicio urmărire", sel:"Selectat:", login_title:"Acces Administrator", login_email:"Email", login_pass:"Parolă", login_btn:"CONECTARE", login_err:"Date incorecte.", logout:"Deconectare", susp_msg:"⚠️ Livrarea dvs. este temporar suspendată. Vă rugăm să contactați serviciul clienți.", susp_contact:"Contactați serviciul clienți" },
+  bg: { flag:"🇧🇬", code:"BG", h1a:"Проследете", h1b:"превозното средство", h1c:"в реално време", h1sub:"Въведете номера за проследяване", btn_track:"СЛЕДИ →", hint:"Номерът е изпратен по имейл", not_found:"❌ Не е намерен.", loading:"Зареждане…", back:"Ново търсене", prog:"Напредък", itin:"Маршрут", tl:"История", info:"Информация", eta_pre:"⏱ Пристигане:", lbl_dep:"Заминаване", lbl_step:"Спирка", lbl_pos:"Позиция", lbl_dest:"Дестинация", lbl_mt:"Транспорт", lbl_carr:"Превозвач", lbl_dd:"Заминаване", lbl_eta:"Пристигане", lbl_vin:"VIN", lbl_pl:"Регистрация", st0:"Изчаква", st1:"Натоварено", st2:"В транзит", st3:"Митница", st4:"Доставка", st5:"Доставено", st6:"Спряно", st0f:"Изчаква товарене", st1f:"Натоварено", st2f:"В транзит", st3f:"Митническо", st4f:"Доставка", st5f:"Доставено ✓", st6f:"⚠️ Спряно — Проблем с плащане", adm_title:"Създаване на проследяване", adm_sub:"Попълнете данните", s_cli:"Клиент", s_veh:"Превозно средство", s_rou:"Маршрут", l_name:"Име", l_email:"Имейл", l_phone:"Телефон", l_co:"Компания", l_veh:"Марка", l_col:"Цвят", l_vin:"VIN", l_plate:"Регистрация", l_from:"Товарене", l_to:"Доставка", l_dep:"Дата", l_arr:"Пристигане", l_mode:"Транспорт", l_carrier:"Превозвач", m1:"Камион", m2:"Морски", m3:"Въздушен", m4:"Комбиниран", btn_gen:"🚗 ГЕНЕРИРАЙ", gen_ok:"✅ Създадено", btn_copy:"Копиране", lbl_link:"🔗 Линк:", link_note:"Клиентът вижда само своите данни.", upd_h:"📍 Актуализиране", u_city:"Град", u_date:"Дата", u_time:"Час", u_status:"Статус", u_note:"Бележка", btn_upd:"📡 ИЗПРАТИ", hist_h:"📦 Пратки", th1:"№", th2:"Клиент", th3:"Превозно средство", th4:"Маршрут", th5:"Статус", th6:"Компания", ft_tag:"Внос на автомобили · Глобална доставка", ft_r:"Всички права запазени.", toast_gen:"✅ Създадено:", toast_cop:"📋 Копирано!", toast_upd:"📡 Актуализирано!", err_fill:"⚠️ Попълнете полетата", err_city:"⚠️ Въведете град", err_nosel:"⚠️ Не е избрано", sel:"Избрано:", login_title:"Администраторски достъп", login_email:"Имейл", login_pass:"Парола", login_btn:"ВЛЕЗ", login_err:"Грешни данни.", logout:"Изход", susp_msg:"⚠️ Доставката е временно спряна. Моля свържете се с нашия екип.", susp_contact:"Свържете се с нас" }
 };
 
-/* ═══════════════════════════════════════════
-   STYLES
-═══════════════════════════════════════════ */
+/* ═══════════════════ STYLES ═══════════════════ */
 const css = `
   @import url('https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;600;700&family=Exo+2:wght@300;400;500;600;700&display=swap');
   *{margin:0;padding:0;box-sizing:border-box;}
-  :root{--blue:#1a6fd4;--orange:#e85d04;--green:#5a9e2f;--bg:#080c18;--card:rgba(255,255,255,0.035);--border:rgba(255,255,255,0.08);--text:#e8eaf0;--muted:#7a8499;}
+  :root{--blue:#1a6fd4;--orange:#e85d04;--green:#5a9e2f;--red:#d42020;--bg:#080c18;--card:rgba(255,255,255,0.035);--border:rgba(255,255,255,0.08);--text:#e8eaf0;--muted:#7a8499;}
   body{font-family:'Exo 2',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;}
   .at-root{position:relative;min-height:100vh;display:flex;flex-direction:column;}
   .bg-grid{position:fixed;inset:0;background:linear-gradient(rgba(26,111,212,.03) 1px,transparent 1px),linear-gradient(90deg,rgba(26,111,212,.03) 1px,transparent 1px);background-size:40px 40px;pointer-events:none;z-index:0;}
   .bg-glow{position:fixed;inset:0;background:radial-gradient(ellipse 80% 50% at 50% -10%,rgba(26,111,212,.14),transparent);pointer-events:none;z-index:0;}
   .z1{position:relative;z-index:1;}
+  /* HEADER */
   .hdr{position:sticky;top:0;z-index:50;padding:0 24px;height:64px;display:flex;align-items:center;justify-content:space-between;background:rgba(8,12,24,.97);border-bottom:1px solid var(--border);backdrop-filter:blur(20px);gap:12px;}
   .hdr-badges{display:flex;align-items:center;gap:8px;}
   .bdg{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:11px;letter-spacing:.07em;padding:3px 9px;border-radius:4px;border:1px solid;}
   .bdg-ar{color:var(--orange);border-color:var(--orange);background:rgba(232,93,4,.08);}
   .bdg-ad{color:var(--blue);border-color:var(--blue);background:rgba(26,111,212,.08);}
   .hdr-brand{text-align:center;flex:1;}
-  .hdr-title{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:20px;letter-spacing:.22em;color:#fff;}
+  .hdr-title{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:24px;letter-spacing:.28em;color:#fff;}
   .hdr-title span{color:var(--blue);}
-  .hdr-sub{font-size:9px;letter-spacing:.12em;color:var(--muted);text-transform:uppercase;}
-  .hdr-right{display:flex;align-items:center;gap:6px;}
+
+  .hdr-right{display:flex;align-items:center;gap:6px;flex-wrap:wrap;}
   .lang-wrap{position:relative;}
   .lang-btn{font-size:12px;font-weight:600;padding:6px 10px;border-radius:6px;border:1px solid var(--border);background:var(--card);color:var(--text);cursor:pointer;display:flex;align-items:center;gap:4px;font-family:'Exo 2',sans-serif;}
   .lang-btn:hover{border-color:var(--blue);}
@@ -61,6 +52,7 @@ const css = `
   .nav-btn{font-family:'Exo 2',sans-serif;font-size:12px;font-weight:600;padding:7px 13px;border-radius:6px;border:1px solid var(--border);background:var(--card);color:var(--muted);cursor:pointer;white-space:nowrap;transition:all .2s;}
   .nav-btn:hover,.nav-btn.active{border-color:var(--blue);color:var(--blue);background:rgba(26,111,212,.1);}
   .op-chip{display:inline-flex;align-items:center;gap:5px;background:rgba(232,93,4,.1);border:1px solid rgba(232,93,4,.3);color:var(--orange);font-size:11px;font-weight:700;letter-spacing:.09em;padding:5px 11px;border-radius:30px;white-space:nowrap;}
+  /* HERO */
   .hero{text-align:center;padding:72px 20px 52px;}
   .hero h1{font-family:'Rajdhani',sans-serif;font-size:clamp(26px,5vw,52px);font-weight:700;letter-spacing:.05em;line-height:1.1;margin-bottom:10px;}
   .hero h1 .ac{color:var(--blue);}
@@ -75,18 +67,19 @@ const css = `
   .btn-blue:disabled{opacity:.5;cursor:not-allowed;transform:none;}
   .s-hint{font-size:11px;color:var(--muted);margin-top:10px;text-align:center;}
   .err-msg{margin-top:13px;background:rgba(232,93,4,.1);border:1px solid rgba(232,93,4,.3);border-radius:8px;padding:10px 14px;font-size:13px;color:var(--orange);text-align:center;}
+  /* RESULT */
   .res-wrap{max-width:880px;margin:0 auto;padding:32px 20px 60px;}
   .back-btn{display:inline-flex;align-items:center;gap:7px;font-size:13px;color:var(--muted);cursor:pointer;border:1px solid var(--border);padding:7px 13px;border-radius:8px;background:var(--card);margin-bottom:18px;transition:all .2s;}
   .back-btn:hover{color:var(--text);border-color:var(--blue);}
   .top-card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:22px 26px;margin-bottom:14px;display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:14px;}
   .res-id{font-family:'Rajdhani',sans-serif;font-size:23px;font-weight:700;letter-spacing:.15em;color:var(--blue);margin-bottom:4px;}
   .res-route{font-size:13px;color:var(--muted);margin-bottom:9px;}
-  .res-route b{color:var(--text);}
   .sbadge{display:inline-flex;align-items:center;gap:7px;padding:7px 15px;border-radius:30px;font-family:'Rajdhani',sans-serif;font-size:13px;font-weight:700;letter-spacing:.08em;}
   .s-wait{background:rgba(122,132,153,.12);border:1px solid rgba(122,132,153,.3);color:var(--muted);}
   .s-transit{background:rgba(26,111,212,.15);border:1px solid rgba(26,111,212,.4);color:var(--blue);}
   .s-customs{background:rgba(232,93,4,.15);border:1px solid rgba(232,93,4,.4);color:var(--orange);}
   .s-done{background:rgba(90,158,47,.15);border:1px solid rgba(90,158,47,.4);color:var(--green);}
+  .s-susp{background:rgba(212,32,32,.15);border:1px solid rgba(212,32,32,.4);color:var(--red);}
   .sdot{width:7px;height:7px;border-radius:50%;background:currentColor;animation:pulse 1.5s infinite;}
   @keyframes pulse{0%,100%{opacity:1;transform:scale(1);}50%{opacity:.5;transform:scale(1.3);}}
   .res-right{text-align:right;}
@@ -94,26 +87,38 @@ const css = `
   .res-veh{font-size:13px;color:var(--muted);}
   .res-eta{font-size:13px;color:var(--green);margin-top:5px;font-weight:600;}
   .res-co{font-size:11px;color:var(--muted);margin-top:3px;}
+  /* SUSPENSION BANNER */
+  .susp-banner{background:rgba(212,32,32,.1);border:1px solid rgba(212,32,32,.4);border-radius:14px;padding:20px 22px;margin-bottom:14px;display:flex;flex-direction:column;gap:12px;}
+  .susp-banner p{font-size:14px;font-weight:600;color:#ff6b6b;line-height:1.5;}
+  .susp-contact-btn{display:inline-flex;align-items:center;gap:7px;font-size:13px;font-weight:700;padding:9px 18px;border-radius:8px;border:1px solid rgba(212,32,32,.4);background:rgba(212,32,32,.15);color:#ff6b6b;cursor:pointer;width:fit-content;transition:all .2s;}
+  .susp-contact-btn:hover{background:rgba(212,32,32,.25);}
+  /* PROGRESS */
   .prog-card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:18px 22px;margin-bottom:14px;}
   .ctitle{font-family:'Rajdhani',sans-serif;font-size:11px;font-weight:700;letter-spacing:.14em;color:var(--muted);text-transform:uppercase;margin-bottom:12px;display:flex;align-items:center;gap:8px;}
   .ctitle::after{content:'';flex:1;height:1px;background:var(--border);}
   .pbar{background:rgba(255,255,255,.06);border-radius:6px;height:7px;overflow:hidden;}
   .pfill{height:100%;border-radius:6px;background:linear-gradient(90deg,var(--green),var(--blue),var(--orange));transition:width .8s ease;}
+  .pfill-susp{background:linear-gradient(90deg,var(--red),#8b0000);}
   .plabels{display:flex;justify-content:space-between;margin-top:7px;font-size:10px;color:var(--muted);}
   .ppct{color:var(--blue);font-weight:700;}
   .steps-row{display:flex;align-items:flex-start;justify-content:space-between;margin-top:16px;position:relative;}
-  .steps-row::before{content:'';position:absolute;top:14px;left:8%;right:8%;height:2px;background:var(--border);z-index:0;}
+  .steps-row::before{content:'';position:absolute;top:14px;left:6%;right:6%;height:2px;background:var(--border);z-index:0;}
   .step-item{display:flex;flex-direction:column;align-items:center;gap:6px;flex:1;position:relative;z-index:1;}
   .step-dot{width:28px;height:28px;border-radius:50%;border:2px solid;background:var(--bg);display:flex;align-items:center;justify-content:center;font-size:11px;}
   .sd-done{border-color:var(--green);background:rgba(90,158,47,.15);color:var(--green);}
   .sd-active{border-color:var(--orange);background:rgba(232,93,4,.15);color:var(--orange);animation:gpulse 2s infinite;}
+  .sd-susp{border-color:var(--red);background:rgba(212,32,32,.15);color:var(--red);animation:rpulse 2s infinite;}
   @keyframes gpulse{0%,100%{box-shadow:0 0 12px rgba(232,93,4,.4);}50%{box-shadow:0 0 24px rgba(232,93,4,.7);}}
+  @keyframes rpulse{0%,100%{box-shadow:0 0 12px rgba(212,32,32,.4);}50%{box-shadow:0 0 24px rgba(212,32,32,.7);}}
   .sd-pend{border-color:var(--border);color:var(--muted);}
-  .step-lbl{font-size:9px;font-weight:600;text-align:center;color:var(--muted);max-width:65px;line-height:1.3;}
+  .step-lbl{font-size:9px;font-weight:600;text-align:center;color:var(--muted);max-width:55px;line-height:1.3;}
   .sl-active{color:var(--orange);}
   .sl-done{color:var(--green);}
+  .sl-susp{color:var(--red);}
+  /* CARDS */
   .g2{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px;}
-  .card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:18px;}
+  .card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:20px;transition:border-color .2s;}
+  .card:hover{border-color:rgba(34,120,232,.2);}
   .rp{display:flex;gap:12px;padding-bottom:18px;position:relative;}
   .rp:last-child{padding-bottom:0;}
   .rp::before{content:'';position:absolute;left:11px;top:26px;bottom:0;width:2px;background:linear-gradient(to bottom,var(--blue),rgba(26,111,212,.04));}
@@ -142,6 +147,7 @@ const css = `
   .ii{background:rgba(255,255,255,.02);border-radius:8px;padding:11px;}
   .il{font-size:9px;color:var(--muted);letter-spacing:.1em;text-transform:uppercase;margin-bottom:3px;}
   .iv{font-size:13px;font-weight:600;}
+  /* ADMIN */
   .adm-wrap{max-width:960px;margin:0 auto;padding:44px 20px 80px;}
   .adm-hdr{text-align:center;margin-bottom:30px;}
   .adm-hdr h2{font-family:'Rajdhani',sans-serif;font-size:28px;font-weight:700;letter-spacing:.06em;margin-bottom:6px;}
@@ -158,12 +164,8 @@ const css = `
   .btn-gen{grid-column:1/-1;font-family:'Rajdhani',sans-serif;font-size:15px;font-weight:700;letter-spacing:.12em;padding:14px;border-radius:11px;border:none;background:linear-gradient(135deg,var(--blue) 0%,#0d4fa0 50%,#1b2a4a 100%);color:#fff;cursor:pointer;transition:all .3s;display:flex;align-items:center;justify-content:center;gap:10px;}
   .btn-gen:hover{transform:translateY(-2px);box-shadow:0 12px 36px rgba(26,111,212,.35);}
   .btn-gen:disabled{opacity:.5;cursor:not-allowed;transform:none;}
+  /* GEN CARD */
   .gen-card{background:rgba(26,111,212,.06);border:1px solid rgba(26,111,212,.25);border-radius:16px;padding:24px;margin-top:20px;text-align:center;}
-  .qr-wrap{display:flex;justify-content:center;margin:14px 0;}
-  .qr-wrap img{border-radius:10px;border:3px solid rgba(26,111,212,.3);}
-  .qr-lbl{font-size:10px;color:var(--muted);letter-spacing:.1em;text-transform:uppercase;margin-bottom:6px;}
-  .qr-dl{display:inline-flex;align-items:center;gap:5px;font-size:11px;color:var(--muted);cursor:pointer;border:1px solid var(--border);padding:4px 10px;border-radius:16px;margin-top:6px;transition:all .2s;}
-  .qr-dl:hover{color:var(--blue);border-color:var(--blue);}
   .gen-lbl{font-size:10px;color:var(--muted);letter-spacing:.12em;text-transform:uppercase;margin-bottom:8px;}
   .gen-num{font-family:'Rajdhani',sans-serif;font-size:clamp(20px,4vw,38px);font-weight:700;letter-spacing:.2em;color:#fff;margin-bottom:9px;}
   .gen-num span{color:var(--blue);}
@@ -171,7 +173,13 @@ const css = `
   .copy-btn:hover{background:rgba(26,111,212,.1);}
   .link-box{background:rgba(0,0,0,.35);border:1px solid var(--border);border-radius:8px;padding:11px 14px;font-size:12px;color:var(--muted);word-break:break-all;text-align:left;margin-bottom:5px;}
   .link-box a{color:var(--blue);font-weight:600;}
-  .link-note{font-size:11px;color:var(--muted);}
+  .link-note{font-size:11px;color:var(--muted);margin-bottom:14px;}
+  .qr-lbl{font-size:10px;color:var(--muted);letter-spacing:.1em;text-transform:uppercase;margin-bottom:6px;}
+  .qr-wrap{display:flex;justify-content:center;margin:10px 0;}
+  .qr-wrap img{border-radius:10px;border:3px solid rgba(26,111,212,.3);}
+  .qr-dl{display:inline-flex;align-items:center;gap:5px;font-size:11px;color:var(--muted);cursor:pointer;border:1px solid var(--border);padding:4px 10px;border-radius:16px;margin-top:6px;margin-bottom:14px;transition:all .2s;text-decoration:none;}
+  .qr-dl:hover{color:var(--blue);border-color:var(--blue);}
+  /* UPDATE SECTION */
   .upd-section{margin-top:18px;padding-top:18px;border-top:1px solid var(--border);text-align:left;}
   .upd-h{font-family:'Rajdhani',sans-serif;font-size:12px;font-weight:700;letter-spacing:.1em;color:var(--orange);margin-bottom:13px;text-transform:uppercase;}
   .upd-g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:11px;margin-bottom:11px;}
@@ -179,6 +187,7 @@ const css = `
   .btn-upd{font-family:'Rajdhani',sans-serif;font-size:13px;font-weight:700;letter-spacing:.08em;padding:12px;border-radius:9px;border:none;background:linear-gradient(135deg,var(--orange),#c44d00);color:#fff;cursor:pointer;transition:all .2s;width:100%;display:flex;align-items:center;justify-content:center;gap:8px;}
   .btn-upd:hover{transform:translateY(-1px);box-shadow:0 6px 20px rgba(232,93,4,.4);}
   .btn-upd:disabled{opacity:.5;cursor:not-allowed;transform:none;}
+  /* HISTORY TABLE */
   .hist{margin-top:32px;}
   .hist h3{font-family:'Rajdhani',sans-serif;font-size:17px;font-weight:700;letter-spacing:.08em;margin-bottom:11px;display:flex;align-items:center;gap:10px;}
   .hist-toolbar{display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap;}
@@ -186,33 +195,10 @@ const css = `
   .search-in:focus{border-color:var(--blue);}
   .filter-sel{background:rgba(255,255,255,.04);border:1px solid var(--border);border-radius:8px;padding:8px 10px;color:#fff;font-family:'Exo 2',sans-serif;font-size:12px;outline:none;}
   .filter-sel option{background:#0a0e1a;}
-  .del-btn{background:rgba(232,93,4,.1);border:1px solid rgba(232,93,4,.3);color:var(--orange);border-radius:6px;padding:4px 9px;font-size:11px;cursor:pointer;font-family:'Exo 2',sans-serif;}
-  .del-btn:hover{background:rgba(232,93,4,.25);}
-  .photo-section{margin-top:18px;padding-top:18px;border-top:1px solid var(--border);text-align:left;}
-  .photo-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:10px;}
-  .photo-item{position:relative;border-radius:8px;overflow:hidden;aspect-ratio:1;background:rgba(255,255,255,.04);border:1px solid var(--border);}
-  .photo-item img{width:100%;height:100%;object-fit:cover;cursor:pointer;transition:transform .2s;}
-  .photo-item img:hover{transform:scale(1.04);}
-  .photo-del{position:absolute;top:4px;right:4px;background:rgba(8,12,24,.85);border:none;color:var(--orange);font-size:14px;cursor:pointer;border-radius:50%;width:22px;height:22px;display:flex;align-items:center;justify-content:center;}
-  .upload-btn{display:inline-flex;align-items:center;gap:7px;font-size:12px;font-weight:600;padding:8px 14px;border-radius:8px;border:1px dashed rgba(26,111,212,.4);background:rgba(26,111,212,.05);color:var(--blue);cursor:pointer;transition:all .2s;margin-top:8px;}
-  .upload-btn:hover{background:rgba(26,111,212,.12);border-color:var(--blue);}
-  .lightbox-ov{position:fixed;inset:0;background:rgba(0,0,0,.92);z-index:500;display:flex;align-items:center;justify-content:center;}
-  .lightbox-ov img{max-width:92vw;max-height:88vh;border-radius:10px;object-fit:contain;}
-  .lightbox-close{position:absolute;top:18px;right:18px;font-size:28px;color:#fff;cursor:pointer;background:none;border:none;}
-  .confirm-ov{position:fixed;inset:0;background:rgba(8,12,24,.85);z-index:400;display:flex;align-items:center;justify-content:center;}
-  .confirm-box{background:rgba(15,20,35,.98);border:1px solid var(--border);border-radius:16px;padding:28px;max-width:340px;width:90%;text-align:center;}
-  .confirm-box h4{font-family:'Rajdhani',sans-serif;font-size:18px;font-weight:700;margin-bottom:8px;color:var(--orange);}
-  .confirm-box p{font-size:13px;color:var(--muted);margin-bottom:20px;}
-  .confirm-btns{display:flex;gap:10px;justify-content:center;}
-  .btn-cancel{font-family:'Exo 2',sans-serif;font-size:13px;padding:9px 18px;border-radius:8px;border:1px solid var(--border);background:var(--card);color:var(--muted);cursor:pointer;}
-  .btn-del-confirm{font-family:'Rajdhani',sans-serif;font-size:13px;font-weight:700;padding:9px 18px;border-radius:8px;border:none;background:linear-gradient(135deg,var(--orange),#c44d00);color:#fff;cursor:pointer;}
-  .stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:16px;}
-  .stat-card{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:12px;text-align:center;}
-  .stat-num{font-family:'Rajdhani',sans-serif;font-size:24px;font-weight:700;}
-  .stat-lbl{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;}
-  @media(max-width:640px){.stats-row{grid-template-columns:repeat(2,1fr);}}
   .ref-btn{font-size:11px;color:var(--muted);cursor:pointer;border:1px solid var(--border);padding:4px 9px;border-radius:6px;background:var(--card);font-family:'Exo 2',sans-serif;}
   .ref-btn:hover{color:var(--blue);border-color:var(--blue);}
+  .del-btn{background:rgba(232,93,4,.1);border:1px solid rgba(232,93,4,.3);color:var(--orange);border-radius:6px;padding:4px 9px;font-size:11px;cursor:pointer;font-family:'Exo 2',sans-serif;}
+  .del-btn:hover{background:rgba(232,93,4,.25);}
   .htable{width:100%;border-collapse:collapse;}
   .htable th{text-align:left;font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);padding:8px 11px;border-bottom:1px solid var(--border);}
   .htable td{padding:11px 11px;font-size:13px;border-bottom:1px solid rgba(255,255,255,.04);}
@@ -221,29 +207,41 @@ const css = `
   .tid:hover{text-decoration:underline;}
   .dstatus{display:inline-flex;align-items:center;gap:5px;}
   .dot{width:6px;height:6px;border-radius:50%;}
+  /* KPI MINI */
+  .kpi-row{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:16px;}
+  .kpi{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:12px;text-align:center;}
+  .kpi-num{font-family:'Rajdhani',sans-serif;font-size:24px;font-weight:700;}
+  .kpi-lbl{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;}
+  /* STATS PAGE */
   .stats-page{max-width:960px;margin:0 auto;padding:44px 20px 80px;}
   .stats-page h2{font-family:'Rajdhani',sans-serif;font-size:26px;font-weight:700;letter-spacing:.06em;margin-bottom:6px;}
-  .stats-page p{color:var(--muted);font-size:14px;margin-bottom:28px;}
-  .stats-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:24px;}
-  .scard{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:18px;text-align:center;}
-  .scard-num{font-family:'Rajdhani',sans-serif;font-size:32px;font-weight:700;margin-bottom:4px;}
-  .scard-lbl{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.1em;}
-  .scard-sub{font-size:11px;margin-top:4px;}
-  .chart-card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:20px;margin-bottom:16px;}
+  .charts-g2{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px;}
+  .chart-card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:20px;margin-bottom:0;}
   .chart-title{font-family:'Rajdhani',sans-serif;font-size:13px;font-weight:700;letter-spacing:.1em;color:var(--muted);text-transform:uppercase;margin-bottom:16px;display:flex;align-items:center;gap:8px;}
   .chart-title::after{content:'';flex:1;height:1px;background:var(--border);}
-  .charts-g2{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px;}
-  .top-list{display:flex;flex-direction:column;gap:8px;}
+  .top-list{display:flex;flex-direction:column;gap:10px;}
   .top-item{display:flex;align-items:center;gap:10px;}
   .top-rank{font-family:'Rajdhani',sans-serif;font-size:14px;font-weight:700;color:var(--muted);width:20px;}
   .top-bar-wrap{flex:1;background:rgba(255,255,255,.05);border-radius:4px;height:8px;overflow:hidden;}
   .top-bar{height:100%;border-radius:4px;background:linear-gradient(90deg,var(--blue),var(--orange));}
   .top-name{font-size:12px;min-width:80px;}
   .top-count{font-size:11px;color:var(--muted);min-width:24px;text-align:right;}
-  @media(max-width:640px){.stats-grid{grid-template-columns:repeat(2,1fr);}.charts-g2{grid-template-columns:1fr;}}
-  footer{position:relative;z-index:1;padding:16px 24px;border-top:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;margin-top:auto;}
-  .fl{display:flex;align-items:center;gap:11px;font-family:'Rajdhani',sans-serif;font-size:13px;font-weight:700;letter-spacing:.1em;}
-  footer p{font-size:11px;color:var(--muted);}
+  /* CONFIRM */
+  .confirm-ov{position:fixed;inset:0;background:rgba(8,12,24,.85);z-index:400;display:flex;align-items:center;justify-content:center;}
+  .confirm-box{background:rgba(15,20,35,.98);border:1px solid var(--border);border-radius:16px;padding:28px;max-width:340px;width:90%;text-align:center;}
+  .confirm-box h4{font-family:'Rajdhani',sans-serif;font-size:18px;font-weight:700;margin-bottom:8px;color:var(--orange);}
+  .confirm-box p{font-size:13px;color:var(--muted);margin-bottom:20px;}
+  .confirm-btns{display:flex;gap:10px;justify-content:center;}
+  .btn-cancel{font-family:'Exo 2',sans-serif;font-size:13px;padding:9px 18px;border-radius:8px;border:1px solid var(--border);background:var(--card);color:var(--muted);cursor:pointer;}
+  .btn-del-confirm{font-family:'Rajdhani',sans-serif;font-size:13px;font-weight:700;padding:9px 18px;border-radius:8px;border:none;background:linear-gradient(135deg,var(--orange),#c44d00);color:#fff;cursor:pointer;}
+  /* LOGIN */
+  .login-ov{position:fixed;inset:0;background:rgba(8,12,24,.97);z-index:300;display:flex;align-items:center;justify-content:center;}
+  .login-box{background:rgba(255,255,255,.04);border:1px solid var(--border);border-radius:20px;padding:40px 36px;width:100%;max-width:380px;text-align:center;}
+  .login-box h2{font-family:'Rajdhani',sans-serif;font-size:22px;font-weight:700;letter-spacing:.1em;margin-bottom:6px;}
+  .login-box p{font-size:12px;color:var(--muted);margin-bottom:24px;}
+  .login-box .fgroup{text-align:left;margin-bottom:12px;}
+  .login-err{background:rgba(232,93,4,.1);border:1px solid rgba(232,93,4,.3);border-radius:8px;padding:9px 13px;font-size:12px;color:var(--orange);margin-bottom:13px;}
+  /* MISC */
   .spin{width:15px;height:15px;border:2px solid rgba(255,255,255,.25);border-top-color:#fff;border-radius:50%;animation:spinr .7s linear infinite;display:inline-block;}
   @keyframes spinr{to{transform:rotate(360deg);}}
   .toast-wrap{position:fixed;bottom:22px;right:22px;z-index:9999;display:flex;flex-direction:column;gap:8px;}
@@ -254,22 +252,16 @@ const css = `
   .t-info{background:rgba(90,158,47,.93);border:1px solid rgba(90,158,47,.4);}
   .loader-ov{position:fixed;inset:0;background:rgba(8,12,24,.9);z-index:200;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;}
   .loader-spin{width:44px;height:44px;border:3px solid var(--border);border-top-color:var(--blue);border-radius:50%;animation:spinr .8s linear infinite;}
-
-  /* LOGIN */
-  .login-ov{position:fixed;inset:0;background:rgba(8,12,24,.97);z-index:300;display:flex;align-items:center;justify-content:center;}
-  .login-box{background:rgba(255,255,255,.04);border:1px solid var(--border);border-radius:20px;padding:40px 36px;width:100%;max-width:380px;text-align:center;}
-  .login-box h2{font-family:'Rajdhani',sans-serif;font-size:22px;font-weight:700;letter-spacing:.1em;margin-bottom:6px;}
-  .login-box p{font-size:12px;color:var(--muted);margin-bottom:24px;}
-  .login-box .fgroup{text-align:left;margin-bottom:12px;}
-  .login-err{background:rgba(232,93,4,.1);border:1px solid rgba(232,93,4,.3);border-radius:8px;padding:9px 13px;font-size:12px;color:var(--orange);margin-bottom:13px;}
-
+  footer{position:relative;z-index:1;padding:16px 24px;border-top:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;margin-top:auto;}
+  .fl{display:flex;align-items:center;gap:11px;font-family:'Rajdhani',sans-serif;font-size:13px;font-weight:700;letter-spacing:.1em;}
+  footer p{font-size:11px;color:var(--muted);}
   @media(max-width:640px){
-    .g2,.ig,.fg,.upd-g3,.upd-g2{grid-template-columns:1fr;}
+    .g2,.ig,.fg,.upd-g3,.upd-g2,.charts-g2,.kpi-row{grid-template-columns:1fr;}
     .fg .full,.sdivider,.btn-gen{grid-column:1;}
     .s-row{flex-direction:column;}
     .top-card{flex-direction:column;}
     .res-right{text-align:left;}
-    .steps-row{flex-wrap:wrap;gap:8px;}
+    .steps-row{flex-wrap:wrap;gap:6px;}
     .steps-row::before{display:none;}
     .step-item{flex-direction:row;width:48%;}
     .step-lbl{text-align:left;max-width:none;}
@@ -278,81 +270,28 @@ const css = `
   }
 `;
 
-/* ═══════════════════════════════════════════
-   FIREBASE DB HELPERS
-═══════════════════════════════════════════ */
+/* ═══════════════════ DB HELPERS ═══════════════════ */
 async function dbRead(): Promise<Record<string, any>> {
   try {
-    const col = collection(db, "trackings");
-    const snap = await getDocs(col);
-    const result: Record<string, any> = {};
-    snap.forEach(d => { result[d.id] = d.data(); });
-    return result;
-  } catch (e) {
-    console.error("dbRead error", e);
-    return {};
-  }
+    const snap = await getDocs(collection(db, "trackings"));
+    const r: Record<string, any> = {};
+    snap.forEach(d => { r[d.id] = d.data(); });
+    return r;
+  } catch { return {}; }
 }
-
-async function dbWrite(id: string, data: any): Promise<void> {
-  await setDoc(doc(db, "trackings", id), data);
-}
-
+async function dbWrite(id: string, data: any) { await setDoc(doc(db, "trackings", id), data); }
 async function dbReadOne(id: string): Promise<any | null> {
-  try {
-    const snap = await getDoc(doc(db, "trackings", id));
-    return snap.exists() ? snap.data() : null;
-  } catch {
-    return null;
-  }
+  try { const s = await getDoc(doc(db, "trackings", id)); return s.exists() ? s.data() : null; } catch { return null; }
 }
 
-/* ═══════════════════════════════════════════
-   HELPERS
-═══════════════════════════════════════════ */
-function fmt(d: string) {
-  if (!d) return "—";
-  try { return new Date(d).toLocaleDateString("fr-FR"); } catch { return d; }
-}
-function nowStr() {
-  return new Date().toLocaleString("fr-FR", { day:"2-digit", month:"2-digit", year:"numeric", hour:"2-digit", minute:"2-digit" });
-}
+/* ═══════════════════ HELPERS ═══════════════════ */
+function fmt(d: string) { if (!d) return "—"; try { return new Date(d).toLocaleDateString("fr-FR"); } catch { return d; } }
+function nowStr() { return new Date().toLocaleString("fr-FR", { day:"2-digit", month:"2-digit", year:"numeric", hour:"2-digit", minute:"2-digit" }); }
 
-/* ═══════════════════════════════════════════
-   MAIN APP
-═══════════════════════════════════════════ */
-/* ═══════════════════════════════════════════
-   CLIENT PHOTOS COMPONENT
-═══════════════════════════════════════════ */
-function ClientPhotos({ trackId, onLightbox }: { trackId: string; onLightbox: (url: string) => void }) {
-  const [urls, setUrls] = useState<string[]>([]);
-  useEffect(() => {
-    if (!trackId) return;
-    const { getStorage, ref, listAll, getDownloadURL } = require("firebase/storage");
-    const st = getStorage();
-    listAll(ref(st, "vehicles/" + trackId)).then((res: any) =>
-      Promise.all(res.items.map((item: any) => getDownloadURL(item)))
-    ).then(setUrls).catch(() => setUrls([]));
-  }, [trackId]);
-  if (!urls.length) return null;
-  return (
-    <div className="card" style={{marginTop:14}}>
-      <div className="ctitle">📸 Photos du véhicule</div>
-      <div className="photo-grid">
-        {urls.map((url, i) => (
-          <div key={i} className="photo-item">
-            <img src={url} alt={"Photo " + (i+1)} onClick={() => onLightbox(url)} />
-          </div>
-        ))}
-      </div>
-    </div>
-  );
-}
-
+/* ═══════════════════ APP ═══════════════════ */
 export default function App() {
   const [lang, setLangState] = useState("fr");
   const t = (k: string) => T[lang]?.[k] ?? T.fr[k] ?? k;
-
   const isAdminUrl = new URLSearchParams(window.location.search).get("admin") === "1";
   const [view, setView] = useState<"client"|"admin"|"stats">(isAdminUrl ? "admin" : "client");
   const [showLang, setShowLang] = useState(false);
@@ -375,44 +314,34 @@ export default function App() {
   const [trackId, setTrackId] = useState("");
   const unsubTrackRef = useRef<(() => void) | null>(null);
 
-  // ADMIN
+  // ADMIN FORM
   const [form, setForm] = useState({ name:"", email:"", phone:"", co:"AutoDeliv", veh:"", col:"", vin:"", plate:"", from:"", to:"", dep:"", arr:"", mode:"Camion porte-voiture", carrier:"" });
   const [genId, setGenId] = useState<string|null>(null);
   const [history, setHistory] = useState<[string,any][]>([]);
   const [selectedId, setSelectedId] = useState<string|null>(null);
   const [upd, setUpd] = useState({ city:"", date:"", time:"", status:"st0", note:"" });
   const [genBusy, setGenBusy] = useState(false);
+  const [customCo, setCustomCo] = useState("");
   const [updBusy, setUpdBusy] = useState(false);
-  const [photos, setPhotos] = useState<string[]>([]);
-  const [photoUploading, setPhotoUploading] = useState(false);
-  const [lightbox, setLightbox] = useState<string|null>(null);
   const [search, setSearch] = useState("");
   const [filterStatus, setFilterStatus] = useState("all");
   const [showDeleteConfirm, setShowDeleteConfirm] = useState<string|null>(null);
 
   const toast = (msg: string, type="ok") => {
     const id = Date.now();
-    setToasts(p => [...p, { id, msg, type }]);
+    setToasts(p => [...p, {id, msg, type}]);
     setTimeout(() => setToasts(p => p.filter(t => t.id !== id)), 3500);
   };
 
-  // Auth listener
-  useEffect(() => {
-    const unsub = onAuthStateChanged(auth, user => {
-      setAdminUser(user);
-      setAuthChecked(true);
-    });
-    return unsub;
-  }, []);
+  useEffect(() => { const u = onAuthStateChanged(auth, user => { setAdminUser(user); setAuthChecked(true); }); return u; }, []);
 
-  // Init dates + URL param
   useEffect(() => {
     const today = new Date().toISOString().split("T")[0];
-    const next = new Date(Date.now() + 14 * 86400000).toISOString().split("T")[0];
+    const next = new Date(Date.now() + 14*86400000).toISOString().split("T")[0];
     const now = new Date();
-    const hhmm = `${String(now.getHours()).padStart(2,"0")}:${String(now.getMinutes()).padStart(2,"0")}`;
-    setForm(p => ({ ...p, dep: today, arr: next }));
-    setUpd(p => ({ ...p, date: today, time: hhmm }));
+    const hhmm = String(now.getHours()).padStart(2,"0") + ":" + String(now.getMinutes()).padStart(2,"0");
+    setForm(p => ({ ...p, dep:today, arr:next }));
+    setUpd(p => ({ ...p, date:today, time:hhmm }));
     const params = new URLSearchParams(window.location.search);
     const tid = params.get("track");
     if (tid) { setTrackInput(tid); doTrackById(tid); }
@@ -423,253 +352,181 @@ export default function App() {
     setHistory(Object.entries(db2).reverse());
   }, []);
 
-  useEffect(() => { if (view === "admin" && adminUser) loadHistory(); }, [view, adminUser, loadHistory]);
+  useEffect(() => { if ((view === "admin" || view === "stats") && adminUser) loadHistory(); }, [view, adminUser, loadHistory]);
 
-  /* ── LOGIN ── */
+  /* LOGIN */
   async function doLogin() {
-    setLoginErr("");
-    setLoginBusy(true);
-    try {
-      await signInWithEmailAndPassword(auth, loginEmail, loginPass);
-      setShowLogin(false);
-      setView("admin");
-    } catch {
-      setLoginErr(t("login_err"));
-    }
+    setLoginErr(""); setLoginBusy(true);
+    try { await signInWithEmailAndPassword(auth, loginEmail, loginPass); setShowLogin(false); setView("admin"); }
+    catch { setLoginErr(t("login_err")); }
     setLoginBusy(false);
   }
+  async function doLogout() { await signOut(auth); setView("client"); }
 
-  async function doLogout() {
-    await signOut(auth);
-    setView("client");
-  }
-
-  /* ── TRACK ── */
+  /* TRACK */
   async function doTrack() {
     const raw = trackInput.trim().toUpperCase().replace(/\s/g, "");
     if (!raw) return;
-    setTrackError(false);
-    setLoading(true);
+    setTrackError(false); setLoading(true);
     await doTrackById(raw);
     setLoading(false);
   }
 
   async function doTrackById(raw: string) {
     setLoading(true);
-    // Unsubscribe previous listener
     if (unsubTrackRef.current) { unsubTrackRef.current(); unsubTrackRef.current = null; }
-
-    // Try direct lookup first
     let data = await dbReadOne(raw);
     let id = raw;
     if (!data) {
       const all = await dbRead();
-      const found = Object.keys(all).find(k =>
-        k.replace(/-/g,"") === raw.replace(/-/g,"") ||
-        k.replace(/-/g,"").endsWith(raw.replace(/-/g,"").slice(-5))
-      );
+      const found = Object.keys(all).find(k => k.replace(/-/g,"") === raw.replace(/-/g,"") || k.replace(/-/g,"").endsWith(raw.replace(/-/g,"").slice(-5)));
       if (found) { id = found; data = all[found]; }
     }
     setLoading(false);
     if (!data) { setTrackError(true); setTrackData(null); return; }
-    setTrackId(id);
-    setTrackData(data);
-    setTrackError(false);
-
-    // Subscribe to real-time updates
-    const unsub = onSnapshot(doc(db, "trackings", id), (snap) => {
-      if (snap.exists()) {
-        setTrackData(snap.data());
-      }
-    });
+    setTrackId(id); setTrackData(data); setTrackError(false);
+    const unsub = onSnapshot(doc(db, "trackings", id), snap => { if (snap.exists()) setTrackData(snap.data()); });
     unsubTrackRef.current = unsub;
   }
 
-  /* ── GENERATE ── */
+  /* GENERATE */
   async function genTracking() {
     const { name, from, to, veh } = form;
     if (!name || !from || !to || !veh) { toast(t("err_fill"), "err"); return; }
     setGenBusy(true);
     const words = from.split(/[,\s]+/).filter((w: string) => /^[A-Za-zÀ-ÿ]{2,}$/.test(w));
-    const cc = (words[words.length - 1] || "XX").substring(0, 2).toUpperCase();
+    const cc = (words[words.length-1] || "XX").substring(0,2).toUpperCase();
     const yr = new Date().getFullYear();
-    const num = String(Math.floor(Math.random() * 90000) + 10000);
-    const id = `ATK-${yr}-${cc}-${num}`;
+    const num = String(Math.floor(Math.random()*90000)+10000);
+    const id = "ATK-" + yr + "-" + cc + "-" + num;
     const dep = fmt(form.dep), arr = fmt(form.arr);
     const rec = {
-      client: name, email: form.email, phone: form.phone,
-      vehicle: veh, color: form.col || "—", vin: form.vin || "—", plate: form.plate || "—",
-      from, to, fromCity: from.split(",")[0].trim(), toCity: to.split(",")[0].trim(),
-      dep, arr, mode: form.mode, carrier: form.carrier || "—",
-      company: form.co, progress: 5, statusKey: "st0",
-      route: [
-        { city: from.split(",")[0].trim(), lk:"lbl_dep", type:"origin", time: dep, note: null },
-        { city: to.split(",")[0].trim(), lk:"lbl_dest", type:"dest", time: `Estimé ${arr}`, note: null }
+      client:name, email:form.email, phone:form.phone, vehicle:veh, color:form.col||"—", vin:form.vin||"—", plate:form.plate||"—",
+      from, to, fromCity:from.split(",")[0].trim(), toCity:to.split(",")[0].trim(),
+      dep, arr, mode:form.mode, carrier:form.carrier||"—", company:form.co, progress:5, statusKey:"st0",
+      route:[
+        {city:from.split(",")[0].trim(), lk:"lbl_dep", type:"origin", time:dep, note:null},
+        {city:to.split(",")[0].trim(), lk:"lbl_dest", type:"dest", time:"Estimé "+arr, note:null}
       ],
-      timeline: [
-        { icon:"●", type:"active", title:`Prise en charge prévue — ${from.split(",")[0].trim()}`, time: dep },
-        { icon:"○", type:"pending", title:"Transport en cours", time:"—" },
-        { icon:"○", type:"pending", title:`Livraison — ${to.split(",")[0].trim()}`, time:`Estimé ${arr}` }
+      timeline:[
+        {icon:"●", type:"active", title:"Prise en charge prévue — "+from.split(",")[0].trim(), time:dep},
+        {icon:"○", type:"pending", title:"Transport en cours", time:"—"},
+        {icon:"○", type:"pending", title:"Livraison — "+to.split(",")[0].trim(), time:"Estimé "+arr}
       ],
-      info: [
-        { lk:"lbl_mt", val: form.mode }, { lk:"lbl_carr", val: form.carrier || "—" },
-        { lk:"lbl_dd", val: dep }, { lk:"lbl_eta", val: arr },
-        { lk:"lbl_vin", val: form.vin || "—" }, { lk:"lbl_pl", val: form.plate || "—" }
+      info:[
+        {lk:"lbl_mt", val:form.mode}, {lk:"lbl_carr", val:form.carrier||"—"},
+        {lk:"lbl_dd", val:dep}, {lk:"lbl_eta", val:arr},
+        {lk:"lbl_vin", val:form.vin||"—"}, {lk:"lbl_pl", val:form.plate||"—"}
       ]
     };
     await dbWrite(id, rec);
-    setGenId(id);
-    setSelectedId(id);
-    setPhotos([]);
+    setGenId(id); setSelectedId(id);
     await loadHistory();
-    toast(t("toast_gen") + " " + id, "ok");
+    toast(t("toast_gen")+" "+id, "ok");
     setGenBusy(false);
   }
 
-  /* ── PUSH UPDATE ── */
+  /* PUSH UPDATE */
   async function pushUpdate() {
     if (!selectedId) { toast(t("err_nosel"), "err"); return; }
     if (!upd.city) { toast(t("err_city"), "err"); return; }
     setUpdBusy(true);
     let dt = "";
-    if (upd.date) { try { dt = new Date(upd.date).toLocaleDateString("fr-FR"); } catch { dt = upd.date; } if (upd.time) dt += " — " + upd.time; }
-    else dt = nowStr();
+    if (upd.date) { try { dt = new Date(upd.date).toLocaleDateString("fr-FR"); } catch { dt = upd.date; } if (upd.time) dt += " — "+upd.time; } else dt = nowStr();
     const data = await dbReadOne(selectedId);
     if (!data) { toast("❌ Introuvable", "err"); setUpdBusy(false); return; }
     data.statusKey = upd.status;
-    const pm: Record<string,number> = { st0:5, st1:15, st2:50, st3:75, st4:90, st5:100 };
-    data.progress = pm[upd.status] || data.progress;
+    const pm: Record<string,number> = {st0:5, st1:15, st2:50, st3:75, st4:90, st5:100, st6:data.progress||50};
+    data.progress = pm[upd.status] ?? data.progress;
     data.route.forEach((r: any) => { if (r.type === "current") r.type = "step"; });
     const di = data.route.findIndex((r: any) => r.type === "dest");
-    data.route.splice(di, 0, { city: upd.city, lk:"lbl_pos", type:"current", time: dt, note: upd.note || null });
-    data.timeline.unshift({ icon:"●", type:"active", title:`${t(upd.status)} — ${upd.city}${upd.note ? " · " + upd.note : ""}`, time: dt });
+    data.route.splice(di, 0, {city:upd.city, lk:"lbl_pos", type:"current", time:dt, note:upd.note||null});
+    data.timeline.unshift({icon:"●", type:"active", title:t(upd.status)+" — "+upd.city+(upd.note?" · "+upd.note:""), time:dt});
     let first = true;
     data.timeline = data.timeline.map((e: any) => {
-      if (e.type === "active") { if (first) { first = false; return e; } return { ...e, type:"done", icon:"✓" }; }
+      if (e.type === "active") { if (first) { first=false; return e; } return {...e, type:"done", icon:"✓"}; }
       return e;
     });
     await dbWrite(selectedId, data);
     await loadHistory();
-
-    // Send email notification to client
     if (data.email && data.email !== "—" && data.email.includes("@")) {
       try {
         await emailjs.send(EMAILJS_SERVICE, EMAILJS_TEMPLATE, {
-          client_name: data.client,
-          vehicle: data.vehicle,
-          city: upd.city,
-          status: t(upd.status + "f"),
-          date: dt,
-          note: upd.note ? "📝 " + upd.note : "",
-          tracking_id: selectedId,
-          tracking_link: window.location.origin + window.location.pathname + "?track=" + selectedId,
-          to_email: data.email,
+          client_name:data.client, vehicle:data.vehicle, city:upd.city,
+          status:t(upd.status+"f"), date:dt, note:upd.note?"📝 "+upd.note:"",
+          tracking_id:selectedId, tracking_link:window.location.origin+window.location.pathname+"?track="+selectedId,
+          to_email:data.email,
         }, EMAILJS_PUBLIC);
-        toast("📧 Email envoyé à " + data.email, "ok");
-      } catch (err) {
-        console.error("EmailJS error", err);
-        toast("⚠️ Mise à jour OK mais email non envoyé", "err");
-      }
+        toast("📧 Email envoyé à "+data.email, "ok");
+      } catch { toast("⚠️ Mise à jour OK mais email non envoyé","err"); }
     }
-
     toast(t("toast_upd"), "ok");
-    setUpd(p => ({ ...p, city:"", note:"" }));
+    setUpd(p => ({...p, city:"", note:""}));
     setUpdBusy(false);
   }
 
-  /* ── SELECT TRACKING ── */
+  /* SELECT */
   async function selectTracking(id: string) {
-    setGenId(id);
-    setSelectedId(id);
-    setPhotos([]);
-    loadPhotos(id);
-    toast(t("sel") + " " + id, "info");
-    document.querySelector(".gen-card")?.scrollIntoView({ behavior:"smooth" });
+    setGenId(id); setSelectedId(id);
+    toast(t("sel")+" "+id, "info");
+    document.querySelector(".gen-card")?.scrollIntoView({behavior:"smooth"});
   }
 
-  /* ── DELETE TRACKING ── */
+  /* DELETE */
   async function deleteTracking(id: string) {
     try {
-      const { deleteDoc } = await import("firebase/firestore");
       await deleteDoc(doc(db, "trackings", id));
       if (selectedId === id) { setSelectedId(null); setGenId(null); }
       await loadHistory();
-      toast("🗑️ Suivi supprimé : " + id, "ok");
-    } catch(e) {
-      toast("❌ Erreur suppression", "err");
-    }
+      toast("🗑️ Suivi supprimé : "+id, "ok");
+    } catch { toast("❌ Erreur suppression","err"); }
     setShowDeleteConfirm(null);
   }
 
-  /* ── PHOTOS ── */
-  async function loadPhotos(id: string) {
-    try {
-      const listRef = ref(storage, "vehicles/" + id);
-      const res = await listAll(listRef);
-      const urls = await Promise.all(res.items.map(item => getDownloadURL(item)));
-      setPhotos(urls);
-    } catch { setPhotos([]); }
-  }
-
-  async function uploadPhoto(e: React.ChangeEvent<HTMLInputElement>) {
-    if (!selectedId || !e.target.files?.length) return;
-    setPhotoUploading(true);
-    const file = e.target.files[0];
-    const fileRef = ref(storage, "vehicles/" + selectedId + "/" + Date.now() + "_" + file.name);
-    await uploadBytes(fileRef, file);
-    await loadPhotos(selectedId);
-    toast("📸 Photo ajoutée !", "ok");
-    setPhotoUploading(false);
-    e.target.value = "";
-  }
-
-  async function deletePhoto(url: string) {
-    try {
-      const fileRef = ref(storage, url);
-      await deleteObject(fileRef);
-      setPhotos(p => p.filter(u => u !== url));
-      toast("🗑️ Photo supprimée", "ok");
-    } catch {
-      // Try by path
-      const match = url.match(/vehicles%2F[^?]+/);
-      if (match) {
-        const path = decodeURIComponent(match[0]);
-        await deleteObject(ref(storage, path));
-        setPhotos(p => p.filter(u => u !== url));
-        toast("🗑️ Photo supprimée", "ok");
-      }
-    }
-  }
-
-  /* ── COPY ── */
+  /* COPY */
   function copyNum() {
     const el = document.getElementById("gen-num-display");
-    navigator.clipboard.writeText(el?.textContent || "").then(() => toast(t("toast_cop"), "ok"));
+    navigator.clipboard.writeText(el?.textContent||"").then(() => toast(t("toast_cop"),"ok"));
   }
-
-  function sBadgeClass(stk: string) {
-    if (stk === "st5") return "sbadge s-done";
-    if (stk === "st3") return "sbadge s-customs";
-    if (stk === "st0") return "sbadge s-wait";
-    return "sbadge s-transit";
-  }
-
-  const lkMap = (lk: string) => ({ lbl_dep: t("lbl_dep"), lbl_step: t("lbl_step"), lbl_pos: t("lbl_pos"), lbl_dest: t("lbl_dest") } as Record<string,string>)[lk] || lk;
-  const infoLkMap = (lk: string) => ({ lbl_mt: t("lbl_mt"), lbl_carr: t("lbl_carr"), lbl_dd: t("lbl_dd"), lbl_eta: t("lbl_eta"), lbl_vin: t("lbl_vin"), lbl_pl: t("lbl_pl") } as Record<string,string>)[lk] || lk;
 
   const steps = ["st0","st1","st2","st3","st4","st5"];
   const stepIcons = ["⏳","📦","🚛","🛃","🏠","✅"];
-  const trackLink = genId ? `${window.location.origin}${window.location.pathname}?track=${genId}` : "";
+  const trackLink = genId ? window.location.origin+window.location.pathname+"?track="+genId : "";
 
-  if (!authChecked) return <div className="loader-ov"><div className="loader-spin" /></div>;
+  function sBadgeClass(stk: string) {
+    if (stk==="st5") return "sbadge s-done";
+    if (stk==="st6") return "sbadge s-susp";
+    if (stk==="st3") return "sbadge s-customs";
+    if (stk==="st0") return "sbadge s-wait";
+    return "sbadge s-transit";
+  }
+  function statusColor(stk: string) {
+    if (stk==="st5") return "var(--green)";
+    if (stk==="st6") return "var(--red)";
+    if (stk==="st3") return "var(--orange)";
+    return "var(--blue)";
+  }
+
+  const lkMap = (lk: string) => ({lbl_dep:t("lbl_dep"),lbl_step:t("lbl_step"),lbl_pos:t("lbl_pos"),lbl_dest:t("lbl_dest")} as Record<string,string>)[lk]||lk;
+  const infoLkMap = (lk: string) => ({lbl_mt:t("lbl_mt"),lbl_carr:t("lbl_carr"),lbl_dd:t("lbl_dd"),lbl_eta:t("lbl_eta"),lbl_vin:t("lbl_vin"),lbl_pl:t("lbl_pl")} as Record<string,string>)[lk]||lk;
+
+  if (!authChecked) return <div className="loader-ov"><div className="loader-spin"/></div>;
+
+  // Filtered history
+  const filteredHistory = history.filter(([id, d]) => {
+    const q = search.toLowerCase();
+    const matchS = !q || id.toLowerCase().includes(q) || (d.client||"").toLowerCase().includes(q) || (d.vehicle||"").toLowerCase().includes(q);
+    const matchF = filterStatus==="all" || d.statusKey===filterStatus;
+    return matchS && matchF;
+  });
 
   return (
     <>
       <style>{css}</style>
       <div className="at-root" onClick={() => setShowLang(false)}>
-        <div className="bg-grid" /><div className="bg-glow" />
+        <div className="bg-grid"/><div className="bg-glow"/>
 
-        {/* LOGIN OVERLAY */}
+        {/* LOGIN */}
         {showLogin && (
           <div className="login-ov">
             <div className="login-box">
@@ -677,62 +534,45 @@ export default function App() {
               <h2>{t("login_title")}</h2>
               <p>AutoTrack — Accès sécurisé</p>
               {loginErr && <div className="login-err">{loginErr}</div>}
-              <div className="fgroup">
-                <div className="flabel">{t("login_email")}</div>
-                <input className="fi" type="email" value={loginEmail} onChange={e => setLoginEmail(e.target.value)} onKeyDown={e => e.key==="Enter" && doLogin()} placeholder="admin@email.com" />
+              <div className="fgroup"><div className="flabel">{t("login_email")}</div>
+                <input className="fi" type="email" value={loginEmail} onChange={e=>setLoginEmail(e.target.value)} onKeyDown={e=>e.key==="Enter"&&doLogin()} placeholder="admin@email.com"/>
               </div>
-              <div className="fgroup" style={{marginBottom:20}}>
-                <div className="flabel">{t("login_pass")}</div>
-                <input className="fi" type="password" value={loginPass} onChange={e => setLoginPass(e.target.value)} onKeyDown={e => e.key==="Enter" && doLogin()} placeholder="••••••••" />
+              <div className="fgroup" style={{marginBottom:20}}><div className="flabel">{t("login_pass")}</div>
+                <input className="fi" type="password" value={loginPass} onChange={e=>setLoginPass(e.target.value)} onKeyDown={e=>e.key==="Enter"&&doLogin()} placeholder="••••••••"/>
               </div>
               <button className="btn-blue" style={{width:"100%",marginBottom:10}} onClick={doLogin} disabled={loginBusy}>
-                {loginBusy ? <><span className="spin" /> Connexion…</> : t("login_btn")}
+                {loginBusy?<><span className="spin"/> Connexion…</>:t("login_btn")}
               </button>
-              <button className="nav-btn" style={{width:"100%"}} onClick={() => setShowLogin(false)}>Annuler</button>
+              <button className="nav-btn" style={{width:"100%"}} onClick={()=>setShowLogin(false)}>Annuler</button>
             </div>
           </div>
         )}
 
         {/* LOADER */}
-        {loading && (
-          <div className="loader-ov">
-            <div className="loader-spin" />
-            <p style={{color:"var(--muted)",fontSize:14}}>{t("loading")}</p>
-          </div>
-        )}
+        {loading && <div className="loader-ov"><div className="loader-spin"/><p style={{color:"var(--muted)",fontSize:14}}>{t("loading")}</p></div>}
 
         {/* HEADER */}
         <header className="hdr">
-          <div className="hdr-badges">
-            <span className="bdg bdg-ar">AutoReach+</span>
-            <span style={{color:"var(--muted)"}}>×</span>
-            <span className="bdg bdg-ad">AutoDeliv</span>
-          </div>
-          <div className="hdr-brand">
+          <div className="hdr-brand" style={{flex:1,textAlign:"center"}}>
             <div className="hdr-title">AUTO<span>TRACK</span></div>
-            <div className="hdr-sub">powered by AutoReach+ &amp; AutoDeliv</div>
           </div>
           <div className="hdr-right">
-            {isAdminUrl && (
-              adminUser ? (
-                <>
-                  <button className={`nav-btn${view==="client"?" active":""}`} onClick={() => setView("client")}>Suivi</button>
-                  <button className={`nav-btn${view==="admin"?" active":""}`} onClick={() => setView("admin")}>⚙️ Admin</button>
-                  <button className={`nav-btn${view==="stats"?" active":""}`} onClick={() => { setView("stats"); loadHistory(); }}>📊 Stats</button>
-                  <button className="nav-btn" onClick={doLogout} title={t("logout")}>🚪</button>
-                </>
-              ) : (
-                <button className="nav-btn" onClick={() => { setShowLogin(true); setLoginErr(""); }}>🔐 Admin</button>
-              )
-            )}
-            <div className="lang-wrap" onClick={e => e.stopPropagation()}>
-              <button className="lang-btn" onClick={() => setShowLang(p => !p)}>
-                {T[lang].flag} {T[lang].code} ▾
-              </button>
+            {isAdminUrl && (adminUser ? (
+              <>
+                <button className={"nav-btn"+(view==="client"?" active":"")} onClick={()=>setView("client")}>Suivi</button>
+                <button className={"nav-btn"+(view==="admin"?" active":"")} onClick={()=>setView("admin")}>⚙️ Admin</button>
+                <button className={"nav-btn"+(view==="stats"?" active":"")} onClick={()=>{setView("stats");loadHistory();}}>📊 Stats</button>
+                <button className="nav-btn" onClick={doLogout}>🚪</button>
+              </>
+            ) : (
+              <button className="nav-btn" onClick={()=>{setShowLogin(true);setLoginErr("");}}>🔐 Admin</button>
+            ))}
+            <div className="lang-wrap" onClick={e=>e.stopPropagation()}>
+              <button className="lang-btn" onClick={()=>setShowLang(p=>!p)}>{T[lang].flag} {T[lang].code} ▾</button>
               {showLang && (
                 <div className="lang-drop">
-                  {Object.entries(T).map(([l, v]) => (
-                    <div key={l} className={`lang-opt${lang===l?" active":""}`} onClick={() => { setLangState(l); setShowLang(false); }}>
+                  {Object.entries(T).map(([l,v])=>(
+                    <div key={l} className={"lang-opt"+(lang===l?" active":"")} onClick={()=>{setLangState(l);setShowLang(false);}}>
                       {v.flag} {l==="fr"?"Français":l==="en"?"English":l==="de"?"Deutsch":l==="hr"?"Hrvatski":l==="it"?"Italiano":l==="bg"?"Български":"Română"}
                     </div>
                   ))}
@@ -742,15 +582,15 @@ export default function App() {
           </div>
         </header>
 
-        {/* ════ CLIENT VIEW ════ */}
-        {view === "client" && !trackData && (
+        {/* ════ CLIENT SEARCH ════ */}
+        {view==="client" && !trackData && (
           <div className="z1">
             <div className="hero">
               <h1>{t("h1a")} <span className="ac">{t("h1b")}</span><br/>{t("h1c")}</h1>
               <p>{t("h1sub")}</p>
               <div className="search-box">
                 <div className="s-row">
-                  <input className="s-in" value={trackInput} onChange={e => setTrackInput(e.target.value)} onKeyDown={e => e.key==="Enter" && doTrack()} placeholder="ATK-2026-FR-00142" maxLength={22} />
+                  <input className="s-in" value={trackInput} onChange={e=>setTrackInput(e.target.value)} onKeyDown={e=>e.key==="Enter"&&doTrack()} placeholder="ATK-2026-FR-00142" maxLength={22}/>
                   <button className="btn-blue" onClick={doTrack} disabled={loading}>{t("btn_track")}</button>
                 </div>
                 <p className="s-hint">{t("hint")}</p>
@@ -760,18 +600,17 @@ export default function App() {
           </div>
         )}
 
-        {/* ════ TRACKING RESULT ════ */}
-        {view === "client" && trackData && (
+        {/* ════ CLIENT RESULT ════ */}
+        {view==="client" && trackData && (
           <div className="z1">
             <div className="res-wrap">
-              <div className="back-btn" onClick={() => { if (unsubTrackRef.current) { unsubTrackRef.current(); unsubTrackRef.current = null; } setTrackData(null); setTrackError(false); setTrackInput(""); }}>← {t("back")}</div>
+              <div className="back-btn" onClick={()=>{if(unsubTrackRef.current){unsubTrackRef.current();unsubTrackRef.current=null;}setTrackData(null);setTrackError(false);setTrackInput("");}}>← {t("back")}</div>
+
               <div className="top-card">
                 <div>
                   <div className="res-id">{trackId}</div>
-                  <div className="res-route" dangerouslySetInnerHTML={{ __html: `<b>${trackData.from}</b> → <b>${trackData.to}</b>` }} />
-                  <span className={sBadgeClass(trackData.statusKey)}>
-                    <span className="sdot" />{t(trackData.statusKey + "f")}
-                  </span>
+                  <div className="res-route"><b>{trackData.from}</b> → <b>{trackData.to}</b></div>
+                  <span className={sBadgeClass(trackData.statusKey)}><span className="sdot"/>{t(trackData.statusKey+"f")}</span>
                 </div>
                 <div className="res-right">
                   <div className="res-name">{trackData.client}</div>
@@ -780,84 +619,86 @@ export default function App() {
                   <div className="res-co">{trackData.company}</div>
                 </div>
               </div>
-              <div className="prog-card">
-                <div className="ctitle">{t("prog")}</div>
-                <div className="pbar"><div className="pfill" style={{width: (trackData.progress||0)+"%"}} /></div>
-                <div className="plabels">
-                  <span>{trackData.fromCity}</span>
-                  <span className="ppct">{trackData.progress||0}%</span>
-                  <span>{trackData.toCity}</span>
+
+              {/* SUSPENSION BANNER */}
+              {trackData.statusKey==="st6" && (
+                <div className="susp-banner">
+                  <p>{t("susp_msg")}</p>
+                  <button className="susp-contact-btn" onClick={()=>window.open("mailto:contact@autotrack.live")}>
+                    📧 {t("susp_contact")}
+                  </button>
                 </div>
-                <div className="steps-row">
-                  {steps.map((s, i) => {
-                    const ci = steps.indexOf(trackData.statusKey);
-                    const state = i < ci ? "sd-done" : i === ci ? "sd-active" : "sd-pend";
-                    const lc = i < ci ? "sl-done" : i === ci ? "sl-active" : "";
-                    return (
-                      <div key={s} className="step-item">
-                        <div className={`step-dot ${state}`}>{stepIcons[i]}</div>
-                        <div className={`step-lbl ${lc}`}>{t(s)}</div>
-                      </div>
-                    );
-                  })}
+              )}
+
+              {/* PROGRESS — masqué si suspendu */}
+              {trackData.statusKey!=="st6" && (
+                <div className="prog-card">
+                  <div className="ctitle">{t("prog")}</div>
+                  <div className="pbar"><div className="pfill" style={{width:(trackData.progress||0)+"%"}}/></div>
+                  <div className="plabels">
+                    <span>{trackData.fromCity}</span>
+                    <span className="ppct">{trackData.progress||0}%</span>
+                    <span>{trackData.toCity}</span>
+                  </div>
+                  <div className="steps-row">
+                    {steps.map((s,i)=>{
+                      const ci = steps.indexOf(trackData.statusKey);
+                      const state = i<ci?"sd-done":i===ci?"sd-active":"sd-pend";
+                      const lc = i<ci?"sl-done":i===ci?"sl-active":"";
+                      return (
+                        <div key={s} className="step-item">
+                          <div className={"step-dot "+state}>{stepIcons[i]}</div>
+                          <div className={"step-lbl "+lc}>{t(s)}</div>
+                        </div>
+                      );
+                    })}
+                  </div>
                 </div>
-              </div>
+              )}
+
               <div className="g2">
                 <div className="card">
                   <div className="ctitle">{t("itin")}</div>
-                  {(trackData.route||[]).map((p: any, i: number) => {
+                  {(trackData.route||[]).map((p: any,i: number)=>{
                     const cls = p.type==="origin"?"pi-o":p.type==="current"?"pi-c":p.type==="dest"?"pi-d":"pi-s";
                     const ico = p.type==="origin"?"🚀":p.type==="current"?"📍":p.type==="dest"?"🏁":"●";
                     return (
                       <div key={i} className="rp">
-                        <div className={`pi ${cls}`}>{ico}</div>
-                        <div>
-                          <div className="plabel">{lkMap(p.lk)}</div>
-                          <div className="pcity">{p.city}</div>
-                          <div className="ptime">{p.time}</div>
-                          {p.note && <div className="pnote">{p.note}</div>}
-                        </div>
+                        <div className={"pi "+cls}>{ico}</div>
+                        <div><div className="plabel">{lkMap(p.lk)}</div><div className="pcity">{p.city}</div><div className="ptime">{p.time}</div>{p.note&&<div className="pnote">{p.note}</div>}</div>
                       </div>
                     );
                   })}
                 </div>
                 <div className="card">
                   <div className="ctitle">{t("tl")}</div>
-                  {(trackData.timeline||[]).map((e: any, i: number) => {
+                  {(trackData.timeline||[]).map((e: any,i: number)=>{
                     const cls = e.type==="done"?"td":e.type==="active"?"ta":"tp";
                     const col = e.type==="active"?"var(--orange)":e.type==="done"?"var(--text)":"var(--muted)";
                     return (
                       <div key={i} className="tli">
-                        <div className={`tld ${cls}`}>{e.icon}</div>
-                        <div className="tlc">
-                          <div className="tlt" style={{color:col}}>{e.title}</div>
-                          <div className="tltime">{e.time}</div>
-                        </div>
+                        <div className={"tld "+cls}>{e.icon}</div>
+                        <div className="tlc"><div className="tlt" style={{color:col}}>{e.title}</div><div className="tltime">{e.time}</div></div>
                       </div>
                     );
                   })}
                 </div>
               </div>
+
               <div className="card">
                 <div className="ctitle">{t("info")}</div>
                 <div className="ig">
-                  {(trackData.info||[]).map((item: any, i: number) => (
-                    <div key={i} className="ii">
-                      <div className="il">{infoLkMap(item.lk)}</div>
-                      <div className="iv">{item.val}</div>
-                    </div>
+                  {(trackData.info||[]).map((item: any,i: number)=>(
+                    <div key={i} className="ii"><div className="il">{infoLkMap(item.lk)}</div><div className="iv">{item.val}</div></div>
                   ))}
                 </div>
               </div>
-
-              {/* CLIENT PHOTOS */}
-              <ClientPhotos trackId={trackId} onLightbox={setLightbox} />
             </div>
           </div>
         )}
 
-        {/* ════ ADMIN VIEW (protected) ════ */}
-        {view === "admin" && adminUser && (
+        {/* ════ ADMIN ════ */}
+        {view==="admin" && adminUser && (
           <div className="z1">
             <div className="adm-wrap">
               <div className="adm-hdr">
@@ -868,173 +709,119 @@ export default function App() {
               <div className="card">
                 <div className="fg">
                   <div className="sdivider">{t("s_cli")}</div>
-                  {([["l_name","name","Mohammed Alami"],["l_email","email","client@email.com"],["l_phone","phone","+33 6 00 00 00 00"]] as [string,string,string][]).map(([lk,k,ph]) => (
-                    <div key={k} className="fgroup">
-                      <div className="flabel">{t(lk)}</div>
-                      <input className="fi" value={(form as any)[k]} onChange={e => setForm(p=>({...p,[k]:e.target.value}))} placeholder={ph} />
+                  {([["l_name","name","Mohammed Alami"],["l_email","email","client@email.com"],["l_phone","phone","+33 6 00 00 00 00"]] as [string,string,string][]).map(([lk,k,ph])=>(
+                    <div key={k} className="fgroup"><div className="flabel">{t(lk)}</div>
+                      <input className="fi" value={(form as any)[k]} onChange={e=>setForm(p=>({...p,[k]:e.target.value}))} placeholder={ph}/>
                     </div>
                   ))}
-                  <div className="fgroup">
-                    <div className="flabel">{t("l_co")}</div>
-                    <select className="fs" value={form.co} onChange={e => setForm(p=>({...p,co:e.target.value}))}>
-                      <option value="AutoDeliv">AutoDeliv</option>
+                  <div className="fgroup"><div className="flabel">{t("l_co")}</div>
+                    <select className="fs" value={form.co} onChange={e=>setForm(p=>({...p,co:e.target.value}))}>
+                      <option value="CarConcept">CarConcept</option>
                       <option value="AutoReach+">AutoReach+</option>
+                      <option value="Autre">Autre (saisir)</option>
                     </select>
+                    {form.co === "Autre" && (
+                      <input className="fi" style={{marginTop:6}} value={customCo} onChange={e=>setCustomCo(e.target.value)} placeholder="Nom de l'entreprise…"/>
+                    )}
                   </div>
                   <div className="sdivider">{t("s_veh")}</div>
-                  {([["l_veh","veh","BMW X5 2021"],["l_col","col","Blanc perle"],["l_vin","vin","WBA3A5G5XDNX00001"],["l_plate","plate","AB-123-CD"]] as [string,string,string][]).map(([lk,k,ph]) => (
-                    <div key={k} className="fgroup">
-                      <div className="flabel">{t(lk)}</div>
-                      <input className="fi" value={(form as any)[k]} onChange={e => setForm(p=>({...p,[k]:e.target.value}))} placeholder={ph} />
+                  {([["l_veh","veh","BMW X5 2021"],["l_col","col","Blanc"],["l_vin","vin","WBA3A5G5XDNX00001"],["l_plate","plate","AB-123-CD"]] as [string,string,string][]).map(([lk,k,ph])=>(
+                    <div key={k} className="fgroup"><div className="flabel">{t(lk)}</div>
+                      <input className="fi" value={(form as any)[k]} onChange={e=>setForm(p=>({...p,[k]:e.target.value}))} placeholder={ph}/>
                     </div>
                   ))}
                   <div className="sdivider">{t("s_rou")}</div>
-                  <div className="fgroup full">
-                    <div className="flabel">{t("l_from")}</div>
-                    <input className="fi" value={form.from} onChange={e => setForm(p=>({...p,from:e.target.value}))} placeholder="15 Rue de la Paix, Paris, France" />
+                  <div className="fgroup full"><div className="flabel">{t("l_from")}</div>
+                    <input className="fi" value={form.from} onChange={e=>setForm(p=>({...p,from:e.target.value}))} placeholder="15 Rue de la Paix, Paris, France"/>
                   </div>
-                  <div className="fgroup full">
-                    <div className="flabel">{t("l_to")}</div>
-                    <input className="fi" value={form.to} onChange={e => setForm(p=>({...p,to:e.target.value}))} placeholder="12 Bd Mohammed V, Casablanca, Maroc" />
+                  <div className="fgroup full"><div className="flabel">{t("l_to")}</div>
+                    <input className="fi" value={form.to} onChange={e=>setForm(p=>({...p,to:e.target.value}))} placeholder="12 Bd Mohammed V, Casablanca, Maroc"/>
                   </div>
-                  <div className="fgroup">
-                    <div className="flabel">{t("l_dep")}</div>
-                    <input className="fi" type="date" value={form.dep} onChange={e => setForm(p=>({...p,dep:e.target.value}))} />
+                  <div className="fgroup"><div className="flabel">{t("l_dep")}</div>
+                    <input className="fi" type="date" value={form.dep} onChange={e=>setForm(p=>({...p,dep:e.target.value}))}/>
                   </div>
-                  <div className="fgroup">
-                    <div className="flabel">{t("l_arr")}</div>
-                    <input className="fi" type="date" value={form.arr} onChange={e => setForm(p=>({...p,arr:e.target.value}))} />
+                  <div className="fgroup"><div className="flabel">{t("l_arr")}</div>
+                    <input className="fi" type="date" value={form.arr} onChange={e=>setForm(p=>({...p,arr:e.target.value}))}/>
                   </div>
-                  <div className="fgroup">
-                    <div className="flabel">{t("l_mode")}</div>
-                    <select className="fs" value={form.mode} onChange={e => setForm(p=>({...p,mode:e.target.value}))}>
-                      {["m1","m2","m3","m4"].map(k => <option key={k}>{t(k)}</option>)}
+                  <div className="fgroup"><div className="flabel">{t("l_mode")}</div>
+                    <select className="fs" value={form.mode} onChange={e=>setForm(p=>({...p,mode:e.target.value}))}>
+                      {["m1","m2","m3","m4"].map(k=><option key={k}>{t(k)}</option>)}
                     </select>
                   </div>
-                  <div className="fgroup">
-                    <div className="flabel">{t("l_carrier")}</div>
-                    <input className="fi" value={form.carrier} onChange={e => setForm(p=>({...p,carrier:e.target.value}))} placeholder="Express Trans Europe" />
+                  <div className="fgroup"><div className="flabel">{t("l_carrier")}</div>
+                    <input className="fi" value={form.carrier} onChange={e=>setForm(p=>({...p,carrier:e.target.value}))} placeholder="Express Trans Europe"/>
                   </div>
                   <button className="btn-gen" onClick={genTracking} disabled={genBusy}>
-                    {genBusy ? <><span className="spin" /> Génération…</> : t("btn_gen")}
+                    {genBusy?<><span className="spin"/> Génération…</>:t("btn_gen")}
                   </button>
                 </div>
 
                 {genId && (
                   <div className="gen-card">
                     <div className="gen-lbl">{t("gen_ok")}</div>
-                    <div className="gen-num" id="gen-num-display">
-                      <span>ATK</span>{genId.substring(3)}
-                    </div>
+                    <div className="gen-num" id="gen-num-display"><span>ATK</span>{genId.substring(3)}</div>
                     <div className="copy-btn" onClick={copyNum}>📋 {t("btn_copy")}</div>
+                    <div className="link-box">{t("lbl_link")}<br/><a href={trackLink} target="_blank" rel="noreferrer">{trackLink}</a></div>
+                    <p className="link-note">{t("link_note")}</p>
                     <div className="qr-lbl">📱 QR Code — Scanner pour suivre</div>
                     <div className="qr-wrap">
-                      <img
-                        src={"https://api.qrserver.com/v1/create-qr-code/?size=160x160&data=" + encodeURIComponent(trackLink) + "&bgcolor=0a0e1a&color=4a9eff&qzone=2"}
-                        alt="QR Code suivi"
-                        width={160}
-                        height={160}
-                      />
+                      <img src={"https://api.qrserver.com/v1/create-qr-code/?size=160x160&data="+encodeURIComponent(trackLink)+"&bgcolor=0a0e1a&color=4a9eff&qzone=2"} alt="QR Code" width={160} height={160}/>
                     </div>
-                    <a
-                      className="qr-dl"
-                      href={"https://api.qrserver.com/v1/create-qr-code/?size=400x400&data=" + encodeURIComponent(trackLink) + "&bgcolor=ffffff&color=1a6fd4&qzone=2"}
-                      download={"QR-" + genId + ".png"}
-                      target="_blank"
-                      rel="noreferrer"
-                    >
-                      ⬇️ Télécharger le QR Code
-                    </a>
-                    <div className="link-box">
-                      {t("lbl_link")}<br/>
-                      <a href={trackLink} target="_blank" rel="noreferrer">{trackLink}</a>
-                    </div>
-                    <p className="link-note">{t("link_note")}</p>
-                    {/* PHOTOS */}
-                    <div className="photo-section">
-                      <div className="upd-h">📸 Photos du véhicule</div>
-                      {photos.length === 0 && <p style={{fontSize:12,color:"var(--muted)"}}>Aucune photo ajoutée.</p>}
-                      <div className="photo-grid">
-                        {photos.map((url, i) => (
-                          <div key={i} className="photo-item">
-                            <img src={url} alt={"Photo " + (i+1)} onClick={() => setLightbox(url)} />
-                            <button className="photo-del" onClick={() => deletePhoto(url)}>✕</button>
-                          </div>
-                        ))}
-                      </div>
-                      <label className="upload-btn">
-                        {photoUploading ? <><span className="spin" /> Envoi…</> : <>📷 Ajouter une photo</>}
-                        <input type="file" accept="image/*" style={{display:"none"}} onChange={uploadPhoto} disabled={photoUploading} />
-                      </label>
-                    </div>
+                    <a className="qr-dl" href={"https://api.qrserver.com/v1/create-qr-code/?size=400x400&data="+encodeURIComponent(trackLink)+"&bgcolor=ffffff&color=1a6fd4&qzone=2"} download={"QR-"+genId+".png"} target="_blank" rel="noreferrer">⬇️ Télécharger le QR Code</a>
 
                     <div className="upd-section">
                       <div className="upd-h">{t("upd_h")}</div>
                       <div className="upd-g3">
-                        <div className="fgroup">
-                          <div className="flabel">{t("u_city")}</div>
-                          <input className="fi" value={upd.city} onChange={e=>setUpd(p=>({...p,city:e.target.value}))} placeholder="Lyon, France" />
+                        <div className="fgroup"><div className="flabel">{t("u_city")}</div>
+                          <input className="fi" value={upd.city} onChange={e=>setUpd(p=>({...p,city:e.target.value}))} placeholder="Lyon, France"/>
                         </div>
-                        <div className="fgroup">
-                          <div className="flabel">{t("u_date")}</div>
-                          <input className="fi" type="date" value={upd.date} onChange={e=>setUpd(p=>({...p,date:e.target.value}))} />
+                        <div className="fgroup"><div className="flabel">{t("u_date")}</div>
+                          <input className="fi" type="date" value={upd.date} onChange={e=>setUpd(p=>({...p,date:e.target.value}))}/>
                         </div>
-                        <div className="fgroup">
-                          <div className="flabel">{t("u_time")}</div>
-                          <input className="fi" type="time" value={upd.time} onChange={e=>setUpd(p=>({...p,time:e.target.value}))} />
+                        <div className="fgroup"><div className="flabel">{t("u_time")}</div>
+                          <input className="fi" type="time" value={upd.time} onChange={e=>setUpd(p=>({...p,time:e.target.value}))}/>
                         </div>
                       </div>
                       <div className="upd-g2">
-                        <div className="fgroup">
-                          <div className="flabel">{t("u_status")}</div>
+                        <div className="fgroup"><div className="flabel">{t("u_status")}</div>
                           <select className="fs" value={upd.status} onChange={e=>setUpd(p=>({...p,status:e.target.value}))}>
-                            {steps.map(s => <option key={s} value={s}>{t(s+"f")}</option>)}
+                            {["st0","st1","st2","st3","st4","st5","st6"].map(s=><option key={s} value={s}>{t(s+"f")}</option>)}
                           </select>
                         </div>
-                        <div className="fgroup">
-                          <div className="flabel">{t("u_note")}</div>
-                          <input className="fi" value={upd.note} onChange={e=>setUpd(p=>({...p,note:e.target.value}))} placeholder="Contrôle douanier en cours…" />
+                        <div className="fgroup"><div className="flabel">{t("u_note")}</div>
+                          <input className="fi" value={upd.note} onChange={e=>setUpd(p=>({...p,note:e.target.value}))} placeholder="Contrôle douanier en cours…"/>
                         </div>
                       </div>
                       <button className="btn-upd" onClick={pushUpdate} disabled={updBusy}>
-                        {updBusy ? <><span className="spin" /> Envoi…</> : t("btn_upd")}
+                        {updBusy?<><span className="spin"/> Envoi…</>:t("btn_upd")}
                       </button>
                     </div>
                   </div>
                 )}
               </div>
 
+              {/* HISTORY */}
               <div className="hist">
-                <h3>
-                  {t("hist_h")}
-                  <span style={{fontSize:12,color:"var(--muted)",fontWeight:400}}>({history.length})</span>
+                <h3>{t("hist_h")} <span style={{fontSize:12,color:"var(--muted)",fontWeight:400}}>({history.length})</span>
                   <button className="ref-btn" onClick={loadHistory}>↻</button>
                 </h3>
-
-                {/* STATS */}
-                <div className="stats-row">
+                <div className="kpi-row">
                   {[
                     {lbl:"Total", num:history.length, col:"var(--blue)"},
                     {lbl:"En transit", num:history.filter(([,d])=>d.statusKey==="st2").length, col:"var(--blue)"},
                     {lbl:"Douane", num:history.filter(([,d])=>d.statusKey==="st3").length, col:"var(--orange)"},
                     {lbl:"Livrés", num:history.filter(([,d])=>d.statusKey==="st5").length, col:"var(--green)"},
-                  ].map(s => (
-                    <div key={s.lbl} className="stat-card">
-                      <div className="stat-num" style={{color:s.col}}>{s.num}</div>
-                      <div className="stat-lbl">{s.lbl}</div>
-                    </div>
+                  ].map(s=>(
+                    <div key={s.lbl} className="kpi"><div className="kpi-num" style={{color:s.col}}>{s.num}</div><div className="kpi-lbl">{s.lbl}</div></div>
                   ))}
                 </div>
-
-                {/* SEARCH + FILTER */}
                 <div className="hist-toolbar">
-                  <input className="search-in" placeholder="🔍 Rechercher client, numéro, véhicule…" value={search} onChange={e=>setSearch(e.target.value)} />
+                  <input className="search-in" placeholder="🔍 Rechercher client, numéro, véhicule…" value={search} onChange={e=>setSearch(e.target.value)}/>
                   <select className="filter-sel" value={filterStatus} onChange={e=>setFilterStatus(e.target.value)}>
                     <option value="all">Tous les statuts</option>
-                    {["st0","st1","st2","st3","st4","st5"].map(s=><option key={s} value={s}>{t(s+"f")}</option>)}
+                    {["st0","st1","st2","st3","st4","st5","st6"].map(s=><option key={s} value={s}>{t(s+"f")}</option>)}
                   </select>
                 </div>
-
                 <div className="card" style={{overflowX:"auto"}}>
                   <table className="htable">
                     <thead><tr>
@@ -1042,34 +829,22 @@ export default function App() {
                       <th>Actions</th>
                     </tr></thead>
                     <tbody>
-                      {history.length === 0 && (
-                        <tr><td colSpan={7} style={{textAlign:"center",color:"var(--muted)",padding:20}}>Aucun suivi créé.</td></tr>
-                      )}
-                      {history
-                        .filter(([id, d]) => {
-                          const q = search.toLowerCase();
-                          const matchSearch = !q || id.toLowerCase().includes(q) || (d.client||" ").toLowerCase().includes(q) || (d.vehicle||" ").toLowerCase().includes(q);
-                          const matchStatus = filterStatus === "all" || d.statusKey === filterStatus;
-                          return matchSearch && matchStatus;
-                        })
-                        .map(([id, d]) => {
-                        const co = d.company || "—";
-                        const stc = d.statusKey==="st5"?"var(--green)":d.statusKey==="st3"?"var(--orange)":"var(--blue)";
+                      {filteredHistory.length===0 && <tr><td colSpan={7} style={{textAlign:"center",color:"var(--muted)",padding:20}}>Aucun résultat.</td></tr>}
+                      {filteredHistory.map(([id,d])=>{
+                        const co = d.company||"—";
+                        const stc = statusColor(d.statusKey||"st0");
                         return (
                           <tr key={id} style={{background:selectedId===id?"rgba(26,111,212,.07)":"transparent"}}>
-                            <td><span className="tid" onClick={() => selectTracking(id)}>{id}</span></td>
-                            <td>
-                              <div>{d.client}</div>
-                              <div style={{fontSize:10,color:"var(--muted)"}}>{d.email||""}</div>
-                            </td>
+                            <td><span className="tid" onClick={()=>selectTracking(id)}>{id}</span></td>
+                            <td><div>{d.client}</div><div style={{fontSize:10,color:"var(--muted)"}}>{d.email||""}</div></td>
                             <td>{d.vehicle}</td>
                             <td>{d.fromCity} → {d.toCity}</td>
-                            <td><span className="dstatus"><span className="dot" style={{background:stc}} />{t((d.statusKey||"st0")+"f")}</span></td>
-                            <td><span style={{color:co==="AutoDeliv"?"var(--blue)":"var(--orange)"}}>{co}</span></td>
+                            <td><span className="dstatus"><span className="dot" style={{background:stc}}/>{t((d.statusKey||"st0")+"f")}</span></td>
+                            <td><span style={{color:co==="CarConcept"?"var(--blue)":co==="AutoReach+"?"var(--orange)":"var(--muted)"}}>{co}</span></td>
                             <td>
                               <div style={{display:"flex",gap:5}}>
-                                <button className="ref-btn" onClick={() => selectTracking(id)} title="Sélectionner">✏️</button>
-                                <button className="del-btn" onClick={() => setShowDeleteConfirm(id)} title="Supprimer">🗑️</button>
+                                <button className="ref-btn" onClick={()=>selectTracking(id)}>✏️</button>
+                                <button className="del-btn" onClick={()=>setShowDeleteConfirm(id)}>🗑️</button>
                               </div>
                             </td>
                           </tr>
@@ -1079,205 +854,153 @@ export default function App() {
                   </table>
                 </div>
               </div>
-
-              {/* DELETE CONFIRM */}
-              {showDeleteConfirm && (
-                <div className="confirm-ov">
-                  <div className="confirm-box">
-                    <h4>⚠️ Supprimer ce suivi ?</h4>
-                    <p>{showDeleteConfirm}</p>
-                    <p style={{fontSize:11,marginTop:-8}}>Cette action est irréversible.</p>
-                    <div className="confirm-btns">
-                      <button className="btn-cancel" onClick={() => setShowDeleteConfirm(null)}>Annuler</button>
-                      <button className="btn-del-confirm" onClick={() => deleteTracking(showDeleteConfirm)}>Supprimer</button>
-                    </div>
-                  </div>
-                </div>
-              )}
             </div>
           </div>
         )}
 
-        {/* ════ STATS VIEW ════ */}
-        {view === "stats" && adminUser && (() => {
+        {/* ════ STATS ════ */}
+        {view==="stats" && adminUser && (()=>{
           const total = history.length;
-          const delivered = history.filter(([,d]) => d.statusKey === "st5").length;
-          const inTransit = history.filter(([,d]) => d.statusKey === "st2").length;
-          const customs = history.filter(([,d]) => d.statusKey === "st3").length;
-          const rate = total ? Math.round((delivered / total) * 100) : 0;
-
-          // Monthly deliveries
+          const delivered = history.filter(([,d])=>d.statusKey==="st5").length;
+          const inTransit = history.filter(([,d])=>d.statusKey==="st2").length;
+          const suspended = history.filter(([,d])=>d.statusKey==="st6").length;
+          const rate = total?Math.round((delivered/total)*100):0;
           const monthly: Record<string,number> = {};
-          history.forEach(([,d]) => {
-            if (d.dep) {
-              const parts = d.dep.split("/");
-              if (parts.length >= 2) {
-                const key = parts[1] + "/" + (parts[2] || "2026");
-                monthly[key] = (monthly[key] || 0) + 1;
-              }
-            }
-          });
-          const monthData = Object.entries(monthly).slice(-6).map(([m, v]) => ({ mois: m, livraisons: v }));
-
-          // Status distribution
+          history.forEach(([,d])=>{ if(d.dep){const p=d.dep.split("/");if(p.length>=2){const k=p[1]+"/"+(p[2]||"2026");monthly[k]=(monthly[k]||0)+1;}} });
+          const monthData = Object.entries(monthly).slice(-6).map(([m,v])=>({mois:m,livraisons:v}));
           const statusData = [
-            { name: "En attente", value: history.filter(([,d]) => d.statusKey === "st0").length, color: "#7a8499" },
-            { name: "En transit", value: inTransit, color: "#1a6fd4" },
-            { name: "Douane", value: customs, color: "#e85d04" },
-            { name: "Livrés", value: delivered, color: "#5a9e2f" },
-          ].filter(s => s.value > 0);
-
-          // Top destinations
+            {name:"En attente",value:history.filter(([,d])=>d.statusKey==="st0").length,color:"#7a8499"},
+            {name:"En transit",value:inTransit,color:"#1a6fd4"},
+            {name:"Douane",value:history.filter(([,d])=>d.statusKey==="st3").length,color:"#e85d04"},
+            {name:"Livrés",value:delivered,color:"#5a9e2f"},
+            {name:"Suspendus",value:suspended,color:"#d42020"},
+          ].filter(s=>s.value>0);
           const destCount: Record<string,number> = {};
-          history.forEach(([,d]) => { if (d.toCity) destCount[d.toCity] = (destCount[d.toCity] || 0) + 1; });
-          const topDest = Object.entries(destCount).sort((a,b) => b[1]-a[1]).slice(0,5);
-          const maxDest = topDest[0]?.[1] || 1;
-
-          // Top vehicles
+          history.forEach(([,d])=>{if(d.toCity)destCount[d.toCity]=(destCount[d.toCity]||0)+1;});
+          const topDest = Object.entries(destCount).sort((a,b)=>b[1]-a[1]).slice(0,5);
+          const maxDest = topDest[0]?.[1]||1;
           const vehCount: Record<string,number> = {};
-          history.forEach(([,d]) => {
-            if (d.vehicle) {
-              const brand = d.vehicle.split(" ")[0];
-              vehCount[brand] = (vehCount[brand] || 0) + 1;
-            }
-          });
-          const topVeh = Object.entries(vehCount).sort((a,b) => b[1]-a[1]).slice(0,5);
-          const maxVeh = topVeh[0]?.[1] || 1;
-
+          history.forEach(([,d])=>{if(d.vehicle){const b=d.vehicle.split(" ")[0];vehCount[b]=(vehCount[b]||0)+1;}});
+          const topVeh = Object.entries(vehCount).sort((a,b)=>b[1]-a[1]).slice(0,5);
+          const maxVeh = topVeh[0]?.[1]||1;
           return (
             <div className="z1">
               <div className="stats-page">
                 <div className="adm-hdr">
-                  <div className="op-chip" style={{marginBottom:12}}>📊 Statistiques</div>
+                  <div className="op-chip" style={{marginBottom:12}}>📊 Stats</div>
                   <h2>Tableau de bord</h2>
-                  <p>Vue d'ensemble de votre activité de transport</p>
+                  <p style={{color:"var(--muted)",fontSize:14,marginBottom:28}}>Vue d'ensemble de votre activité</p>
                 </div>
-
-                {/* KPI CARDS */}
-                <div className="stats-grid">
+                <div className="kpi-row">
                   {[
-                    { num: total, lbl: "Total suivis", sub: "Tous statuts", col: "var(--blue)" },
-                    { num: delivered, lbl: "Livrés", sub: rate + "% du total", col: "var(--green)" },
-                    { num: inTransit, lbl: "En transit", sub: "En cours", col: "var(--blue)" },
-                    { num: customs, lbl: "En douane", sub: "À surveiller", col: "var(--orange)" },
-                  ].map(s => (
-                    <div key={s.lbl} className="scard">
-                      <div className="scard-num" style={{color:s.col}}>{s.num}</div>
-                      <div className="scard-lbl">{s.lbl}</div>
-                      <div className="scard-sub" style={{color:s.col}}>{s.sub}</div>
-                    </div>
+                    {num:total,lbl:"Total suivis",col:"var(--blue)"},
+                    {num:delivered,lbl:"Livrés — "+rate+"%",col:"var(--green)"},
+                    {num:inTransit,lbl:"En transit",col:"var(--blue)"},
+                    {num:suspended,lbl:"Suspendus",col:"var(--red)"},
+                  ].map(s=>(
+                    <div key={s.lbl} className="kpi"><div className="kpi-num" style={{color:s.col}}>{s.num}</div><div className="kpi-lbl">{s.lbl}</div></div>
                   ))}
                 </div>
-
-                {/* CHARTS ROW */}
                 <div className="charts-g2">
-                  {/* Bar chart */}
                   <div className="chart-card">
                     <div className="chart-title">Livraisons par mois</div>
-                    {monthData.length === 0
-                      ? <p style={{color:"var(--muted)",fontSize:13,textAlign:"center",padding:"20px 0"}}>Pas encore de données</p>
-                      : <ResponsiveContainer width="100%" height={200}>
-                          <BarChart data={monthData}>
-                            <XAxis dataKey="mois" tick={{fill:"#7a8499",fontSize:11}} />
-                            <YAxis tick={{fill:"#7a8499",fontSize:11}} allowDecimals={false} />
-                            <Tooltip contentStyle={{background:"#0a0e1a",border:"1px solid #1a6fd4",borderRadius:8,color:"#fff"}} />
-                            <Bar dataKey="livraisons" fill="#1a6fd4" radius={[4,4,0,0]} />
-                          </BarChart>
-                        </ResponsiveContainer>
+                    {monthData.length===0
+                      ?<p style={{color:"var(--muted)",fontSize:13,textAlign:"center",padding:"20px 0"}}>Pas encore de données</p>
+                      :<ResponsiveContainer width="100%" height={200}>
+                        <BarChart data={monthData}>
+                          <XAxis dataKey="mois" tick={{fill:"#7a8499",fontSize:11}}/>
+                          <YAxis tick={{fill:"#7a8499",fontSize:11}} allowDecimals={false}/>
+                          <Tooltip contentStyle={{background:"#0a0e1a",border:"1px solid #1a6fd4",borderRadius:8,color:"#fff"}}/>
+                          <Bar dataKey="livraisons" fill="#1a6fd4" radius={[4,4,0,0]}/>
+                        </BarChart>
+                      </ResponsiveContainer>
                     }
                   </div>
-
-                  {/* Pie chart */}
                   <div className="chart-card">
                     <div className="chart-title">Répartition par statut</div>
-                    {statusData.length === 0
-                      ? <p style={{color:"var(--muted)",fontSize:13,textAlign:"center",padding:"20px 0"}}>Pas encore de données</p>
-                      : <ResponsiveContainer width="100%" height={200}>
-                          <PieChart>
-                            <Pie data={statusData} dataKey="value" nameKey="name" cx="50%" cy="50%" outerRadius={70} label={({name,percent}) => name + " " + Math.round(percent*100) + "%"}>
-                              {statusData.map((entry, i) => <Cell key={i} fill={entry.color} />)}
-                            </Pie>
-                            <Tooltip contentStyle={{background:"#0a0e1a",border:"1px solid #1a6fd4",borderRadius:8,color:"#fff"}} />
-                          </PieChart>
-                        </ResponsiveContainer>
+                    {statusData.length===0
+                      ?<p style={{color:"var(--muted)",fontSize:13,textAlign:"center",padding:"20px 0"}}>Pas encore de données</p>
+                      :<ResponsiveContainer width="100%" height={200}>
+                        <PieChart>
+                          <Pie data={statusData} dataKey="value" nameKey="name" cx="50%" cy="50%" outerRadius={70} label={({name,percent})=>name+" "+Math.round(percent*100)+"%"}>
+                            {statusData.map((e,i)=><Cell key={i} fill={e.color}/>)}
+                          </Pie>
+                          <Tooltip contentStyle={{background:"#0a0e1a",border:"1px solid #1a6fd4",borderRadius:8,color:"#fff"}}/>
+                        </PieChart>
+                      </ResponsiveContainer>
                     }
                   </div>
                 </div>
-
-                {/* TOP LISTS */}
                 <div className="charts-g2">
                   <div className="chart-card">
                     <div className="chart-title">Top destinations</div>
-                    {topDest.length === 0
-                      ? <p style={{color:"var(--muted)",fontSize:13}}>Pas encore de données</p>
-                      : <div className="top-list">
-                          {topDest.map(([city, count], i) => (
-                            <div key={city} className="top-item">
-                              <span className="top-rank">#{i+1}</span>
-                              <span className="top-name">{city}</span>
-                              <div className="top-bar-wrap"><div className="top-bar" style={{width: Math.round((count/maxDest)*100) + "%"}} /></div>
-                              <span className="top-count">{count}</span>
-                            </div>
-                          ))}
-                        </div>
+                    {topDest.length===0?<p style={{color:"var(--muted)",fontSize:13}}>Pas encore de données</p>
+                      :<div className="top-list">
+                        {topDest.map(([city,count],i)=>(
+                          <div key={city} className="top-item">
+                            <span className="top-rank">#{i+1}</span>
+                            <span className="top-name">{city}</span>
+                            <div className="top-bar-wrap"><div className="top-bar" style={{width:Math.round((count/maxDest)*100)+"%"}}/></div>
+                            <span className="top-count">{count}</span>
+                          </div>
+                        ))}
+                      </div>
                     }
                   </div>
                   <div className="chart-card">
                     <div className="chart-title">Top marques</div>
-                    {topVeh.length === 0
-                      ? <p style={{color:"var(--muted)",fontSize:13}}>Pas encore de données</p>
-                      : <div className="top-list">
-                          {topVeh.map(([brand, count], i) => (
-                            <div key={brand} className="top-item">
-                              <span className="top-rank">#{i+1}</span>
-                              <span className="top-name">{brand}</span>
-                              <div className="top-bar-wrap"><div className="top-bar" style={{width: Math.round((count/maxVeh)*100) + "%"}} /></div>
-                              <span className="top-count">{count}</span>
-                            </div>
-                          ))}
-                        </div>
+                    {topVeh.length===0?<p style={{color:"var(--muted)",fontSize:13}}>Pas encore de données</p>
+                      :<div className="top-list">
+                        {topVeh.map(([brand,count],i)=>(
+                          <div key={brand} className="top-item">
+                            <span className="top-rank">#{i+1}</span>
+                            <span className="top-name">{brand}</span>
+                            <div className="top-bar-wrap"><div className="top-bar" style={{width:Math.round((count/maxVeh)*100)+"%"}}/></div>
+                            <span className="top-count">{count}</span>
+                          </div>
+                        ))}
+                      </div>
                     }
                   </div>
                 </div>
-
               </div>
             </div>
           );
         })()}
 
-        {/* ════ ADMIN NOT LOGGED ════ */}}
-        {view === "admin" && !adminUser && (
+        {/* ADMIN NOT LOGGED */}
+        {(view==="admin"||view==="stats") && !adminUser && (
           <div className="z1" style={{display:"flex",alignItems:"center",justifyContent:"center",padding:"80px 20px"}}>
             <div style={{textAlign:"center"}}>
-              <p style={{color:"var(--muted)",marginBottom:16}}>Vous devez être connecté pour accéder à l'administration.</p>
-              <button className="btn-blue" onClick={() => { setShowLogin(true); setLoginErr(""); }}>🔐 Se connecter</button>
+              <p style={{color:"var(--muted)",marginBottom:16}}>Vous devez être connecté pour accéder à cette page.</p>
+              <button className="btn-blue" onClick={()=>{setShowLogin(true);setLoginErr("");}}>🔐 Se connecter</button>
             </div>
           </div>
         )}
 
-        {/* LIGHTBOX */}
-        {lightbox && (
-          <div className="lightbox-ov" onClick={() => setLightbox(null)}>
-            <button className="lightbox-close" onClick={() => setLightbox(null)}>✕</button>
-            <img src={lightbox} alt="Photo véhicule" onClick={e => e.stopPropagation()} />
+        {/* CONFIRM DELETE */}
+        {showDeleteConfirm && (
+          <div className="confirm-ov">
+            <div className="confirm-box">
+              <h4>⚠️ Supprimer ce suivi ?</h4>
+              <p>{showDeleteConfirm}</p>
+              <p style={{fontSize:11,marginTop:-8}}>Cette action est irréversible.</p>
+              <div className="confirm-btns">
+                <button className="btn-cancel" onClick={()=>setShowDeleteConfirm(null)}>Annuler</button>
+                <button className="btn-del-confirm" onClick={()=>deleteTracking(showDeleteConfirm)}>Supprimer</button>
+              </div>
+            </div>
           </div>
         )}
 
-        {/* FOOTER */}
         <footer>
-          <div className="fl">
-            <span style={{color:"var(--orange)"}}>AutoReach+</span>
-            <span style={{color:"var(--border)"}}>|</span>
-            <span style={{color:"var(--blue)"}}>AutoDeliv</span>
-          </div>
+          <div className="fl"><span style={{color:"var(--blue)"}}>AUTOTRACK</span></div>
           <p>{t("ft_tag")}</p>
           <p>© 2026 AUTOTRACK — {t("ft_r")}</p>
         </footer>
 
         <div className="toast-wrap">
-          {toasts.map(tk => (
-            <div key={tk.id} className={`toast t-${tk.type}`}>{tk.msg}</div>
-          ))}
+          {toasts.map(tk=><div key={tk.id} className={"toast t-"+tk.type}>{tk.msg}</div>)}
         </div>
       </div>
     </>
