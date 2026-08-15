@@ -173,6 +173,25 @@ const css = `
   .btn-upd:disabled{opacity:.5;cursor:not-allowed;transform:none;}
   .hist{margin-top:32px;}
   .hist h3{font-family:'Rajdhani',sans-serif;font-size:17px;font-weight:700;letter-spacing:.08em;margin-bottom:11px;display:flex;align-items:center;gap:10px;}
+  .hist-toolbar{display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap;}
+  .search-in{flex:1;min-width:160px;background:rgba(255,255,255,.04);border:1px solid var(--border);border-radius:8px;padding:8px 12px;color:#fff;font-family:'Exo 2',sans-serif;font-size:13px;outline:none;}
+  .search-in:focus{border-color:var(--blue);}
+  .filter-sel{background:rgba(255,255,255,.04);border:1px solid var(--border);border-radius:8px;padding:8px 10px;color:#fff;font-family:'Exo 2',sans-serif;font-size:12px;outline:none;}
+  .filter-sel option{background:#0a0e1a;}
+  .del-btn{background:rgba(232,93,4,.1);border:1px solid rgba(232,93,4,.3);color:var(--orange);border-radius:6px;padding:4px 9px;font-size:11px;cursor:pointer;font-family:'Exo 2',sans-serif;}
+  .del-btn:hover{background:rgba(232,93,4,.25);}
+  .confirm-ov{position:fixed;inset:0;background:rgba(8,12,24,.85);z-index:400;display:flex;align-items:center;justify-content:center;}
+  .confirm-box{background:rgba(15,20,35,.98);border:1px solid var(--border);border-radius:16px;padding:28px;max-width:340px;width:90%;text-align:center;}
+  .confirm-box h4{font-family:'Rajdhani',sans-serif;font-size:18px;font-weight:700;margin-bottom:8px;color:var(--orange);}
+  .confirm-box p{font-size:13px;color:var(--muted);margin-bottom:20px;}
+  .confirm-btns{display:flex;gap:10px;justify-content:center;}
+  .btn-cancel{font-family:'Exo 2',sans-serif;font-size:13px;padding:9px 18px;border-radius:8px;border:1px solid var(--border);background:var(--card);color:var(--muted);cursor:pointer;}
+  .btn-del-confirm{font-family:'Rajdhani',sans-serif;font-size:13px;font-weight:700;padding:9px 18px;border-radius:8px;border:none;background:linear-gradient(135deg,var(--orange),#c44d00);color:#fff;cursor:pointer;}
+  .stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:16px;}
+  .stat-card{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:12px;text-align:center;}
+  .stat-num{font-family:'Rajdhani',sans-serif;font-size:24px;font-weight:700;}
+  .stat-lbl{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;}
+  @media(max-width:640px){.stats-row{grid-template-columns:repeat(2,1fr);}}
   .ref-btn{font-size:11px;color:var(--muted);cursor:pointer;border:1px solid var(--border);padding:4px 9px;border-radius:6px;background:var(--card);font-family:'Exo 2',sans-serif;}
   .ref-btn:hover{color:var(--blue);border-color:var(--blue);}
   .htable{width:100%;border-collapse:collapse;}
@@ -297,6 +316,9 @@ export default function App() {
   const [upd, setUpd] = useState({ city:"", date:"", time:"", status:"st0", note:"" });
   const [genBusy, setGenBusy] = useState(false);
   const [updBusy, setUpdBusy] = useState(false);
+  const [search, setSearch] = useState("");
+  const [filterStatus, setFilterStatus] = useState("all");
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState<string|null>(null);
 
   const toast = (msg: string, type="ok") => {
     const id = Date.now();
@@ -490,6 +512,20 @@ export default function App() {
     setSelectedId(id);
     toast(t("sel") + " " + id, "info");
     document.querySelector(".gen-card")?.scrollIntoView({ behavior:"smooth" });
+  }
+
+  /* ── DELETE TRACKING ── */
+  async function deleteTracking(id: string) {
+    try {
+      const { deleteDoc } = await import("firebase/firestore");
+      await deleteDoc(doc(db, "trackings", id));
+      if (selectedId === id) { setSelectedId(null); setGenId(null); }
+      await loadHistory();
+      toast("🗑️ Suivi supprimé : " + id, "ok");
+    } catch(e) {
+      toast("❌ Erreur suppression", "err");
+    }
+    setShowDeleteConfirm(null);
   }
 
   /* ── COPY ── */
@@ -818,28 +854,71 @@ export default function App() {
               <div className="hist">
                 <h3>
                   {t("hist_h")}
+                  <span style={{fontSize:12,color:"var(--muted)",fontWeight:400}}>({history.length})</span>
                   <button className="ref-btn" onClick={loadHistory}>↻</button>
                 </h3>
+
+                {/* STATS */}
+                <div className="stats-row">
+                  {[
+                    {lbl:"Total", num:history.length, col:"var(--blue)"},
+                    {lbl:"En transit", num:history.filter(([,d])=>d.statusKey==="st2").length, col:"var(--blue)"},
+                    {lbl:"Douane", num:history.filter(([,d])=>d.statusKey==="st3").length, col:"var(--orange)"},
+                    {lbl:"Livrés", num:history.filter(([,d])=>d.statusKey==="st5").length, col:"var(--green)"},
+                  ].map(s => (
+                    <div key={s.lbl} className="stat-card">
+                      <div className="stat-num" style={{color:s.col}}>{s.num}</div>
+                      <div className="stat-lbl">{s.lbl}</div>
+                    </div>
+                  ))}
+                </div>
+
+                {/* SEARCH + FILTER */}
+                <div className="hist-toolbar">
+                  <input className="search-in" placeholder="🔍 Rechercher client, numéro, véhicule…" value={search} onChange={e=>setSearch(e.target.value)} />
+                  <select className="filter-sel" value={filterStatus} onChange={e=>setFilterStatus(e.target.value)}>
+                    <option value="all">Tous les statuts</option>
+                    {["st0","st1","st2","st3","st4","st5"].map(s=><option key={s} value={s}>{t(s+"f")}</option>)}
+                  </select>
+                </div>
+
                 <div className="card" style={{overflowX:"auto"}}>
                   <table className="htable">
                     <thead><tr>
                       {["th1","th2","th3","th4","th5","th6"].map(k=><th key={k}>{t(k)}</th>)}
+                      <th>Actions</th>
                     </tr></thead>
                     <tbody>
                       {history.length === 0 && (
-                        <tr><td colSpan={6} style={{textAlign:"center",color:"var(--muted)",padding:20}}>Aucun suivi créé.</td></tr>
+                        <tr><td colSpan={7} style={{textAlign:"center",color:"var(--muted)",padding:20}}>Aucun suivi créé.</td></tr>
                       )}
-                      {history.map(([id, d]) => {
+                      {history
+                        .filter(([id, d]) => {
+                          const q = search.toLowerCase();
+                          const matchSearch = !q || id.toLowerCase().includes(q) || (d.client||" ").toLowerCase().includes(q) || (d.vehicle||" ").toLowerCase().includes(q);
+                          const matchStatus = filterStatus === "all" || d.statusKey === filterStatus;
+                          return matchSearch && matchStatus;
+                        })
+                        .map(([id, d]) => {
                         const co = d.company || "—";
                         const stc = d.statusKey==="st5"?"var(--green)":d.statusKey==="st3"?"var(--orange)":"var(--blue)";
                         return (
-                          <tr key={id}>
+                          <tr key={id} style={{background:selectedId===id?"rgba(26,111,212,.07)":"transparent"}}>
                             <td><span className="tid" onClick={() => selectTracking(id)}>{id}</span></td>
-                            <td>{d.client}</td>
+                            <td>
+                              <div>{d.client}</div>
+                              <div style={{fontSize:10,color:"var(--muted)"}}>{d.email||""}</div>
+                            </td>
                             <td>{d.vehicle}</td>
                             <td>{d.fromCity} → {d.toCity}</td>
                             <td><span className="dstatus"><span className="dot" style={{background:stc}} />{t((d.statusKey||"st0")+"f")}</span></td>
                             <td><span style={{color:co==="AutoDeliv"?"var(--blue)":"var(--orange)"}}>{co}</span></td>
+                            <td>
+                              <div style={{display:"flex",gap:5}}>
+                                <button className="ref-btn" onClick={() => selectTracking(id)} title="Sélectionner">✏️</button>
+                                <button className="del-btn" onClick={() => setShowDeleteConfirm(id)} title="Supprimer">🗑️</button>
+                              </div>
+                            </td>
                           </tr>
                         );
                       })}
@@ -847,6 +926,21 @@ export default function App() {
                   </table>
                 </div>
               </div>
+
+              {/* DELETE CONFIRM */}
+              {showDeleteConfirm && (
+                <div className="confirm-ov">
+                  <div className="confirm-box">
+                    <h4>⚠️ Supprimer ce suivi ?</h4>
+                    <p>{showDeleteConfirm}</p>
+                    <p style={{fontSize:11,marginTop:-8}}>Cette action est irréversible.</p>
+                    <div className="confirm-btns">
+                      <button className="btn-cancel" onClick={() => setShowDeleteConfirm(null)}>Annuler</button>
+                      <button className="btn-del-confirm" onClick={() => deleteTracking(showDeleteConfirm)}>Supprimer</button>
+                    </div>
+                  </div>
+                </div>
+              )}
             </div>
           </div>
         )}
