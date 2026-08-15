@@ -7,7 +7,10 @@ import {
   signInWithEmailAndPassword, signOut, onAuthStateChanged, User
 } from "firebase/auth";
 import { db, auth } from "./firebase";
+import { getStorage, ref, uploadBytes, getDownloadURL, listAll, deleteObject } from "firebase/storage";
+const storage = getStorage();
 import emailjs from "@emailjs/browser";
+import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, Legend } from "recharts";
 
 const EMAILJS_SERVICE = "service_tbg6vp7";
 const EMAILJS_TEMPLATE = "template_petii59";
@@ -185,6 +188,17 @@ const css = `
   .filter-sel option{background:#0a0e1a;}
   .del-btn{background:rgba(232,93,4,.1);border:1px solid rgba(232,93,4,.3);color:var(--orange);border-radius:6px;padding:4px 9px;font-size:11px;cursor:pointer;font-family:'Exo 2',sans-serif;}
   .del-btn:hover{background:rgba(232,93,4,.25);}
+  .photo-section{margin-top:18px;padding-top:18px;border-top:1px solid var(--border);text-align:left;}
+  .photo-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:10px;}
+  .photo-item{position:relative;border-radius:8px;overflow:hidden;aspect-ratio:1;background:rgba(255,255,255,.04);border:1px solid var(--border);}
+  .photo-item img{width:100%;height:100%;object-fit:cover;cursor:pointer;transition:transform .2s;}
+  .photo-item img:hover{transform:scale(1.04);}
+  .photo-del{position:absolute;top:4px;right:4px;background:rgba(8,12,24,.85);border:none;color:var(--orange);font-size:14px;cursor:pointer;border-radius:50%;width:22px;height:22px;display:flex;align-items:center;justify-content:center;}
+  .upload-btn{display:inline-flex;align-items:center;gap:7px;font-size:12px;font-weight:600;padding:8px 14px;border-radius:8px;border:1px dashed rgba(26,111,212,.4);background:rgba(26,111,212,.05);color:var(--blue);cursor:pointer;transition:all .2s;margin-top:8px;}
+  .upload-btn:hover{background:rgba(26,111,212,.12);border-color:var(--blue);}
+  .lightbox-ov{position:fixed;inset:0;background:rgba(0,0,0,.92);z-index:500;display:flex;align-items:center;justify-content:center;}
+  .lightbox-ov img{max-width:92vw;max-height:88vh;border-radius:10px;object-fit:contain;}
+  .lightbox-close{position:absolute;top:18px;right:18px;font-size:28px;color:#fff;cursor:pointer;background:none;border:none;}
   .confirm-ov{position:fixed;inset:0;background:rgba(8,12,24,.85);z-index:400;display:flex;align-items:center;justify-content:center;}
   .confirm-box{background:rgba(15,20,35,.98);border:1px solid var(--border);border-radius:16px;padding:28px;max-width:340px;width:90%;text-align:center;}
   .confirm-box h4{font-family:'Rajdhani',sans-serif;font-size:18px;font-weight:700;margin-bottom:8px;color:var(--orange);}
@@ -207,6 +221,26 @@ const css = `
   .tid:hover{text-decoration:underline;}
   .dstatus{display:inline-flex;align-items:center;gap:5px;}
   .dot{width:6px;height:6px;border-radius:50%;}
+  .stats-page{max-width:960px;margin:0 auto;padding:44px 20px 80px;}
+  .stats-page h2{font-family:'Rajdhani',sans-serif;font-size:26px;font-weight:700;letter-spacing:.06em;margin-bottom:6px;}
+  .stats-page p{color:var(--muted);font-size:14px;margin-bottom:28px;}
+  .stats-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:24px;}
+  .scard{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:18px;text-align:center;}
+  .scard-num{font-family:'Rajdhani',sans-serif;font-size:32px;font-weight:700;margin-bottom:4px;}
+  .scard-lbl{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.1em;}
+  .scard-sub{font-size:11px;margin-top:4px;}
+  .chart-card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:20px;margin-bottom:16px;}
+  .chart-title{font-family:'Rajdhani',sans-serif;font-size:13px;font-weight:700;letter-spacing:.1em;color:var(--muted);text-transform:uppercase;margin-bottom:16px;display:flex;align-items:center;gap:8px;}
+  .chart-title::after{content:'';flex:1;height:1px;background:var(--border);}
+  .charts-g2{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px;}
+  .top-list{display:flex;flex-direction:column;gap:8px;}
+  .top-item{display:flex;align-items:center;gap:10px;}
+  .top-rank{font-family:'Rajdhani',sans-serif;font-size:14px;font-weight:700;color:var(--muted);width:20px;}
+  .top-bar-wrap{flex:1;background:rgba(255,255,255,.05);border-radius:4px;height:8px;overflow:hidden;}
+  .top-bar{height:100%;border-radius:4px;background:linear-gradient(90deg,var(--blue),var(--orange));}
+  .top-name{font-size:12px;min-width:80px;}
+  .top-count{font-size:11px;color:var(--muted);min-width:24px;text-align:right;}
+  @media(max-width:640px){.stats-grid{grid-template-columns:repeat(2,1fr);}.charts-g2{grid-template-columns:1fr;}}
   footer{position:relative;z-index:1;padding:16px 24px;border-top:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;margin-top:auto;}
   .fl{display:flex;align-items:center;gap:11px;font-family:'Rajdhani',sans-serif;font-size:13px;font-weight:700;letter-spacing:.1em;}
   footer p{font-size:11px;color:var(--muted);}
@@ -287,12 +321,40 @@ function nowStr() {
 /* ═══════════════════════════════════════════
    MAIN APP
 ═══════════════════════════════════════════ */
+/* ═══════════════════════════════════════════
+   CLIENT PHOTOS COMPONENT
+═══════════════════════════════════════════ */
+function ClientPhotos({ trackId, onLightbox }: { trackId: string; onLightbox: (url: string) => void }) {
+  const [urls, setUrls] = useState<string[]>([]);
+  useEffect(() => {
+    if (!trackId) return;
+    const { getStorage, ref, listAll, getDownloadURL } = require("firebase/storage");
+    const st = getStorage();
+    listAll(ref(st, "vehicles/" + trackId)).then((res: any) =>
+      Promise.all(res.items.map((item: any) => getDownloadURL(item)))
+    ).then(setUrls).catch(() => setUrls([]));
+  }, [trackId]);
+  if (!urls.length) return null;
+  return (
+    <div className="card" style={{marginTop:14}}>
+      <div className="ctitle">📸 Photos du véhicule</div>
+      <div className="photo-grid">
+        {urls.map((url, i) => (
+          <div key={i} className="photo-item">
+            <img src={url} alt={"Photo " + (i+1)} onClick={() => onLightbox(url)} />
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 export default function App() {
   const [lang, setLangState] = useState("fr");
   const t = (k: string) => T[lang]?.[k] ?? T.fr[k] ?? k;
 
   const isAdminUrl = new URLSearchParams(window.location.search).get("admin") === "1";
-  const [view, setView] = useState<"client"|"admin">(isAdminUrl ? "admin" : "client");
+  const [view, setView] = useState<"client"|"admin"|"stats">(isAdminUrl ? "admin" : "client");
   const [showLang, setShowLang] = useState(false);
   const [toasts, setToasts] = useState<{id:number;msg:string;type:string}[]>([]);
   const [loading, setLoading] = useState(false);
@@ -321,6 +383,9 @@ export default function App() {
   const [upd, setUpd] = useState({ city:"", date:"", time:"", status:"st0", note:"" });
   const [genBusy, setGenBusy] = useState(false);
   const [updBusy, setUpdBusy] = useState(false);
+  const [photos, setPhotos] = useState<string[]>([]);
+  const [photoUploading, setPhotoUploading] = useState(false);
+  const [lightbox, setLightbox] = useState<string|null>(null);
   const [search, setSearch] = useState("");
   const [filterStatus, setFilterStatus] = useState("all");
   const [showDeleteConfirm, setShowDeleteConfirm] = useState<string|null>(null);
@@ -455,6 +520,7 @@ export default function App() {
     await dbWrite(id, rec);
     setGenId(id);
     setSelectedId(id);
+    setPhotos([]);
     await loadHistory();
     toast(t("toast_gen") + " " + id, "ok");
     setGenBusy(false);
@@ -515,6 +581,8 @@ export default function App() {
   async function selectTracking(id: string) {
     setGenId(id);
     setSelectedId(id);
+    setPhotos([]);
+    loadPhotos(id);
     toast(t("sel") + " " + id, "info");
     document.querySelector(".gen-card")?.scrollIntoView({ behavior:"smooth" });
   }
@@ -531,6 +599,46 @@ export default function App() {
       toast("❌ Erreur suppression", "err");
     }
     setShowDeleteConfirm(null);
+  }
+
+  /* ── PHOTOS ── */
+  async function loadPhotos(id: string) {
+    try {
+      const listRef = ref(storage, "vehicles/" + id);
+      const res = await listAll(listRef);
+      const urls = await Promise.all(res.items.map(item => getDownloadURL(item)));
+      setPhotos(urls);
+    } catch { setPhotos([]); }
+  }
+
+  async function uploadPhoto(e: React.ChangeEvent<HTMLInputElement>) {
+    if (!selectedId || !e.target.files?.length) return;
+    setPhotoUploading(true);
+    const file = e.target.files[0];
+    const fileRef = ref(storage, "vehicles/" + selectedId + "/" + Date.now() + "_" + file.name);
+    await uploadBytes(fileRef, file);
+    await loadPhotos(selectedId);
+    toast("📸 Photo ajoutée !", "ok");
+    setPhotoUploading(false);
+    e.target.value = "";
+  }
+
+  async function deletePhoto(url: string) {
+    try {
+      const fileRef = ref(storage, url);
+      await deleteObject(fileRef);
+      setPhotos(p => p.filter(u => u !== url));
+      toast("🗑️ Photo supprimée", "ok");
+    } catch {
+      // Try by path
+      const match = url.match(/vehicles%2F[^?]+/);
+      if (match) {
+        const path = decodeURIComponent(match[0]);
+        await deleteObject(ref(storage, path));
+        setPhotos(p => p.filter(u => u !== url));
+        toast("🗑️ Photo supprimée", "ok");
+      }
+    }
   }
 
   /* ── COPY ── */
@@ -610,6 +718,7 @@ export default function App() {
                 <>
                   <button className={`nav-btn${view==="client"?" active":""}`} onClick={() => setView("client")}>Suivi</button>
                   <button className={`nav-btn${view==="admin"?" active":""}`} onClick={() => setView("admin")}>⚙️ Admin</button>
+                  <button className={`nav-btn${view==="stats"?" active":""}`} onClick={() => { setView("stats"); loadHistory(); }}>📊 Stats</button>
                   <button className="nav-btn" onClick={doLogout} title={t("logout")}>🚪</button>
                 </>
               ) : (
@@ -740,6 +849,9 @@ export default function App() {
                   ))}
                 </div>
               </div>
+
+              {/* CLIENT PHOTOS */}
+              <ClientPhotos trackId={trackId} onLightbox={setLightbox} />
             </div>
           </div>
         )}
@@ -838,6 +950,24 @@ export default function App() {
                       <a href={trackLink} target="_blank" rel="noreferrer">{trackLink}</a>
                     </div>
                     <p className="link-note">{t("link_note")}</p>
+                    {/* PHOTOS */}
+                    <div className="photo-section">
+                      <div className="upd-h">📸 Photos du véhicule</div>
+                      {photos.length === 0 && <p style={{fontSize:12,color:"var(--muted)"}}>Aucune photo ajoutée.</p>}
+                      <div className="photo-grid">
+                        {photos.map((url, i) => (
+                          <div key={i} className="photo-item">
+                            <img src={url} alt={"Photo " + (i+1)} onClick={() => setLightbox(url)} />
+                            <button className="photo-del" onClick={() => deletePhoto(url)}>✕</button>
+                          </div>
+                        ))}
+                      </div>
+                      <label className="upload-btn">
+                        {photoUploading ? <><span className="spin" /> Envoi…</> : <>📷 Ajouter une photo</>}
+                        <input type="file" accept="image/*" style={{display:"none"}} onChange={uploadPhoto} disabled={photoUploading} />
+                      </label>
+                    </div>
+
                     <div className="upd-section">
                       <div className="upd-h">{t("upd_h")}</div>
                       <div className="upd-g3">
@@ -968,13 +1098,168 @@ export default function App() {
           </div>
         )}
 
-        {/* ════ ADMIN NOT LOGGED ════ */}
+        {/* ════ STATS VIEW ════ */}
+        {view === "stats" && adminUser && (() => {
+          const total = history.length;
+          const delivered = history.filter(([,d]) => d.statusKey === "st5").length;
+          const inTransit = history.filter(([,d]) => d.statusKey === "st2").length;
+          const customs = history.filter(([,d]) => d.statusKey === "st3").length;
+          const rate = total ? Math.round((delivered / total) * 100) : 0;
+
+          // Monthly deliveries
+          const monthly: Record<string,number> = {};
+          history.forEach(([,d]) => {
+            if (d.dep) {
+              const parts = d.dep.split("/");
+              if (parts.length >= 2) {
+                const key = parts[1] + "/" + (parts[2] || "2026");
+                monthly[key] = (monthly[key] || 0) + 1;
+              }
+            }
+          });
+          const monthData = Object.entries(monthly).slice(-6).map(([m, v]) => ({ mois: m, livraisons: v }));
+
+          // Status distribution
+          const statusData = [
+            { name: "En attente", value: history.filter(([,d]) => d.statusKey === "st0").length, color: "#7a8499" },
+            { name: "En transit", value: inTransit, color: "#1a6fd4" },
+            { name: "Douane", value: customs, color: "#e85d04" },
+            { name: "Livrés", value: delivered, color: "#5a9e2f" },
+          ].filter(s => s.value > 0);
+
+          // Top destinations
+          const destCount: Record<string,number> = {};
+          history.forEach(([,d]) => { if (d.toCity) destCount[d.toCity] = (destCount[d.toCity] || 0) + 1; });
+          const topDest = Object.entries(destCount).sort((a,b) => b[1]-a[1]).slice(0,5);
+          const maxDest = topDest[0]?.[1] || 1;
+
+          // Top vehicles
+          const vehCount: Record<string,number> = {};
+          history.forEach(([,d]) => {
+            if (d.vehicle) {
+              const brand = d.vehicle.split(" ")[0];
+              vehCount[brand] = (vehCount[brand] || 0) + 1;
+            }
+          });
+          const topVeh = Object.entries(vehCount).sort((a,b) => b[1]-a[1]).slice(0,5);
+          const maxVeh = topVeh[0]?.[1] || 1;
+
+          return (
+            <div className="z1">
+              <div className="stats-page">
+                <div className="adm-hdr">
+                  <div className="op-chip" style={{marginBottom:12}}>📊 Statistiques</div>
+                  <h2>Tableau de bord</h2>
+                  <p>Vue d'ensemble de votre activité de transport</p>
+                </div>
+
+                {/* KPI CARDS */}
+                <div className="stats-grid">
+                  {[
+                    { num: total, lbl: "Total suivis", sub: "Tous statuts", col: "var(--blue)" },
+                    { num: delivered, lbl: "Livrés", sub: rate + "% du total", col: "var(--green)" },
+                    { num: inTransit, lbl: "En transit", sub: "En cours", col: "var(--blue)" },
+                    { num: customs, lbl: "En douane", sub: "À surveiller", col: "var(--orange)" },
+                  ].map(s => (
+                    <div key={s.lbl} className="scard">
+                      <div className="scard-num" style={{color:s.col}}>{s.num}</div>
+                      <div className="scard-lbl">{s.lbl}</div>
+                      <div className="scard-sub" style={{color:s.col}}>{s.sub}</div>
+                    </div>
+                  ))}
+                </div>
+
+                {/* CHARTS ROW */}
+                <div className="charts-g2">
+                  {/* Bar chart */}
+                  <div className="chart-card">
+                    <div className="chart-title">Livraisons par mois</div>
+                    {monthData.length === 0
+                      ? <p style={{color:"var(--muted)",fontSize:13,textAlign:"center",padding:"20px 0"}}>Pas encore de données</p>
+                      : <ResponsiveContainer width="100%" height={200}>
+                          <BarChart data={monthData}>
+                            <XAxis dataKey="mois" tick={{fill:"#7a8499",fontSize:11}} />
+                            <YAxis tick={{fill:"#7a8499",fontSize:11}} allowDecimals={false} />
+                            <Tooltip contentStyle={{background:"#0a0e1a",border:"1px solid #1a6fd4",borderRadius:8,color:"#fff"}} />
+                            <Bar dataKey="livraisons" fill="#1a6fd4" radius={[4,4,0,0]} />
+                          </BarChart>
+                        </ResponsiveContainer>
+                    }
+                  </div>
+
+                  {/* Pie chart */}
+                  <div className="chart-card">
+                    <div className="chart-title">Répartition par statut</div>
+                    {statusData.length === 0
+                      ? <p style={{color:"var(--muted)",fontSize:13,textAlign:"center",padding:"20px 0"}}>Pas encore de données</p>
+                      : <ResponsiveContainer width="100%" height={200}>
+                          <PieChart>
+                            <Pie data={statusData} dataKey="value" nameKey="name" cx="50%" cy="50%" outerRadius={70} label={({name,percent}) => name + " " + Math.round(percent*100) + "%"}>
+                              {statusData.map((entry, i) => <Cell key={i} fill={entry.color} />)}
+                            </Pie>
+                            <Tooltip contentStyle={{background:"#0a0e1a",border:"1px solid #1a6fd4",borderRadius:8,color:"#fff"}} />
+                          </PieChart>
+                        </ResponsiveContainer>
+                    }
+                  </div>
+                </div>
+
+                {/* TOP LISTS */}
+                <div className="charts-g2">
+                  <div className="chart-card">
+                    <div className="chart-title">Top destinations</div>
+                    {topDest.length === 0
+                      ? <p style={{color:"var(--muted)",fontSize:13}}>Pas encore de données</p>
+                      : <div className="top-list">
+                          {topDest.map(([city, count], i) => (
+                            <div key={city} className="top-item">
+                              <span className="top-rank">#{i+1}</span>
+                              <span className="top-name">{city}</span>
+                              <div className="top-bar-wrap"><div className="top-bar" style={{width: Math.round((count/maxDest)*100) + "%"}} /></div>
+                              <span className="top-count">{count}</span>
+                            </div>
+                          ))}
+                        </div>
+                    }
+                  </div>
+                  <div className="chart-card">
+                    <div className="chart-title">Top marques</div>
+                    {topVeh.length === 0
+                      ? <p style={{color:"var(--muted)",fontSize:13}}>Pas encore de données</p>
+                      : <div className="top-list">
+                          {topVeh.map(([brand, count], i) => (
+                            <div key={brand} className="top-item">
+                              <span className="top-rank">#{i+1}</span>
+                              <span className="top-name">{brand}</span>
+                              <div className="top-bar-wrap"><div className="top-bar" style={{width: Math.round((count/maxVeh)*100) + "%"}} /></div>
+                              <span className="top-count">{count}</span>
+                            </div>
+                          ))}
+                        </div>
+                    }
+                  </div>
+                </div>
+
+              </div>
+            </div>
+          );
+        })()}
+
+        {/* ════ ADMIN NOT LOGGED ════ */}}
         {view === "admin" && !adminUser && (
           <div className="z1" style={{display:"flex",alignItems:"center",justifyContent:"center",padding:"80px 20px"}}>
             <div style={{textAlign:"center"}}>
               <p style={{color:"var(--muted)",marginBottom:16}}>Vous devez être connecté pour accéder à l'administration.</p>
               <button className="btn-blue" onClick={() => { setShowLogin(true); setLoginErr(""); }}>🔐 Se connecter</button>
             </div>
+          </div>
+        )}
+
+        {/* LIGHTBOX */}
+        {lightbox && (
+          <div className="lightbox-ov" onClick={() => setLightbox(null)}>
+            <button className="lightbox-close" onClick={() => setLightbox(null)}>✕</button>
+            <img src={lightbox} alt="Photo véhicule" onClick={e => e.stopPropagation()} />
           </div>
         )}
 
