@@ -515,19 +515,20 @@ export default function App() {
   if (!authChecked) return <div className="loader-ov"><div className="loader-spin"/></div>;
 
   // Filtered history
-  const filteredHistory = history.filter(([id, d]) => {
+  const filteredHistory = (() => {
     const q = search.toLowerCase().trim();
-    const matchS = !q
-      || id.toLowerCase().includes(q)
-      || (d.client||"").toLowerCase().includes(q)
-      || (d.vehicle||"").toLowerCase().includes(q)
-      || (d.email||"").toLowerCase().includes(q)
-      || (d.fromCity||"").toLowerCase().includes(q)
-      || (d.toCity||"").toLowerCase().includes(q)
-      || (d.plate||"").toLowerCase().includes(q);
-    const matchF = filterStatus==="all" || d.statusKey===filterStatus;
-    return matchS && matchF;
-  });
+    if (!q && filterStatus === "all") return history;
+    return history.filter(([id, d]) => {
+      const searchable = [
+        id, d.client, d.vehicle, d.email,
+        d.fromCity, d.toCity, d.from, d.to,
+        d.plate, d.vin, d.carrier, d.company
+      ].map(v => (v||"").toLowerCase()).join(" ");
+      const matchS = !q || searchable.includes(q);
+      const matchF = filterStatus === "all" || d.statusKey === filterStatus;
+      return matchS && matchF;
+    });
+  })();
 
   return (
     <>
