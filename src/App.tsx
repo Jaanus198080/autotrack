@@ -7,18 +7,23 @@ import {
   signInWithEmailAndPassword, signOut, onAuthStateChanged, User
 } from "firebase/auth";
 import { db, auth } from "./firebase";
+import emailjs from "@emailjs/browser";
+
+const EMAILJS_SERVICE = "service_tbg6vp7";
+const EMAILJS_TEMPLATE = "template_petii59";
+const EMAILJS_PUBLIC = "sycumEw72eiYqMsyK";
 
 /* ═══════════════════════════════════════════
    TRANSLATIONS
 ═══════════════════════════════════════════ */
 const T: Record<string, Record<string, string>> = {
-  fr: { flag:"🇫🇷", code:"FR", h1a:"Suivez votre", h1b:"véhicule", h1c:"en temps réel", h1sub:"Entrez votre numéro de suivi pour voir l'état de votre transport", btn_track:"SUIVRE →", hint:"Numéro reçu par email à la confirmation de commande", not_found:"❌ Numéro introuvable. Vérifiez et réessayez.", loading:"Chargement…", back:"Nouvelle recherche", prog:"Progression du transport", itin:"Itinéraire", tl:"Historique des événements", info:"Informations transport", eta_pre:"⏱ Arrivée estimée :", lbl_dep:"Départ", lbl_step:"Étape", lbl_pos:"Position actuelle", lbl_dest:"Destination", lbl_mt:"Mode transport", lbl_carr:"Transporteur", lbl_dd:"Date départ", lbl_eta:"Arrivée est.", lbl_vin:"VIN", lbl_pl:"Plaque", st0:"En attente", st1:"Chargé", st2:"En transit", st3:"Douane", st4:"Livraison", st5:"Livré", st0f:"En attente de chargement", st1f:"Véhicule chargé", st2f:"En transit", st3f:"Passage en douane", st4f:"Livraison en cours", st5f:"Livré ✓", st6:"Retardé", st7:"Annulé", st6f:"Livraison retardée", st7f:"Livraison annulée", adm_title:"Créer un suivi de transport", adm_sub:"Remplissez les informations pour générer un numéro de suivi", s_cli:"Informations Client", s_veh:"Véhicule", s_rou:"Itinéraire", l_name:"Nom complet", l_email:"Email", l_phone:"Téléphone", l_co:"Entreprise", l_veh:"Marque & Modèle", l_col:"Couleur", l_vin:"Numéro VIN", l_plate:"Immatriculation", l_from:"Adresse de départ (chargement)", l_to:"Adresse de livraison", l_dep:"Date de départ", l_arr:"Arrivée estimée", l_mode:"Mode de transport", l_carrier:"Transporteur", m1:"Camion porte-voiture", m2:"Transport maritime (RoRo)", m3:"Transport aérien cargo", m4:"Transport combiné", btn_gen:"🚗 GÉNÉRER LE NUMÉRO DE SUIVI", gen_ok:"✅ Numéro de suivi créé avec succès", btn_copy:"Copier le numéro", lbl_link:"🔗 Lien à envoyer au client :", link_note:"Le client verra uniquement ses informations — sans accès admin.", upd_h:"📍 Mettre à jour la position du transporteur", u_city:"Ville / Localisation actuelle", u_date:"Date de l'événement", u_time:"Heure", u_status:"Statut", u_note:"Note / Détail", btn_upd:"📡 ENVOYER LA MISE À JOUR", hist_h:"📦 Suivis actifs", th1:"N° Suivi", th2:"Client", th3:"Véhicule", th4:"Trajet", th5:"Statut", th6:"Entreprise", ft_tag:"Import Auto · Livraison mondiale · Votre confiance, notre mission", ft_r:"Tous droits réservés.", toast_gen:"✅ Suivi créé :", toast_cop:"📋 Copié !", toast_upd:"📡 Mise à jour envoyée !", err_fill:"⚠️ Champs obligatoires manquants", err_city:"⚠️ Entrez la ville actuelle", err_nosel:"⚠️ Aucun suivi sélectionné", sel:"Suivi sélectionné :", login_title:"Accès Administrateur", login_email:"Email", login_pass:"Mot de passe", login_btn:"SE CONNECTER", login_err:"Email ou mot de passe incorrect.", logout:"Déconnexion", confirm_cancel:"Confirmez-vous l'annulation de cette livraison ? Le client en sera informé." },
-  en: { flag:"🇬🇧", code:"EN", h1a:"Track your", h1b:"vehicle", h1c:"in real time", h1sub:"Enter your tracking number to check your transport status", btn_track:"TRACK →", hint:"Tracking number received by email upon order confirmation", not_found:"❌ Number not found. Please check and try again.", loading:"Loading…", back:"New search", prog:"Transport progress", itin:"Route", tl:"Event history", info:"Transport information", eta_pre:"⏱ Estimated arrival:", lbl_dep:"Departure", lbl_step:"Stop", lbl_pos:"Current position", lbl_dest:"Destination", lbl_mt:"Transport mode", lbl_carr:"Carrier", lbl_dd:"Departure", lbl_eta:"Est. arrival", lbl_vin:"VIN", lbl_pl:"Plate", st0:"Waiting", st1:"Loaded", st2:"In transit", st3:"Customs", st4:"Delivery", st5:"Delivered", st0f:"Awaiting loading", st1f:"Vehicle loaded", st2f:"In transit", st3f:"Customs clearance", st4f:"Out for delivery", st5f:"Delivered ✓", st6:"Delayed", st7:"Cancelled", st6f:"Delivery delayed", st7f:"Delivery cancelled", adm_title:"Create a transport tracking", adm_sub:"Fill in the information to generate a tracking number", s_cli:"Client Information", s_veh:"Vehicle", s_rou:"Route", l_name:"Full name", l_email:"Email", l_phone:"Phone", l_co:"Company", l_veh:"Make & Model", l_col:"Color", l_vin:"VIN number", l_plate:"License plate", l_from:"Pickup address (loading)", l_to:"Delivery address", l_dep:"Departure date", l_arr:"Estimated arrival", l_mode:"Transport mode", l_carrier:"Carrier", m1:"Car transporter truck", m2:"Maritime transport (RoRo)", m3:"Air cargo", m4:"Combined transport", btn_gen:"🚗 GENERATE TRACKING NUMBER", gen_ok:"✅ Tracking number created", btn_copy:"Copy number", lbl_link:"🔗 Link to send to client:", link_note:"The client will only see their transport info — no admin access.", upd_h:"📍 Update carrier position", u_city:"City / Current location", u_date:"Event date", u_time:"Time", u_status:"Status", u_note:"Note / Detail", btn_upd:"📡 SEND UPDATE", hist_h:"📦 Active shipments", th1:"Tracking #", th2:"Client", th3:"Vehicle", th4:"Route", th5:"Status", th6:"Company", ft_tag:"Car Import · Global Delivery · Your Trust, Our Mission", ft_r:"All rights reserved.", toast_gen:"✅ Tracking created:", toast_cop:"📋 Copied!", toast_upd:"📡 Update sent!", err_fill:"⚠️ Required fields missing", err_city:"⚠️ Please enter current city", err_nosel:"⚠️ No tracking selected", sel:"Tracking selected:", login_title:"Admin Access", login_email:"Email", login_pass:"Password", login_btn:"SIGN IN", login_err:"Incorrect email or password.", logout:"Sign out", confirm_cancel:"Confirm cancellation of this delivery? The client will be notified." },
-  de: { flag:"🇩🇪", code:"DE", h1a:"Verfolgen Sie Ihr", h1b:"Fahrzeug", h1c:"in Echtzeit", h1sub:"Sendungsnummer eingeben, um den Transportstatus zu prüfen", btn_track:"VERFOLGEN →", hint:"Sendungsnummer per E-Mail erhalten", not_found:"❌ Nummer nicht gefunden.", loading:"Wird geladen…", back:"Neue Suche", prog:"Transportfortschritt", itin:"Route", tl:"Ereignisverlauf", info:"Transportinformationen", eta_pre:"⏱ Ankunft:", lbl_dep:"Abfahrt", lbl_step:"Stopp", lbl_pos:"Standort", lbl_dest:"Ziel", lbl_mt:"Transport", lbl_carr:"Spediteur", lbl_dd:"Abfahrt", lbl_eta:"Ankunft", lbl_vin:"VIN", lbl_pl:"Kennzeichen", st0:"Warten", st1:"Verladen", st2:"Unterwegs", st3:"Zoll", st4:"Zustellung", st5:"Zugestellt", st0f:"Warten auf Verladung", st1f:"Fahrzeug verladen", st2f:"Unterwegs", st3f:"Zollabfertigung", st4f:"Zustellung läuft", st5f:"Zugestellt ✓", st6:"Verzögert", st7:"Storniert", st6f:"Lieferung verzögert", st7f:"Lieferung storniert", adm_title:"Transport-Tracking erstellen", adm_sub:"Ausfüllen zum Generieren einer Sendungsnummer", s_cli:"Kundeninformationen", s_veh:"Fahrzeug", s_rou:"Route", l_name:"Vollständiger Name", l_email:"E-Mail", l_phone:"Telefon", l_co:"Unternehmen", l_veh:"Marke & Modell", l_col:"Farbe", l_vin:"VIN", l_plate:"Kennzeichen", l_from:"Abholadresse", l_to:"Lieferadresse", l_dep:"Abfahrtsdatum", l_arr:"Voraussichtliche Ankunft", l_mode:"Transportmittel", l_carrier:"Spediteur", m1:"Autotransporter-LKW", m2:"Seetransport (RoRo)", m3:"Luftfracht", m4:"Kombinierter Transport", btn_gen:"🚗 SENDUNGSNUMMER GENERIEREN", gen_ok:"✅ Sendungsnummer erstellt", btn_copy:"Kopieren", lbl_link:"🔗 Link für den Kunden:", link_note:"Der Kunde sieht nur seine Transportinformationen.", upd_h:"📍 Standort aktualisieren", u_city:"Stadt / Standort", u_date:"Datum", u_time:"Uhrzeit", u_status:"Status", u_note:"Notiz", btn_upd:"📡 UPDATE SENDEN", hist_h:"📦 Aktive Sendungen", th1:"Sendungs-Nr.", th2:"Kunde", th3:"Fahrzeug", th4:"Route", th5:"Status", th6:"Unternehmen", ft_tag:"Fahrzeugimport · Weltweite Lieferung · Ihr Vertrauen", ft_r:"Alle Rechte vorbehalten.", toast_gen:"✅ Sendung erstellt:", toast_cop:"📋 Kopiert!", toast_upd:"📡 Update gesendet!", err_fill:"⚠️ Pflichtfelder ausfüllen", err_city:"⚠️ Bitte Stadt eingeben", err_nosel:"⚠️ Keine Sendung ausgewählt", sel:"Sendung ausgewählt:", login_title:"Admin-Zugang", login_email:"E-Mail", login_pass:"Passwort", login_btn:"ANMELDEN", login_err:"Falsche E-Mail oder Passwort.", logout:"Abmelden", confirm_cancel:"Lieferung wirklich stornieren? Der Kunde wird informiert." },
-  hr: { flag:"🇭🇷", code:"HR", h1a:"Pratite svoje", h1b:"vozilo", h1c:"u realnom vremenu", h1sub:"Unesite broj praćenja za provjeru statusa", btn_track:"PRATITI →", hint:"Broj praćenja primljen emailom", not_found:"❌ Broj nije pronađen.", loading:"Učitavanje…", back:"Nova pretraga", prog:"Napredak transporta", itin:"Ruta", tl:"Povijest događaja", info:"Informacije o transportu", eta_pre:"⏱ Dolazak:", lbl_dep:"Polazak", lbl_step:"Postaja", lbl_pos:"Pozicija", lbl_dest:"Odredište", lbl_mt:"Prijevoz", lbl_carr:"Prijevoznik", lbl_dd:"Polazak", lbl_eta:"Dolazak", lbl_vin:"VIN", lbl_pl:"Registracija", st0:"Čeka", st1:"Natovareno", st2:"U tranzitu", st3:"Carina", st4:"Dostava", st5:"Isporučeno", st0f:"Čeka se utovar", st1f:"Vozilo natovareno", st2f:"U tranzitu", st3f:"Carinjenje", st4f:"Dostava u tijeku", st5f:"Isporučeno ✓", st6:"Kasni", st7:"Otkazano", st6f:"Dostava kasni", st7f:"Dostava otkazana", adm_title:"Kreiranje praćenja", adm_sub:"Ispunite informacije za generiranje broja praćenja", s_cli:"Podaci o klijentu", s_veh:"Vozilo", s_rou:"Ruta", l_name:"Puno ime", l_email:"Email", l_phone:"Telefon", l_co:"Tvrtka", l_veh:"Marka i model", l_col:"Boja", l_vin:"VIN", l_plate:"Registracija", l_from:"Adresa preuzimanja", l_to:"Adresa dostave", l_dep:"Datum polaska", l_arr:"Procijenjeni dolazak", l_mode:"Prijevoz", l_carrier:"Prijevoznik", m1:"Kamion", m2:"Pomorski (RoRo)", m3:"Zračni teret", m4:"Kombinirani", btn_gen:"🚗 GENERIRAJ BROJ", gen_ok:"✅ Broj praćenja kreiran", btn_copy:"Kopirati", lbl_link:"🔗 Link za klijenta:", link_note:"Klijent vidi samo transportne podatke.", upd_h:"📍 Ažuriraj lokaciju", u_city:"Grad / Lokacija", u_date:"Datum", u_time:"Vrijeme", u_status:"Status", u_note:"Napomena", btn_upd:"📡 POŠALJI", hist_h:"📦 Aktivne pošiljke", th1:"Br.", th2:"Klijent", th3:"Vozilo", th4:"Ruta", th5:"Status", th6:"Tvrtka", ft_tag:"Uvoz automobila · Globalna dostava · Vaše povjerenje", ft_r:"Sva prava pridržana.", toast_gen:"✅ Kreiran:", toast_cop:"📋 Kopirano!", toast_upd:"📡 Ažurirano!", err_fill:"⚠️ Nedostaju polja", err_city:"⚠️ Unesite grad", err_nosel:"⚠️ Nije odabrano", sel:"Odabrano:", login_title:"Admin pristup", login_email:"Email", login_pass:"Lozinka", login_btn:"PRIJAVA", login_err:"Pogrešan email ili lozinka.", logout:"Odjava", confirm_cancel:"Potvrđujete otkazivanje ove dostave? Klijent će biti obaviješten." },
-  it: { flag:"🇮🇹", code:"IT", h1a:"Segui il tuo", h1b:"veicolo", h1c:"in tempo reale", h1sub:"Inserisci il numero di tracciamento per controllare lo stato", btn_track:"TRACCIA →", hint:"Numero ricevuto via email", not_found:"❌ Numero non trovato.", loading:"Caricamento…", back:"Nuova ricerca", prog:"Avanzamento", itin:"Itinerario", tl:"Cronologia", info:"Informazioni", eta_pre:"⏱ Arrivo:", lbl_dep:"Partenza", lbl_step:"Tappa", lbl_pos:"Posizione", lbl_dest:"Destinazione", lbl_mt:"Trasporto", lbl_carr:"Vettore", lbl_dd:"Partenza", lbl_eta:"Arrivo", lbl_vin:"VIN", lbl_pl:"Targa", st0:"Attesa", st1:"Caricato", st2:"In transito", st3:"Dogana", st4:"Consegna", st5:"Consegnato", st0f:"In attesa di carico", st1f:"Veicolo caricato", st2f:"In transito", st3f:"Sdoganamento", st4f:"Consegna in corso", st5f:"Consegnato ✓", st6:"In ritardo", st7:"Annullato", st6f:"Consegna in ritardo", st7f:"Consegna annullata", adm_title:"Crea tracciamento", adm_sub:"Compila le informazioni", s_cli:"Cliente", s_veh:"Veicolo", s_rou:"Itinerario", l_name:"Nome completo", l_email:"Email", l_phone:"Telefono", l_co:"Azienda", l_veh:"Marca e Modello", l_col:"Colore", l_vin:"VIN", l_plate:"Targa", l_from:"Indirizzo di partenza", l_to:"Indirizzo di consegna", l_dep:"Data partenza", l_arr:"Arrivo stimato", l_mode:"Modalità", l_carrier:"Vettore", m1:"Camion", m2:"Marittimo (RoRo)", m3:"Aereo cargo", m4:"Combinato", btn_gen:"🚗 GENERA NUMERO", gen_ok:"✅ Numero generato", btn_copy:"Copia", lbl_link:"🔗 Link cliente:", link_note:"Il cliente vede solo le sue informazioni.", upd_h:"📍 Aggiorna posizione", u_city:"Città", u_date:"Data", u_time:"Ora", u_status:"Stato", u_note:"Nota", btn_upd:"📡 INVIA", hist_h:"📦 Spedizioni attive", th1:"N°", th2:"Cliente", th3:"Veicolo", th4:"Percorso", th5:"Stato", th6:"Azienda", ft_tag:"Importazione Auto · Consegna Globale · La Tua Fiducia", ft_r:"Tutti i diritti riservati.", toast_gen:"✅ Creato:", toast_cop:"📋 Copiato!", toast_upd:"📡 Aggiornato!", err_fill:"⚠️ Campi mancanti", err_city:"⚠️ Inserisci città", err_nosel:"⚠️ Nessun tracciamento", sel:"Selezionato:", login_title:"Accesso Admin", login_email:"Email", login_pass:"Password", login_btn:"ACCEDI", login_err:"Email o password errati.", logout:"Esci", confirm_cancel:"Confermi l'annullamento di questa consegna? Il cliente sarà informato." },
-  bg: { flag:"🇧🇬", code:"BG", h1a:"Проследете вашето", h1b:"превозно средство", h1c:"в реално време", h1sub:"Въведете номера за проследяване", btn_track:"СЛЕДИ →", hint:"Номерът е изпратен по имейл", not_found:"❌ Номерът не е намерен.", loading:"Зареждане…", back:"Ново търсене", prog:"Напредък", itin:"Маршрут", tl:"История", info:"Информация", eta_pre:"⏱ Пристигане:", lbl_dep:"Заминаване", lbl_step:"Спирка", lbl_pos:"Позиция", lbl_dest:"Дестинация", lbl_mt:"Транспорт", lbl_carr:"Превозвач", lbl_dd:"Заминаване", lbl_eta:"Пристигане", lbl_vin:"VIN", lbl_pl:"Регистрация", st0:"Изчаква", st1:"Натоварено", st2:"В транзит", st3:"Митница", st4:"Доставка", st5:"Доставено", st0f:"Изчаква товарене", st1f:"Натоварено", st2f:"В транзит", st3f:"Митническо оформление", st4f:"Доставката е в ход", st5f:"Доставено ✓", st6:"Забавено", st7:"Отказано", st6f:"Доставката е забавена", st7f:"Доставката е отказана", adm_title:"Създаване на проследяване", adm_sub:"Попълнете информацията", s_cli:"Клиент", s_veh:"Превозно средство", s_rou:"Маршрут", l_name:"Пълно име", l_email:"Имейл", l_phone:"Телефон", l_co:"Компания", l_veh:"Марка и модел", l_col:"Цвят", l_vin:"VIN", l_plate:"Регистрация", l_from:"Адрес за товарене", l_to:"Адрес за доставка", l_dep:"Дата", l_arr:"Пристигане", l_mode:"Транспорт", l_carrier:"Превозвач", m1:"Камион", m2:"Морски (RoRo)", m3:"Въздушен", m4:"Комбиниран", btn_gen:"🚗 ГЕНЕРИРАЙ", gen_ok:"✅ Номерът е създаден", btn_copy:"Копиране", lbl_link:"🔗 Линк за клиента:", link_note:"Клиентът вижда само своите данни.", upd_h:"📍 Актуализиране", u_city:"Град", u_date:"Дата", u_time:"Час", u_status:"Статус", u_note:"Бележка", btn_upd:"📡 ИЗПРАТИ", hist_h:"📦 Активни пратки", th1:"№", th2:"Клиент", th3:"Превозно средство", th4:"Маршрут", th5:"Статус", th6:"Компания", ft_tag:"Внос на автомобили · Глобална доставка · Вашето доверие", ft_r:"Всички права запазени.", toast_gen:"✅ Създадено:", toast_cop:"📋 Копирано!", toast_upd:"📡 Актуализирано!", err_fill:"⚠️ Попълнете полетата", err_city:"⚠️ Въведете град", err_nosel:"⚠️ Не е избрано", sel:"Избрано:", login_title:"Администраторски достъп", login_email:"Имейл", login_pass:"Парола", login_btn:"ВЛЕЗ", login_err:"Грешен имейл или парола.", logout:"Изход", confirm_cancel:"Потвърждавате анулирането на тази доставка? Клиентът ще бъде уведомен." },
-  ro: { flag:"🇷🇴", code:"RO", h1a:"Urmăriți-vă", h1b:"vehiculul", h1c:"în timp real", h1sub:"Introduceți numărul de urmărire", btn_track:"URMĂRIRE →", hint:"Numărul a fost trimis prin email", not_found:"❌ Numărul nu a fost găsit.", loading:"Se încarcă…", back:"Căutare nouă", prog:"Progresul", itin:"Itinerar", tl:"Istoricul", info:"Informații", eta_pre:"⏱ Sosire:", lbl_dep:"Plecare", lbl_step:"Oprire", lbl_pos:"Poziție", lbl_dest:"Destinație", lbl_mt:"Transport", lbl_carr:"Transportator", lbl_dd:"Plecare", lbl_eta:"Sosire", lbl_vin:"VIN", lbl_pl:"Înmatriculare", st0:"Așteptare", st1:"Încărcat", st2:"În tranzit", st3:"Vamă", st4:"Livrare", st5:"Livrat", st0f:"În așteptare încărcare", st1f:"Vehicul încărcat", st2f:"În tranzit", st3f:"Vămuire", st4f:"Livrare în curs", st5f:"Livrat ✓", st6:"Întârziat", st7:"Anulat", st6f:"Livrare întârziată", st7f:"Livrare anulată", adm_title:"Creare urmărire", adm_sub:"Completați informațiile", s_cli:"Client", s_veh:"Vehicul", s_rou:"Itinerar", l_name:"Nume complet", l_email:"Email", l_phone:"Telefon", l_co:"Companie", l_veh:"Marcă și Model", l_col:"Culoare", l_vin:"VIN", l_plate:"Înmatriculare", l_from:"Adresă plecare", l_to:"Adresă livrare", l_dep:"Data plecare", l_arr:"Sosire estimată", l_mode:"Transport", l_carrier:"Transportator", m1:"Camion", m2:"Maritim (RoRo)", m3:"Aerian cargo", m4:"Combinat", btn_gen:"🚗 GENEREAZĂ NUMĂRUL", gen_ok:"✅ Numărul a fost creat", btn_copy:"Copiați", lbl_link:"🔗 Link client:", link_note:"Clientul vede doar informațiile sale.", upd_h:"📍 Actualizați poziția", u_city:"Orașul", u_date:"Data", u_time:"Ora", u_status:"Status", u_note:"Notă", btn_upd:"📡 TRIMITE", hist_h:"📦 Expedieri active", th1:"Nr.", th2:"Client", th3:"Vehicul", th4:"Traseu", th5:"Status", th6:"Companie", ft_tag:"Import Auto · Livrare globală · Încrederea dvs.", ft_r:"Toate drepturile rezervate.", toast_gen:"✅ Creat:", toast_cop:"📋 Copiat!", toast_upd:"📡 Actualizat!", err_fill:"⚠️ Câmpuri lipsesc", err_city:"⚠️ Introduceți orașul", err_nosel:"⚠️ Nicio urmărire", sel:"Selectat:", login_title:"Acces Administrator", login_email:"Email", login_pass:"Parolă", login_btn:"CONECTARE", login_err:"Email sau parolă incorectă.", logout:"Deconectare", confirm_cancel:"Confirmați anularea acestei livrări? Clientul va fi notificat." }
+  fr: { flag:"🇫🇷", code:"FR", h1a:"Suivez votre", h1b:"véhicule", h1c:"en temps réel", h1sub:"Entrez votre numéro de suivi pour voir l'état de votre transport", btn_track:"SUIVRE →", hint:"Numéro reçu par email à la confirmation de commande", not_found:"❌ Numéro introuvable. Vérifiez et réessayez.", loading:"Chargement…", back:"Nouvelle recherche", prog:"Progression du transport", itin:"Itinéraire", tl:"Historique des événements", info:"Informations transport", eta_pre:"⏱ Arrivée estimée :", lbl_dep:"Départ", lbl_step:"Étape", lbl_pos:"Position actuelle", lbl_dest:"Destination", lbl_mt:"Mode transport", lbl_carr:"Transporteur", lbl_dd:"Date départ", lbl_eta:"Arrivée est.", lbl_vin:"VIN", lbl_pl:"Plaque", st0:"En attente", st1:"Chargé", st2:"En transit", st3:"Douane", st4:"Livraison", st5:"Livré", st0f:"En attente de chargement", st1f:"Véhicule chargé", st2f:"En transit", st3f:"Passage en douane", st4f:"Livraison en cours", st5f:"Livré ✓", adm_title:"Créer un suivi de transport", adm_sub:"Remplissez les informations pour générer un numéro de suivi", s_cli:"Informations Client", s_veh:"Véhicule", s_rou:"Itinéraire", l_name:"Nom complet", l_email:"Email", l_phone:"Téléphone", l_co:"Entreprise", l_veh:"Marque & Modèle", l_col:"Couleur", l_vin:"Numéro VIN", l_plate:"Immatriculation", l_from:"Adresse de départ (chargement)", l_to:"Adresse de livraison", l_dep:"Date de départ", l_arr:"Arrivée estimée", l_mode:"Mode de transport", l_carrier:"Transporteur", m1:"Camion porte-voiture", m2:"Transport maritime (RoRo)", m3:"Transport aérien cargo", m4:"Transport combiné", btn_gen:"🚗 GÉNÉRER LE NUMÉRO DE SUIVI", gen_ok:"✅ Numéro de suivi créé avec succès", btn_copy:"Copier le numéro", lbl_link:"🔗 Lien à envoyer au client :", link_note:"Le client verra uniquement ses informations — sans accès admin.", upd_h:"📍 Mettre à jour la position du transporteur", u_city:"Ville / Localisation actuelle", u_date:"Date de l'événement", u_time:"Heure", u_status:"Statut", u_note:"Note / Détail", btn_upd:"📡 ENVOYER LA MISE À JOUR", hist_h:"📦 Suivis actifs", th1:"N° Suivi", th2:"Client", th3:"Véhicule", th4:"Trajet", th5:"Statut", th6:"Entreprise", ft_tag:"Import Auto · Livraison mondiale · Votre confiance, notre mission", ft_r:"Tous droits réservés.", toast_gen:"✅ Suivi créé :", toast_cop:"📋 Copié !", toast_upd:"📡 Mise à jour envoyée !", err_fill:"⚠️ Champs obligatoires manquants", err_city:"⚠️ Entrez la ville actuelle", err_nosel:"⚠️ Aucun suivi sélectionné", sel:"Suivi sélectionné :", login_title:"Accès Administrateur", login_email:"Email", login_pass:"Mot de passe", login_btn:"SE CONNECTER", login_err:"Email ou mot de passe incorrect.", logout:"Déconnexion" },
+  en: { flag:"🇬🇧", code:"EN", h1a:"Track your", h1b:"vehicle", h1c:"in real time", h1sub:"Enter your tracking number to check your transport status", btn_track:"TRACK →", hint:"Tracking number received by email upon order confirmation", not_found:"❌ Number not found. Please check and try again.", loading:"Loading…", back:"New search", prog:"Transport progress", itin:"Route", tl:"Event history", info:"Transport information", eta_pre:"⏱ Estimated arrival:", lbl_dep:"Departure", lbl_step:"Stop", lbl_pos:"Current position", lbl_dest:"Destination", lbl_mt:"Transport mode", lbl_carr:"Carrier", lbl_dd:"Departure", lbl_eta:"Est. arrival", lbl_vin:"VIN", lbl_pl:"Plate", st0:"Waiting", st1:"Loaded", st2:"In transit", st3:"Customs", st4:"Delivery", st5:"Delivered", st0f:"Awaiting loading", st1f:"Vehicle loaded", st2f:"In transit", st3f:"Customs clearance", st4f:"Out for delivery", st5f:"Delivered ✓", adm_title:"Create a transport tracking", adm_sub:"Fill in the information to generate a tracking number", s_cli:"Client Information", s_veh:"Vehicle", s_rou:"Route", l_name:"Full name", l_email:"Email", l_phone:"Phone", l_co:"Company", l_veh:"Make & Model", l_col:"Color", l_vin:"VIN number", l_plate:"License plate", l_from:"Pickup address (loading)", l_to:"Delivery address", l_dep:"Departure date", l_arr:"Estimated arrival", l_mode:"Transport mode", l_carrier:"Carrier", m1:"Car transporter truck", m2:"Maritime transport (RoRo)", m3:"Air cargo", m4:"Combined transport", btn_gen:"🚗 GENERATE TRACKING NUMBER", gen_ok:"✅ Tracking number created", btn_copy:"Copy number", lbl_link:"🔗 Link to send to client:", link_note:"The client will only see their transport info — no admin access.", upd_h:"📍 Update carrier position", u_city:"City / Current location", u_date:"Event date", u_time:"Time", u_status:"Status", u_note:"Note / Detail", btn_upd:"📡 SEND UPDATE", hist_h:"📦 Active shipments", th1:"Tracking #", th2:"Client", th3:"Vehicle", th4:"Route", th5:"Status", th6:"Company", ft_tag:"Car Import · Global Delivery · Your Trust, Our Mission", ft_r:"All rights reserved.", toast_gen:"✅ Tracking created:", toast_cop:"📋 Copied!", toast_upd:"📡 Update sent!", err_fill:"⚠️ Required fields missing", err_city:"⚠️ Please enter current city", err_nosel:"⚠️ No tracking selected", sel:"Tracking selected:", login_title:"Admin Access", login_email:"Email", login_pass:"Password", login_btn:"SIGN IN", login_err:"Incorrect email or password.", logout:"Sign out" },
+  de: { flag:"🇩🇪", code:"DE", h1a:"Verfolgen Sie Ihr", h1b:"Fahrzeug", h1c:"in Echtzeit", h1sub:"Sendungsnummer eingeben, um den Transportstatus zu prüfen", btn_track:"VERFOLGEN →", hint:"Sendungsnummer per E-Mail erhalten", not_found:"❌ Nummer nicht gefunden.", loading:"Wird geladen…", back:"Neue Suche", prog:"Transportfortschritt", itin:"Route", tl:"Ereignisverlauf", info:"Transportinformationen", eta_pre:"⏱ Ankunft:", lbl_dep:"Abfahrt", lbl_step:"Stopp", lbl_pos:"Standort", lbl_dest:"Ziel", lbl_mt:"Transport", lbl_carr:"Spediteur", lbl_dd:"Abfahrt", lbl_eta:"Ankunft", lbl_vin:"VIN", lbl_pl:"Kennzeichen", st0:"Warten", st1:"Verladen", st2:"Unterwegs", st3:"Zoll", st4:"Zustellung", st5:"Zugestellt", st0f:"Warten auf Verladung", st1f:"Fahrzeug verladen", st2f:"Unterwegs", st3f:"Zollabfertigung", st4f:"Zustellung läuft", st5f:"Zugestellt ✓", adm_title:"Transport-Tracking erstellen", adm_sub:"Ausfüllen zum Generieren einer Sendungsnummer", s_cli:"Kundeninformationen", s_veh:"Fahrzeug", s_rou:"Route", l_name:"Vollständiger Name", l_email:"E-Mail", l_phone:"Telefon", l_co:"Unternehmen", l_veh:"Marke & Modell", l_col:"Farbe", l_vin:"VIN", l_plate:"Kennzeichen", l_from:"Abholadresse", l_to:"Lieferadresse", l_dep:"Abfahrtsdatum", l_arr:"Voraussichtliche Ankunft", l_mode:"Transportmittel", l_carrier:"Spediteur", m1:"Autotransporter-LKW", m2:"Seetransport (RoRo)", m3:"Luftfracht", m4:"Kombinierter Transport", btn_gen:"🚗 SENDUNGSNUMMER GENERIEREN", gen_ok:"✅ Sendungsnummer erstellt", btn_copy:"Kopieren", lbl_link:"🔗 Link für den Kunden:", link_note:"Der Kunde sieht nur seine Transportinformationen.", upd_h:"📍 Standort aktualisieren", u_city:"Stadt / Standort", u_date:"Datum", u_time:"Uhrzeit", u_status:"Status", u_note:"Notiz", btn_upd:"📡 UPDATE SENDEN", hist_h:"📦 Aktive Sendungen", th1:"Sendungs-Nr.", th2:"Kunde", th3:"Fahrzeug", th4:"Route", th5:"Status", th6:"Unternehmen", ft_tag:"Fahrzeugimport · Weltweite Lieferung · Ihr Vertrauen", ft_r:"Alle Rechte vorbehalten.", toast_gen:"✅ Sendung erstellt:", toast_cop:"📋 Kopiert!", toast_upd:"📡 Update gesendet!", err_fill:"⚠️ Pflichtfelder ausfüllen", err_city:"⚠️ Bitte Stadt eingeben", err_nosel:"⚠️ Keine Sendung ausgewählt", sel:"Sendung ausgewählt:", login_title:"Admin-Zugang", login_email:"E-Mail", login_pass:"Passwort", login_btn:"ANMELDEN", login_err:"Falsche E-Mail oder Passwort.", logout:"Abmelden" },
+  hr: { flag:"🇭🇷", code:"HR", h1a:"Pratite svoje", h1b:"vozilo", h1c:"u realnom vremenu", h1sub:"Unesite broj praćenja za provjeru statusa", btn_track:"PRATITI →", hint:"Broj praćenja primljen emailom", not_found:"❌ Broj nije pronađen.", loading:"Učitavanje…", back:"Nova pretraga", prog:"Napredak transporta", itin:"Ruta", tl:"Povijest događaja", info:"Informacije o transportu", eta_pre:"⏱ Dolazak:", lbl_dep:"Polazak", lbl_step:"Postaja", lbl_pos:"Pozicija", lbl_dest:"Odredište", lbl_mt:"Prijevoz", lbl_carr:"Prijevoznik", lbl_dd:"Polazak", lbl_eta:"Dolazak", lbl_vin:"VIN", lbl_pl:"Registracija", st0:"Čeka", st1:"Natovareno", st2:"U tranzitu", st3:"Carina", st4:"Dostava", st5:"Isporučeno", st0f:"Čeka se utovar", st1f:"Vozilo natovareno", st2f:"U tranzitu", st3f:"Carinjenje", st4f:"Dostava u tijeku", st5f:"Isporučeno ✓", adm_title:"Kreiranje praćenja", adm_sub:"Ispunite informacije za generiranje broja praćenja", s_cli:"Podaci o klijentu", s_veh:"Vozilo", s_rou:"Ruta", l_name:"Puno ime", l_email:"Email", l_phone:"Telefon", l_co:"Tvrtka", l_veh:"Marka i model", l_col:"Boja", l_vin:"VIN", l_plate:"Registracija", l_from:"Adresa preuzimanja", l_to:"Adresa dostave", l_dep:"Datum polaska", l_arr:"Procijenjeni dolazak", l_mode:"Prijevoz", l_carrier:"Prijevoznik", m1:"Kamion", m2:"Pomorski (RoRo)", m3:"Zračni teret", m4:"Kombinirani", btn_gen:"🚗 GENERIRAJ BROJ", gen_ok:"✅ Broj praćenja kreiran", btn_copy:"Kopirati", lbl_link:"🔗 Link za klijenta:", link_note:"Klijent vidi samo transportne podatke.", upd_h:"📍 Ažuriraj lokaciju", u_city:"Grad / Lokacija", u_date:"Datum", u_time:"Vrijeme", u_status:"Status", u_note:"Napomena", btn_upd:"📡 POŠALJI", hist_h:"📦 Aktivne pošiljke", th1:"Br.", th2:"Klijent", th3:"Vozilo", th4:"Ruta", th5:"Status", th6:"Tvrtka", ft_tag:"Uvoz automobila · Globalna dostava · Vaše povjerenje", ft_r:"Sva prava pridržana.", toast_gen:"✅ Kreiran:", toast_cop:"📋 Kopirano!", toast_upd:"📡 Ažurirano!", err_fill:"⚠️ Nedostaju polja", err_city:"⚠️ Unesite grad", err_nosel:"⚠️ Nije odabrano", sel:"Odabrano:", login_title:"Admin pristup", login_email:"Email", login_pass:"Lozinka", login_btn:"PRIJAVA", login_err:"Pogrešan email ili lozinka.", logout:"Odjava" },
+  it: { flag:"🇮🇹", code:"IT", h1a:"Segui il tuo", h1b:"veicolo", h1c:"in tempo reale", h1sub:"Inserisci il numero di tracciamento per controllare lo stato", btn_track:"TRACCIA →", hint:"Numero ricevuto via email", not_found:"❌ Numero non trovato.", loading:"Caricamento…", back:"Nuova ricerca", prog:"Avanzamento", itin:"Itinerario", tl:"Cronologia", info:"Informazioni", eta_pre:"⏱ Arrivo:", lbl_dep:"Partenza", lbl_step:"Tappa", lbl_pos:"Posizione", lbl_dest:"Destinazione", lbl_mt:"Trasporto", lbl_carr:"Vettore", lbl_dd:"Partenza", lbl_eta:"Arrivo", lbl_vin:"VIN", lbl_pl:"Targa", st0:"Attesa", st1:"Caricato", st2:"In transito", st3:"Dogana", st4:"Consegna", st5:"Consegnato", st0f:"In attesa di carico", st1f:"Veicolo caricato", st2f:"In transito", st3f:"Sdoganamento", st4f:"Consegna in corso", st5f:"Consegnato ✓", adm_title:"Crea tracciamento", adm_sub:"Compila le informazioni", s_cli:"Cliente", s_veh:"Veicolo", s_rou:"Itinerario", l_name:"Nome completo", l_email:"Email", l_phone:"Telefono", l_co:"Azienda", l_veh:"Marca e Modello", l_col:"Colore", l_vin:"VIN", l_plate:"Targa", l_from:"Indirizzo di partenza", l_to:"Indirizzo di consegna", l_dep:"Data partenza", l_arr:"Arrivo stimato", l_mode:"Modalità", l_carrier:"Vettore", m1:"Camion", m2:"Marittimo (RoRo)", m3:"Aereo cargo", m4:"Combinato", btn_gen:"🚗 GENERA NUMERO", gen_ok:"✅ Numero generato", btn_copy:"Copia", lbl_link:"🔗 Link cliente:", link_note:"Il cliente vede solo le sue informazioni.", upd_h:"📍 Aggiorna posizione", u_city:"Città", u_date:"Data", u_time:"Ora", u_status:"Stato", u_note:"Nota", btn_upd:"📡 INVIA", hist_h:"📦 Spedizioni attive", th1:"N°", th2:"Cliente", th3:"Veicolo", th4:"Percorso", th5:"Stato", th6:"Azienda", ft_tag:"Importazione Auto · Consegna Globale · La Tua Fiducia", ft_r:"Tutti i diritti riservati.", toast_gen:"✅ Creato:", toast_cop:"📋 Copiato!", toast_upd:"📡 Aggiornato!", err_fill:"⚠️ Campi mancanti", err_city:"⚠️ Inserisci città", err_nosel:"⚠️ Nessun tracciamento", sel:"Selezionato:", login_title:"Accesso Admin", login_email:"Email", login_pass:"Password", login_btn:"ACCEDI", login_err:"Email o password errati.", logout:"Esci" },
+  bg: { flag:"🇧🇬", code:"BG", h1a:"Проследете вашето", h1b:"превозно средство", h1c:"в реално време", h1sub:"Въведете номера за проследяване", btn_track:"СЛЕДИ →", hint:"Номерът е изпратен по имейл", not_found:"❌ Номерът не е намерен.", loading:"Зареждане…", back:"Ново търсене", prog:"Напредък", itin:"Маршрут", tl:"История", info:"Информация", eta_pre:"⏱ Пристигане:", lbl_dep:"Заминаване", lbl_step:"Спирка", lbl_pos:"Позиция", lbl_dest:"Дестинация", lbl_mt:"Транспорт", lbl_carr:"Превозвач", lbl_dd:"Заминаване", lbl_eta:"Пристигане", lbl_vin:"VIN", lbl_pl:"Регистрация", st0:"Изчаква", st1:"Натоварено", st2:"В транзит", st3:"Митница", st4:"Доставка", st5:"Доставено", st0f:"Изчаква товарене", st1f:"Натоварено", st2f:"В транзит", st3f:"Митническо оформление", st4f:"Доставката е в ход", st5f:"Доставено ✓", adm_title:"Създаване на проследяване", adm_sub:"Попълнете информацията", s_cli:"Клиент", s_veh:"Превозно средство", s_rou:"Маршрут", l_name:"Пълно име", l_email:"Имейл", l_phone:"Телефон", l_co:"Компания", l_veh:"Марка и модел", l_col:"Цвят", l_vin:"VIN", l_plate:"Регистрация", l_from:"Адрес за товарене", l_to:"Адрес за доставка", l_dep:"Дата", l_arr:"Пристигане", l_mode:"Транспорт", l_carrier:"Превозвач", m1:"Камион", m2:"Морски (RoRo)", m3:"Въздушен", m4:"Комбиниран", btn_gen:"🚗 ГЕНЕРИРАЙ", gen_ok:"✅ Номерът е създаден", btn_copy:"Копиране", lbl_link:"🔗 Линк за клиента:", link_note:"Клиентът вижда само своите данни.", upd_h:"📍 Актуализиране", u_city:"Град", u_date:"Дата", u_time:"Час", u_status:"Статус", u_note:"Бележка", btn_upd:"📡 ИЗПРАТИ", hist_h:"📦 Активни пратки", th1:"№", th2:"Клиент", th3:"Превозно средство", th4:"Маршрут", th5:"Статус", th6:"Компания", ft_tag:"Внос на автомобили · Глобална доставка · Вашето доверие", ft_r:"Всички права запазени.", toast_gen:"✅ Създадено:", toast_cop:"📋 Копирано!", toast_upd:"📡 Актуализирано!", err_fill:"⚠️ Попълнете полетата", err_city:"⚠️ Въведете град", err_nosel:"⚠️ Не е избрано", sel:"Избрано:", login_title:"Администраторски достъп", login_email:"Имейл", login_pass:"Парола", login_btn:"ВЛЕЗ", login_err:"Грешен имейл или парола.", logout:"Изход" },
+  ro: { flag:"🇷🇴", code:"RO", h1a:"Urmăriți-vă", h1b:"vehiculul", h1c:"în timp real", h1sub:"Introduceți numărul de urmărire", btn_track:"URMĂRIRE →", hint:"Numărul a fost trimis prin email", not_found:"❌ Numărul nu a fost găsit.", loading:"Se încarcă…", back:"Căutare nouă", prog:"Progresul", itin:"Itinerar", tl:"Istoricul", info:"Informații", eta_pre:"⏱ Sosire:", lbl_dep:"Plecare", lbl_step:"Oprire", lbl_pos:"Poziție", lbl_dest:"Destinație", lbl_mt:"Transport", lbl_carr:"Transportator", lbl_dd:"Plecare", lbl_eta:"Sosire", lbl_vin:"VIN", lbl_pl:"Înmatriculare", st0:"Așteptare", st1:"Încărcat", st2:"În tranzit", st3:"Vamă", st4:"Livrare", st5:"Livrat", st0f:"În așteptare încărcare", st1f:"Vehicul încărcat", st2f:"În tranzit", st3f:"Vămuire", st4f:"Livrare în curs", st5f:"Livrat ✓", adm_title:"Creare urmărire", adm_sub:"Completați informațiile", s_cli:"Client", s_veh:"Vehicul", s_rou:"Itinerar", l_name:"Nume complet", l_email:"Email", l_phone:"Telefon", l_co:"Companie", l_veh:"Marcă și Model", l_col:"Culoare", l_vin:"VIN", l_plate:"Înmatriculare", l_from:"Adresă plecare", l_to:"Adresă livrare", l_dep:"Data plecare", l_arr:"Sosire estimată", l_mode:"Transport", l_carrier:"Transportator", m1:"Camion", m2:"Maritim (RoRo)", m3:"Aerian cargo", m4:"Combinat", btn_gen:"🚗 GENEREAZĂ NUMĂRUL", gen_ok:"✅ Numărul a fost creat", btn_copy:"Copiați", lbl_link:"🔗 Link client:", link_note:"Clientul vede doar informațiile sale.", upd_h:"📍 Actualizați poziția", u_city:"Orașul", u_date:"Data", u_time:"Ora", u_status:"Status", u_note:"Notă", btn_upd:"📡 TRIMITE", hist_h:"📦 Expedieri active", th1:"Nr.", th2:"Client", th3:"Vehicul", th4:"Traseu", th5:"Status", th6:"Companie", ft_tag:"Import Auto · Livrare globală · Încrederea dvs.", ft_r:"Toate drepturile rezervate.", toast_gen:"✅ Creat:", toast_cop:"📋 Copiat!", toast_upd:"📡 Actualizat!", err_fill:"⚠️ Câmpuri lipsesc", err_city:"⚠️ Introduceți orașul", err_nosel:"⚠️ Nicio urmărire", sel:"Selectat:", login_title:"Acces Administrator", login_email:"Email", login_pass:"Parolă", login_btn:"CONECTARE", login_err:"Email sau parolă incorectă.", logout:"Deconectare" }
 };
 
 /* ═══════════════════════════════════════════
@@ -27,7 +32,7 @@ const T: Record<string, Record<string, string>> = {
 const css = `
   @import url('https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;600;700&family=Exo+2:wght@300;400;500;600;700&display=swap');
   *{margin:0;padding:0;box-sizing:border-box;}
-  :root{--blue:#1a6fd4;--orange:#e85d04;--green:#5a9e2f;--red:#d43d3d;--bg:#080c18;--card:rgba(255,255,255,0.035);--border:rgba(255,255,255,0.08);--text:#e8eaf0;--muted:#7a8499;}
+  :root{--blue:#1a6fd4;--orange:#e85d04;--green:#5a9e2f;--bg:#080c18;--card:rgba(255,255,255,0.035);--border:rgba(255,255,255,0.08);--text:#e8eaf0;--muted:#7a8499;}
   body{font-family:'Exo 2',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;}
   .at-root{position:relative;min-height:100vh;display:flex;flex-direction:column;}
   .bg-grid{position:fixed;inset:0;background:linear-gradient(rgba(26,111,212,.03) 1px,transparent 1px),linear-gradient(90deg,rgba(26,111,212,.03) 1px,transparent 1px);background-size:40px 40px;pointer-events:none;z-index:0;}
@@ -79,8 +84,6 @@ const css = `
   .s-transit{background:rgba(26,111,212,.15);border:1px solid rgba(26,111,212,.4);color:var(--blue);}
   .s-customs{background:rgba(232,93,4,.15);border:1px solid rgba(232,93,4,.4);color:var(--orange);}
   .s-done{background:rgba(90,158,47,.15);border:1px solid rgba(90,158,47,.4);color:var(--green);}
-  .s-delayed{background:rgba(232,93,4,.15);border:1px solid rgba(232,93,4,.4);color:var(--orange);}
-  .s-cancelled{background:rgba(212,61,61,.15);border:1px solid rgba(212,61,61,.4);color:var(--red);}
   .sdot{width:7px;height:7px;border-radius:50%;background:currentColor;animation:pulse 1.5s infinite;}
   @keyframes pulse{0%,100%{opacity:1;transform:scale(1);}50%{opacity:.5;transform:scale(1.3);}}
   .res-right{text-align:right;}
@@ -290,41 +293,9 @@ export default function App() {
   const [genId, setGenId] = useState<string|null>(null);
   const [history, setHistory] = useState<[string,any][]>([]);
   const [selectedId, setSelectedId] = useState<string|null>(null);
-  const [upd, setUpd] = useState({ city:"", date:"", time:"", status:"st0", note:"", newArr:"" });
+  const [upd, setUpd] = useState({ city:"", date:"", time:"", status:"st0", note:"" });
   const [genBusy, setGenBusy] = useState(false);
   const [updBusy, setUpdBusy] = useState(false);
-
-  // MARQUES / ENTREPRISES (dynamique — l'admin peut en ajouter d'autres que AutoDeliv/AutoReach+)
-  const [companies, setCompanies] = useState<string[]>(() => {
-    try {
-      const saved = localStorage.getItem("autotrack_companies");
-      return saved ? JSON.parse(saved) : ["AutoDeliv", "AutoReach+"];
-    } catch { return ["AutoDeliv", "AutoReach+"]; }
-  });
-  const [addingCo, setAddingCo] = useState(false);
-  const [newCoName, setNewCoName] = useState("");
-
-  function persistCompanies(list: string[]) {
-    setCompanies(list);
-    try { localStorage.setItem("autotrack_companies", JSON.stringify(list)); } catch {}
-  }
-
-  function confirmAddCompany() {
-    const name = newCoName.trim();
-    if (!name) { setAddingCo(false); return; }
-    if (!companies.includes(name)) persistCompanies([...companies, name]);
-    setForm(p => ({ ...p, co: name }));
-    setNewCoName("");
-    setAddingCo(false);
-  }
-
-  // Couleur stable et distincte par nom de marque (plutôt qu'un mapping figé bleu/orange)
-  const coColors = ["#1a6fd4", "#e85d04", "#5a9e2f", "#a05ad4", "#d4a843", "#2fb6a8"];
-  function coColor(name: string) {
-    let h = 0;
-    for (let i = 0; i < name.length; i++) h = (h * 31 + name.charCodeAt(i)) >>> 0;
-    return coColors[h % coColors.length];
-  }
 
   const toast = (msg: string, type="ok") => {
     const id = Date.now();
@@ -392,14 +363,18 @@ export default function App() {
 
   async function doTrackById(raw: string) {
     setLoading(true);
-    // Normalise le format (espaces/tirets) puis tente une lecture EXACTE d'un seul document.
-    // Aucune lecture de la collection entière ici : un client ne doit jamais pouvoir
-    // récupérer les données d'autres clients en cherchant "à peu près".
-    const clean = raw.replace(/\s/g, "").toUpperCase();
-    const normalized = clean.includes("-") ? clean : clean.replace(/^(ATK)(\d{4})([A-Z]{2})([A-Z0-9]+)$/, "$1-$2-$3-$4");
-    let data = await dbReadOne(normalized);
-    let id = normalized;
-    if (!data && normalized !== clean) { data = await dbReadOne(clean); id = clean; }
+    // Try direct lookup first
+    let data = await dbReadOne(raw);
+    let id = raw;
+    if (!data) {
+      // Fallback: search all
+      const all = await dbRead();
+      const found = Object.keys(all).find(k =>
+        k.replace(/-/g,"") === raw.replace(/-/g,"") ||
+        k.replace(/-/g,"").endsWith(raw.replace(/-/g,"").slice(-5))
+      );
+      if (found) { id = found; data = all[found]; }
+    }
     setLoading(false);
     if (!data) { setTrackError(true); setTrackData(null); return; }
     setTrackId(id);
@@ -408,15 +383,6 @@ export default function App() {
   }
 
   /* ── GENERATE ── */
-  // Génère un suffixe aléatoire cryptographiquement sûr (8 caractères alphanumériques,
-  // beaucoup moins prévisible/devinable que 5 chiffres tirés avec Math.random)
-  function secureSuffix(len = 8) {
-    const chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789"; // sans 0/O/1/I pour éviter la confusion visuelle
-    const arr = new Uint32Array(len);
-    crypto.getRandomValues(arr);
-    return Array.from(arr, n => chars[n % chars.length]).join("");
-  }
-
   async function genTracking() {
     const { name, from, to, veh } = form;
     if (!name || !from || !to || !veh) { toast(t("err_fill"), "err"); return; }
@@ -424,16 +390,8 @@ export default function App() {
     const words = from.split(/[,\s]+/).filter((w: string) => /^[A-Za-zÀ-ÿ]{2,}$/.test(w));
     const cc = (words[words.length - 1] || "XX").substring(0, 2).toUpperCase();
     const yr = new Date().getFullYear();
-
-    // Vérifie l'unicité (collision extrêmement improbable, mais on s'assure de ne jamais écraser un suivi existant)
-    let id = "";
-    for (let attempt = 0; attempt < 5; attempt++) {
-      const candidate = `ATK-${yr}-${cc}-${secureSuffix()}`;
-      const exists = await dbReadOne(candidate);
-      if (!exists) { id = candidate; break; }
-    }
-    if (!id) { toast("❌ Erreur de génération, réessayez", "err"); setGenBusy(false); return; }
-
+    const num = String(Math.floor(Math.random() * 90000) + 10000);
+    const id = `ATK-${yr}-${cc}-${num}`;
     const dep = fmt(form.dep), arr = fmt(form.arr);
     const rec = {
       client: name, email: form.email, phone: form.phone,
@@ -468,7 +426,6 @@ export default function App() {
   async function pushUpdate() {
     if (!selectedId) { toast(t("err_nosel"), "err"); return; }
     if (!upd.city) { toast(t("err_city"), "err"); return; }
-    if (upd.status === "st7" && !window.confirm(t("confirm_cancel"))) return;
     setUpdBusy(true);
     let dt = "";
     if (upd.date) { try { dt = new Date(upd.date).toLocaleDateString("fr-FR"); } catch { dt = upd.date; } if (upd.time) dt += " — " + upd.time; }
@@ -481,23 +438,7 @@ export default function App() {
     data.route.forEach((r: any) => { if (r.type === "current") r.type = "step"; });
     const di = data.route.findIndex((r: any) => r.type === "dest");
     data.route.splice(di, 0, { city: upd.city, lk:"lbl_pos", type:"current", time: dt, note: upd.note || null });
-    data.timeline.unshift({ icon: upd.status==="st7"?"✕":upd.status==="st6"?"⏱":"●", type:"active", title:`${t(upd.status)} — ${upd.city}${upd.note ? " · " + upd.note : ""}`, time: dt });
-
-    // Mise à jour de la date d'arrivée estimée (en cas de retard ou d'avance)
-    if (upd.newArr) {
-      const newArrFmt = fmt(upd.newArr);
-      if (!data.originalArr) data.originalArr = data.arr; // garde la première estimation
-      if (newArrFmt !== data.arr) {
-        data.timeline.unshift({ icon:"⏱", type:"active", title:`Nouvelle date d'arrivée estimée : ${newArrFmt}${data.originalArr && data.originalArr !== newArrFmt ? ` (initialement prévu le ${data.originalArr})` : ""}`, time: dt });
-        data.arr = newArrFmt;
-        // Met aussi à jour la destination dans l'itinéraire
-        const dest = data.route.find((r: any) => r.type === "dest");
-        if (dest) dest.time = `Estimé ${newArrFmt}`;
-        const etaInfo = data.info?.find((i: any) => i.lk === "lbl_eta");
-        if (etaInfo) etaInfo.val = newArrFmt;
-      }
-    }
-
+    data.timeline.unshift({ icon:"●", type:"active", title:`${t(upd.status)} — ${upd.city}${upd.note ? " · " + upd.note : ""}`, time: dt });
     let first = true;
     data.timeline = data.timeline.map((e: any) => {
       if (e.type === "active") { if (first) { first = false; return e; } return { ...e, type:"done", icon:"✓" }; }
@@ -505,8 +446,30 @@ export default function App() {
     });
     await dbWrite(selectedId, data);
     await loadHistory();
+
+    // Send email notification to client
+    if (data.email && data.email !== "—" && data.email.includes("@")) {
+      try {
+        await emailjs.send(EMAILJS_SERVICE, EMAILJS_TEMPLATE, {
+          client_name: data.client,
+          vehicle: data.vehicle,
+          city: upd.city,
+          status: t(upd.status + "f"),
+          date: dt,
+          note: upd.note ? "📝 " + upd.note : "",
+          tracking_id: selectedId,
+          tracking_link: window.location.origin + window.location.pathname + "?track=" + selectedId,
+          to_email: data.email,
+        }, EMAILJS_PUBLIC);
+        toast("📧 Email envoyé à " + data.email, "ok");
+      } catch (err) {
+        console.error("EmailJS error", err);
+        toast("⚠️ Mise à jour OK mais email non envoyé", "err");
+      }
+    }
+
     toast(t("toast_upd"), "ok");
-    setUpd(p => ({ ...p, city:"", note:"", newArr:"" }));
+    setUpd(p => ({ ...p, city:"", note:"" }));
     setUpdBusy(false);
   }
 
@@ -528,15 +491,13 @@ export default function App() {
     if (stk === "st5") return "sbadge s-done";
     if (stk === "st3") return "sbadge s-customs";
     if (stk === "st0") return "sbadge s-wait";
-    if (stk === "st6") return "sbadge s-delayed";
-    if (stk === "st7") return "sbadge s-cancelled";
     return "sbadge s-transit";
   }
 
   const lkMap = (lk: string) => ({ lbl_dep: t("lbl_dep"), lbl_step: t("lbl_step"), lbl_pos: t("lbl_pos"), lbl_dest: t("lbl_dest") } as Record<string,string>)[lk] || lk;
   const infoLkMap = (lk: string) => ({ lbl_mt: t("lbl_mt"), lbl_carr: t("lbl_carr"), lbl_dd: t("lbl_dd"), lbl_eta: t("lbl_eta"), lbl_vin: t("lbl_vin"), lbl_pl: t("lbl_pl") } as Record<string,string>)[lk] || lk;
 
-  const steps = ["st0","st1","st2","st3","st4","st5","st6","st7"];
+  const steps = ["st0","st1","st2","st3","st4","st5"];
   const stepIcons = ["⏳","📦","🚛","🛃","🏠","✅"];
   const trackLink = genId ? `${window.location.origin}${window.location.pathname}?track=${genId}` : "";
 
@@ -583,16 +544,13 @@ export default function App() {
         {/* HEADER */}
         <header className="hdr">
           <div className="hdr-badges">
-            {companies.map((c, i) => (
-              <span key={c}>
-                {i > 0 && <span style={{color:"var(--muted)",margin:"0 4px"}}>×</span>}
-                <span className="bdg" style={{color:coColor(c),borderColor:coColor(c),background:coColor(c)+"14"}}>{c}</span>
-              </span>
-            ))}
+            <span className="bdg bdg-ar">AutoReach+</span>
+            <span style={{color:"var(--muted)"}}>×</span>
+            <span className="bdg bdg-ad">AutoDeliv</span>
           </div>
           <div className="hdr-brand">
             <div className="hdr-title">AUTO<span>TRACK</span></div>
-            <div className="hdr-sub">powered by {companies.join(" & ")}</div>
+            <div className="hdr-sub">powered by AutoReach+ &amp; AutoDeliv</div>
           </div>
           <div className="hdr-right">
             {isAdminUrl && (
@@ -657,14 +615,7 @@ export default function App() {
                 <div className="res-right">
                   <div className="res-name">{trackData.client}</div>
                   <div className="res-veh">{trackData.vehicle}{trackData.color&&trackData.color!=="—"?" — "+trackData.color:""}</div>
-                  <div className="res-eta">
-                    {t("eta_pre")} {trackData.arr}
-                    {trackData.originalArr && trackData.originalArr !== trackData.arr && (
-                      <span style={{display:"block",fontSize:11,color:"var(--orange)",fontWeight:600,marginTop:2}}>
-                        ⏱ Date mise à jour — initialement prévu le {trackData.originalArr}
-                      </span>
-                    )}
-                  </div>
+                  <div className="res-eta">{t("eta_pre")} {trackData.arr}</div>
                   <div className="res-co">{trackData.company}</div>
                 </div>
               </div>
@@ -761,23 +712,10 @@ export default function App() {
                   ))}
                   <div className="fgroup">
                     <div className="flabel">{t("l_co")}</div>
-                    {!addingCo ? (
-                      <div style={{display:"flex",gap:8}}>
-                        <select className="fs" value={form.co} onChange={e => {
-                          if (e.target.value === "__new__") { setAddingCo(true); return; }
-                          setForm(p=>({...p,co:e.target.value}));
-                        }}>
-                          {companies.map(c => <option key={c} value={c}>{c}</option>)}
-                          <option value="__new__">+ Ajouter une nouvelle marque…</option>
-                        </select>
-                      </div>
-                    ) : (
-                      <div style={{display:"flex",gap:8}}>
-                        <input className="fi" autoFocus value={newCoName} onChange={e => setNewCoName(e.target.value)} onKeyDown={e => e.key==="Enter" && confirmAddCompany()} placeholder="Nom de la nouvelle marque" />
-                        <button className="nav-btn" onClick={confirmAddCompany}>✓</button>
-                        <button className="nav-btn" onClick={() => { setAddingCo(false); setNewCoName(""); }}>✕</button>
-                      </div>
-                    )}
+                    <select className="fs" value={form.co} onChange={e => setForm(p=>({...p,co:e.target.value}))}>
+                      <option value="AutoDeliv">AutoDeliv</option>
+                      <option value="AutoReach+">AutoReach+</option>
+                    </select>
                   </div>
                   <div className="sdivider">{t("s_veh")}</div>
                   {([["l_veh","veh","BMW X5 2021"],["l_col","col","Blanc perle"],["l_vin","vin","WBA3A5G5XDNX00001"],["l_plate","plate","AB-123-CD"]] as [string,string,string][]).map(([lk,k,ph]) => (
@@ -855,12 +793,8 @@ export default function App() {
                         </div>
                         <div className="fgroup">
                           <div className="flabel">{t("u_note")}</div>
-                          <input className="fi" value={upd.note} onChange={e => setUpd(p=>({...p,note:e.target.value}))} placeholder="Contrôle douanier en cours…" />
+                          <input className="fi" value={upd.note} onChange={e=>setUpd(p=>({...p,note:e.target.value}))} placeholder="Contrôle douanier en cours…" />
                         </div>
-                      </div>
-                      <div className="fgroup" style={{marginBottom:13}}>
-                        <div className="flabel" style={{color:"var(--orange)"}}>🕓 Nouvelle date d'arrivée estimée (en cas de retard)</div>
-                        <input className="fi" type="date" value={upd.newArr} onChange={e => setUpd(p=>({...p,newArr:e.target.value}))} />
                       </div>
                       <button className="btn-upd" onClick={pushUpdate} disabled={updBusy}>
                         {updBusy ? <><span className="spin" /> Envoi…</> : t("btn_upd")}
@@ -886,7 +820,7 @@ export default function App() {
                       )}
                       {history.map(([id, d]) => {
                         const co = d.company || "—";
-                        const stc = d.statusKey==="st5"?"var(--green)":d.statusKey==="st7"?"var(--red)":(d.statusKey==="st3"||d.statusKey==="st6")?"var(--orange)":"var(--blue)";
+                        const stc = d.statusKey==="st5"?"var(--green)":d.statusKey==="st3"?"var(--orange)":"var(--blue)";
                         return (
                           <tr key={id}>
                             <td><span className="tid" onClick={() => selectTracking(id)}>{id}</span></td>
@@ -894,7 +828,7 @@ export default function App() {
                             <td>{d.vehicle}</td>
                             <td>{d.fromCity} → {d.toCity}</td>
                             <td><span className="dstatus"><span className="dot" style={{background:stc}} />{t((d.statusKey||"st0")+"f")}</span></td>
-                            <td><span style={{color:coColor(co)}}>{co}</span></td>
+                            <td><span style={{color:co==="AutoDeliv"?"var(--blue)":"var(--orange)"}}>{co}</span></td>
                           </tr>
                         );
                       })}
@@ -919,12 +853,9 @@ export default function App() {
         {/* FOOTER */}
         <footer>
           <div className="fl">
-            {companies.map((c, i) => (
-              <span key={c} style={{display:"flex",alignItems:"center",gap:11}}>
-                {i > 0 && <span style={{color:"var(--border)"}}>|</span>}
-                <span style={{color:coColor(c)}}>{c}</span>
-              </span>
-            ))}
+            <span style={{color:"var(--orange)"}}>AutoReach+</span>
+            <span style={{color:"var(--border)"}}>|</span>
+            <span style={{color:"var(--blue)"}}>AutoDeliv</span>
           </div>
           <p>{t("ft_tag")}</p>
           <p>© 2026 AUTOTRACK — {t("ft_r")}</p>
