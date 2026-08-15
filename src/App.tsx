@@ -156,6 +156,11 @@ const css = `
   .btn-gen:hover{transform:translateY(-2px);box-shadow:0 12px 36px rgba(26,111,212,.35);}
   .btn-gen:disabled{opacity:.5;cursor:not-allowed;transform:none;}
   .gen-card{background:rgba(26,111,212,.06);border:1px solid rgba(26,111,212,.25);border-radius:16px;padding:24px;margin-top:20px;text-align:center;}
+  .qr-wrap{display:flex;justify-content:center;margin:14px 0;}
+  .qr-wrap img{border-radius:10px;border:3px solid rgba(26,111,212,.3);}
+  .qr-lbl{font-size:10px;color:var(--muted);letter-spacing:.1em;text-transform:uppercase;margin-bottom:6px;}
+  .qr-dl{display:inline-flex;align-items:center;gap:5px;font-size:11px;color:var(--muted);cursor:pointer;border:1px solid var(--border);padding:4px 10px;border-radius:16px;margin-top:6px;transition:all .2s;}
+  .qr-dl:hover{color:var(--blue);border-color:var(--blue);}
   .gen-lbl{font-size:10px;color:var(--muted);letter-spacing:.12em;text-transform:uppercase;margin-bottom:8px;}
   .gen-num{font-family:'Rajdhani',sans-serif;font-size:clamp(20px,4vw,38px);font-weight:700;letter-spacing:.2em;color:#fff;margin-bottom:9px;}
   .gen-num span{color:var(--blue);}
@@ -810,6 +815,24 @@ export default function App() {
                       <span>ATK</span>{genId.substring(3)}
                     </div>
                     <div className="copy-btn" onClick={copyNum}>📋 {t("btn_copy")}</div>
+                    <div className="qr-lbl">📱 QR Code — Scanner pour suivre</div>
+                    <div className="qr-wrap">
+                      <img
+                        src={"https://api.qrserver.com/v1/create-qr-code/?size=160x160&data=" + encodeURIComponent(trackLink) + "&bgcolor=0a0e1a&color=4a9eff&qzone=2"}
+                        alt="QR Code suivi"
+                        width={160}
+                        height={160}
+                      />
+                    </div>
+                    <a
+                      className="qr-dl"
+                      href={"https://api.qrserver.com/v1/create-qr-code/?size=400x400&data=" + encodeURIComponent(trackLink) + "&bgcolor=ffffff&color=1a6fd4&qzone=2"}
+                      download={"QR-" + genId + ".png"}
+                      target="_blank"
+                      rel="noreferrer"
+                    >
+                      ⬇️ Télécharger le QR Code
+                    </a>
                     <div className="link-box">
                       {t("lbl_link")}<br/>
                       <a href={trackLink} target="_blank" rel="noreferrer">{trackLink}</a>
