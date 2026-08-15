@@ -1,0 +1,24 @@
+{
+  "name": "AutoTrack — Suivi de transport",
+  "short_name": "AutoTrack",
+  "description": "Suivez vos véhicules en temps réel",
+  "start_url": "/?admin=1",
+  "display": "standalone",
+  "background_color": "#060a14",
+  "theme_color": "#2278e8",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "https://api.dicebear.com/7.x/initials/svg?seed=AT&backgroundColor=2278e8&fontSize=40",
+      "sizes": "192x192",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "https://api.dicebear.com/7.x/initials/svg?seed=AT&backgroundColor=2278e8&fontSize=40",
+      "sizes": "512x512",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
