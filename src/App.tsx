@@ -869,7 +869,7 @@ async function doRegister() {
           </div>
         )}
 
-        {/* ── LOGIN MODAL ── */}}
+        {/* ── LOGIN MODAL ── */}
         {showLogin && (
           <div className="login-ov">
             <div className="login-box">
