@@ -499,27 +499,7 @@ export default function App() {
     }
   }, [view, adminUser]);
 
-  /* ── REGISTER ── */
-  async function doRegister() {
-    setRegErr(""); setRegBusy(true);
-    const valid = await useInviteCode(regCode.trim().toUpperCase());
-    if (!valid) { setRegErr(t("reg_err_code")); setRegBusy(false); return; }
-    try {
-      const cred = await createUserWithEmailAndPassword(auth, regEmail.trim(), regPass);
-      await saveAdminProfile(cred.user.email!, {
-        email: cred.user.email,
-        trackingCount: 0,
-        blocked: false,
-        createdAt: new Date().toISOString(),
-        pendingPayment: false
-      });
-      setRegOk(true);
-    } catch { setRegErr(t("reg_err")); }
-    setRegBusy(false);
-  }
-
-  /* ── AUTO REGISTER ── */
-  async function doRegister() {
+async function doRegister() {
     setRegErr(""); setRegBusy(true);
     if (!regEmail.trim() || !regPass.trim() || !contactForm.name.trim()) {
       setRegErr("⚠️ Nom, email et mot de passe requis.");
