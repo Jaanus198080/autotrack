@@ -812,30 +812,45 @@ async function doRegister() {
         {showRegister && (
           <div className="reg-ov">
             <div className="reg-box">
-              <h2>🚗 {t("reg_title")}</h2>
-              <p>AutoTrack — Accès partenaire</p>
-              {regOk
-                ? <><div className="reg-ok">{t("reg_ok")}</div>
-                    <button className="btn-blue" style={{width:"100%"}} onClick={()=>{setShowRegister(false);setShowLogin(true);}}>Se connecter</button></>
-                : <>
-                    {regErr && <div className="login-err">{regErr}</div>}
-                    <div className="fgroup" style={{textAlign:"left",marginBottom:12}}>
-
+              <h2>🚗 Créer mon compte</h2>
+              <p>AutoTrack — Accès partenaire gratuit</p>
+              {regOk ? (
+                <>
+                  <div className="reg-ok">✅ Compte créé !<br/>Vos identifiants ont été envoyés par email.</div>
+                  <button className="btn-blue" style={{width:"100%"}} onClick={()=>{setShowRegister(false);setShowLogin(true);}}>Se connecter →</button>
+                </>
+              ) : (
+                <>
+                  {regErr && <div className="login-err">{regErr}</div>}
+                  <div style={{display:"flex",flexDirection:"column",gap:10,marginBottom:16,textAlign:"left"}}>
+                    <div className="fgroup">
+                      <div className="flabel">Nom complet *</div>
+                      <input className="fi" value={contactForm.name} onChange={e=>setContactForm(p=>({...p,name:e.target.value}))} placeholder="Mohammed Alami"/>
                     </div>
-                    <div className="fgroup" style={{textAlign:"left",marginBottom:12}}>
-                      <div className="flabel">{t("reg_email")}</div>
-                      <input className="fi" type="email" value={regEmail} onChange={e=>setRegEmail(e.target.value)} placeholder="mon@email.com"/>
+                    <div className="fgroup">
+                      <div className="flabel">Entreprise</div>
+                      <input className="fi" value={contactForm.company} onChange={e=>setContactForm(p=>({...p,company:e.target.value}))} placeholder="CarConcept SARL"/>
                     </div>
-                    <div className="fgroup" style={{textAlign:"left",marginBottom:20}}>
-                      <div className="flabel">{t("reg_pass")}</div>
+                    <div className="fgroup">
+                      <div className="flabel">Téléphone</div>
+                      <input className="fi" value={contactForm.phone} onChange={e=>setContactForm(p=>({...p,phone:e.target.value}))} placeholder="+33 6 00 00 00 00"/>
+                    </div>
+                    <div className="fgroup">
+                      <div className="flabel">Email *</div>
+                      <input className="fi" type="email" value={contactForm.email} onChange={e=>setContactForm(p=>({...p,email:e.target.value}))} placeholder="contact@monentreprise.com"/>
+                    </div>
+                    <div className="fgroup">
+                      <div className="flabel">Mot de passe * (min. 6 caractères)</div>
                       <input className="fi" type="password" value={regPass} onChange={e=>setRegPass(e.target.value)} placeholder="••••••••"/>
                     </div>
-                    <button className="btn-blue" style={{width:"100%",marginBottom:10}} onClick={doRegister} disabled={regBusy}>
-                      {regBusy?<><span className="spin"/> Création…</>:t("reg_btn")}
-                    </button>
-                    <button className="nav-btn" style={{width:"100%"}} onClick={()=>setShowRegister(false)}>Annuler</button>
-                  </>
-              }
+                  </div>
+                  <button className="btn-blue" style={{width:"100%",marginBottom:10}} onClick={doRegister} disabled={regBusy}>
+                    {regBusy?<><span className="spin"/> Création…</>:"🚀 Créer mon compte gratuitement"}
+                  </button>
+                  <p style={{fontSize:11,color:"var(--muted)",marginBottom:10}}>Vos identifiants seront envoyés par email automatiquement.</p>
+                  <button className="nav-btn" style={{width:"100%"}} onClick={()=>setShowRegister(false)}>Annuler</button>
+                </>
+              )}
             </div>
           </div>
         )}
