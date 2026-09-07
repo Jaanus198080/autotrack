@@ -629,11 +629,22 @@ async function doRegister() {
     if (!name||!from||!to||!veh) { toast(t("err_fill"),"err"); return; }
     const profile = adminProfile;
     const count   = profile?.trackingCount || 0;
-    // First tracking free, then payment required
-    if (count >= 1 && !isSA(adminUser?.email)) {
-      setShowPayment(true);
-      setPendingGen(true);
-      return;
+
+    if (!isSA(adminUser?.email)) {
+      // Block if pending payment not confirmed
+      if (profile?.pendingPayment) {
+        toast("⏳ Votre paiement est en attente de confirmation. Contactez krediitas@gmail.com", "err");
+        return;
+      }
+      // First tracking free, then payment required
+      if (count >= 1) {
+        // Mark as pending payment before showing modal
+        await saveAdminProfile(adminUser?.email!, {pendingPayment: true});
+        setAdminProfile((p:any) => ({...p, pendingPayment: true}));
+        setShowPayment(true);
+        setPendingGen(true);
+        return;
+      }
     }
     await doGenerate();
   }
