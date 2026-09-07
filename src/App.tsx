@@ -400,7 +400,6 @@ export default function App() {
 
   // REGISTER
   const [showRegister, setShowRegister] = useState(isRegisterUrl);
-  const [regCode, setRegCode]   = useState("");
   const [regEmail, setRegEmail] = useState("");
   const [regPass, setRegPass]   = useState("");
   const [regErr, setRegErr]     = useState("");
@@ -819,8 +818,7 @@ async function doRegister() {
                 : <>
                     {regErr && <div className="login-err">{regErr}</div>}
                     <div className="fgroup" style={{textAlign:"left",marginBottom:12}}>
-                      <div className="flabel">{t("reg_code")}</div>
-                      <input className="fi" value={regCode} onChange={e=>setRegCode(e.target.value)} placeholder="INV-XXXX-XXX"/>
+
                     </div>
                     <div className="fgroup" style={{textAlign:"left",marginBottom:12}}>
                       <div className="flabel">{t("reg_email")}</div>
