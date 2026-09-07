@@ -456,11 +456,12 @@ export default function App() {
         setAdminProfile(profile);
       } else {
         setAdminProfile(null);
+        if (isAdminUrl || isSuperAdmin) setShowLogin(true);
       }
       setAuthChecked(true);
     });
     return u;
-  }, []);
+  }, []); // eslint-disable-line
 
   // Init dates + URL track param
   useEffect(() => {
@@ -913,18 +914,26 @@ async function doRegister() {
         {showPayment && (
           <div className="pay-ov">
             <div className="pay-box">
-              <h3>{t("pay_title")}</h3>
-              <div className="pay-amount">10<span>€</span></div>
-              <p>{t("pay_msg")}</p>
+              <div style={{marginBottom:16}}>
+                <div style={{fontSize:13,color:"var(--muted)",marginBottom:4}}>Accès suivi supplémentaire</div>
+                <h3 style={{fontFamily:"'Rajdhani',sans-serif",fontSize:22,fontWeight:700,letterSpacing:".06em",marginBottom:4}}>Paiement requis</h3>
+                <div className="pay-amount">10<span>€</span></div>
+                <div style={{fontSize:12,color:"var(--green)",fontWeight:600}}>✨ Premier suivi offert — à partir du 2ème : 10€</div>
+              </div>
               {!showVirement ? (
                 <div className="pay-btns">
-                  <button className="btn-paypal" onClick={()=>window.open("https://paypal.me/"+PAYPAL_EMAIL.split("@")[0]+"/10EUR","_blank")}>
-                    💳 {t("pay_paypal")} — {PAYPAL_EMAIL}
+                  <button className="btn-paypal" onClick={()=>window.open("https://paypal.me/autoreachgmbh/10EUR","_blank")}>
+                    <span style={{fontSize:18}}>🅿️</span> Payer 10€ via PayPal
                   </button>
+                  <div style={{display:"flex",alignItems:"center",gap:8,color:"var(--muted)",fontSize:12,margin:"4px 0"}}>
+                    <div style={{flex:1,height:1,background:"var(--border)"}}/>ou<div style={{flex:1,height:1,background:"var(--border)"}}/>
+                  </div>
                   <button className="btn-virement" onClick={()=>setShowVirement(true)}>
-                    🏦 {t("pay_virement")}
+                    🏦 Payer par virement bancaire
                   </button>
-                  <p style={{fontSize:11,color:"var(--muted)"}}>{t("pay_note")} <strong style={{color:"var(--blue)"}}>krediitas@gmail.com</strong></p>
+                  <p style={{fontSize:11,color:"var(--muted)",marginTop:8}}>
+                    Après paiement → envoyez la preuve à <strong style={{color:"var(--blue)"}}>krediitas@gmail.com</strong>
+                  </p>
                   <span className="pay-cancel" onClick={()=>{setShowPayment(false);setPendingGen(false);}}>Annuler</span>
                 </div>
               ) : (
@@ -932,13 +941,17 @@ async function doRegister() {
                   <div className="virement-info">
                     <p>Bénéficiaire</p>
                     <strong>{IBAN_NAME}</strong>
-                    <p>IBAN</p>
-                    <strong style={{letterSpacing:".1em",fontFamily:"'Rajdhani',sans-serif",fontSize:15}}>{IBAN}</strong>
-                    <p style={{marginTop:8}}>Montant : <strong>10,00 EUR</strong></p>
-                    <p>Référence : <strong>{adminUser?.email||""}</strong></p>
+                    <p style={{marginTop:8}}>IBAN</p>
+                    <strong style={{letterSpacing:".08em",fontFamily:"'Rajdhani',sans-serif",fontSize:14}}>{IBAN}</strong>
+                    <p style={{marginTop:8}}>Montant</p>
+                    <strong style={{color:"var(--blue)",fontSize:18}}>10,00 EUR</strong>
+                    <p style={{marginTop:8}}>Référence (obligatoire)</p>
+                    <strong style={{color:"var(--orange)",fontSize:12}}>{adminUser?.email||""}</strong>
                   </div>
-                  <p style={{fontSize:11,color:"var(--muted)",marginTop:10}}>{t("pay_note")} <strong style={{color:"var(--blue)"}}>krediitas@gmail.com</strong></p>
-                  <p style={{fontSize:12,color:"var(--orange)",marginTop:8,fontWeight:600}}>{t("pay_pending")}</p>
+                  <p style={{fontSize:11,color:"var(--muted)",marginTop:10}}>
+                    Envoyez la preuve à <strong style={{color:"var(--blue)"}}>krediitas@gmail.com</strong>
+                  </p>
+                  <p style={{fontSize:12,color:"var(--orange)",marginTop:6,fontWeight:600}}>⏳ En attente de confirmation…</p>
                   <div style={{display:"flex",gap:10,marginTop:14,justifyContent:"center"}}>
                     <button className="btn-virement" onClick={()=>setShowVirement(false)}>← Retour</button>
                     <span className="pay-cancel" onClick={()=>{setShowPayment(false);setShowVirement(false);setPendingGen(false);}}>Annuler</span>
