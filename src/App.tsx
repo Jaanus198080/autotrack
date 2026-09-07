@@ -500,15 +500,17 @@ export default function App() {
 
 async function doRegister() {
     setRegErr(""); setRegBusy(true);
-    if (!regEmail.trim() || !regPass.trim() || !contactForm.name.trim()) {
+    const email = contactForm.email.trim();
+    const name = contactForm.name.trim();
+    if (!email || !regPass.trim() || !name) {
       setRegErr("⚠️ Nom, email et mot de passe requis.");
       setRegBusy(false); return;
     }
     try {
-      const cred = await createUserWithEmailAndPassword(auth, regEmail.trim(), regPass);
+      const cred = await createUserWithEmailAndPassword(auth, email, regPass);
       await saveAdminProfile(cred.user.email!, {
         email: cred.user.email,
-        name: contactForm.name,
+        name: name,
         company: contactForm.company || "",
         phone: contactForm.phone || "",
         trackingCount: 0,
@@ -519,11 +521,11 @@ async function doRegister() {
       // Send welcome email to partner
       try {
         await emailjs.send(EMAILJS_SERVICE, EMAILJS_PARTNER, {
-          partner_name: contactForm.name,
-          partner_email: regEmail.trim(),
+          partner_name: name,
+          partner_email: email,
           partner_password: regPass,
           login_link: window.location.origin + "/?admin=1",
-          to_email: regEmail.trim(),
+          to_email: email,
         }, EMAILJS_PUBLIC);
       } catch(e) { console.error("Welcome email error", e); }
       // Notify super admin
@@ -534,7 +536,7 @@ async function doRegister() {
           city: contactForm.company || "—",
           status: "Inscription automatique",
           date: new Date().toLocaleString("fr-FR"),
-          note: "📧 " + regEmail.trim() + " | Tel: " + (contactForm.phone||"—"),
+          note: "📧 " + email + " | Tel: " + (contactForm.phone||"—"),
           tracking_id: "NOUVEAU-PARTENAIRE",
           tracking_link: window.location.origin + "/?superadmin=1",
           to_email: SUPER_ADMIN,
@@ -543,8 +545,8 @@ async function doRegister() {
       setRegOk(true);
       toast("✅ Compte créé ! Email envoyé.", "ok");
     } catch(e: any) {
-      if (e.code === "auth/email-already-in-use") setRegErr("❌ Cet email est déjà utilisé.");
-      else if (e.code === "auth/weak-password") setRegErr("❌ Mot de passe trop court (min. 6 caractères).");
+      if ((e as any).code === "auth/email-already-in-use") setRegErr("❌ Cet email est déjà utilisé.");
+      else if ((e as any).code === "auth/weak-password") setRegErr("❌ Mot de passe trop court (min. 6 caractères).");
       else setRegErr(t("reg_err"));
     }
     setRegBusy(false);
@@ -853,9 +855,10 @@ async function doRegister() {
                 <>
                   <div className="fg" style={{gridTemplateColumns:"1fr",gap:10,marginBottom:16}}>
                     <div className="fgroup"><div className="flabel">Nom complet *</div><input className="fi" value={contactForm.name} onChange={e=>setContactForm(p=>({...p,name:e.target.value}))} placeholder="Mohammed Alami"/></div>
-                    <div className="fgroup"><div className="flabel">Email *</div><input className="fi" type="email" value={contactForm.email} onChange={e=>setContactForm(p=>({...p,email:e.target.value}))} placeholder="contact@monentreprise.com"/></div>
                     <div className="fgroup"><div className="flabel">Entreprise</div><input className="fi" value={contactForm.company} onChange={e=>setContactForm(p=>({...p,company:e.target.value}))} placeholder="CarConcept SARL"/></div>
                     <div className="fgroup"><div className="flabel">Téléphone</div><input className="fi" value={contactForm.phone} onChange={e=>setContactForm(p=>({...p,phone:e.target.value}))} placeholder="+33 6 00 00 00 00"/></div>
+                    <div className="fgroup"><div className="flabel">Email *</div><input className="fi" type="email" value={contactForm.email} onChange={e=>setContactForm(p=>({...p,email:e.target.value}))} placeholder="contact@monentreprise.com"/></div>
+                    <div className="fgroup"><div className="flabel">Mot de passe * (min. 6 caractères)</div><input className="fi" type="password" value={regPass} onChange={e=>setRegPass(e.target.value)} placeholder="••••••••"/></div>
                   </div>
                   <button className="btn-blue" style={{width:"100%",marginBottom:10}} onClick={sendContact} disabled={contactBusy}>
                     {contactBusy?<><span className="spin"/> Envoi…</>:"📩 Envoyer ma demande"}
