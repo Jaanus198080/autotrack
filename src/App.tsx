@@ -627,20 +627,20 @@ async function doRegister() {
     const count   = profile?.trackingCount || 0;
 
     if (!isSA(adminUser?.email)) {
+      // First tracking is always free - never block
+      if (count === 0) {
+        await doGenerate();
+        return;
+      }
       // Block if pending payment not confirmed
       if (profile?.pendingPayment) {
-        toast("⏳ Votre paiement est en attente de confirmation. Contactez krediitas@gmail.com", "err");
+        toast("⏳ Votre paiement est en attente de confirmation. Contactez-nous sur WhatsApp : +32460211559", "err");
         return;
       }
-      // First tracking free, then payment required
-      if (count >= 1) {
-        // Mark as pending payment before showing modal
-        await saveAdminProfile(adminUser?.email!, {pendingPayment: true});
-        setAdminProfile((p:any) => ({...p, pendingPayment: true}));
-        setShowPayment(true);
-        setPendingGen(true);
-        return;
-      }
+      // From 2nd tracking onwards - payment required
+      setShowPayment(true);
+      setPendingGen(true);
+      return;
     }
     await doGenerate();
   }
