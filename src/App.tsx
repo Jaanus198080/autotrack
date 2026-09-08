@@ -18,8 +18,8 @@ const EMAILJS_PUBLIC   = "sycumEw72eiYqMsyK";
 const EMAILJS_PARTNER  = "template_l91lawt";
 const SUPER_ADMIN      = "krediitas@gmail.com";
 const PAYPAL_EMAIL     = "autoreachgmbh@gmail.com";
-const IBAN             = "CH25 0884 3156 2544 2102 0";
-const IBAN_NAME        = "JAANUS AALMAA";
+const WHATSAPP_NUM     = "32460211559";
+const MAKE_WEBHOOK     = "https://hook.eu1.make.com/9r5uy7wh3pkuy6b3uufiayd8ywylwimw";
 
 /* ══════════════════════════════════════════════
    TRANSLATIONS (fr/en/de/hr/it/ro/bg)
@@ -234,10 +234,7 @@ const css = `
   .pay-btns{display:flex;flex-direction:column;gap:10px;margin-top:16px;}
   .btn-paypal{font-family:'Rajdhani',sans-serif;font-size:14px;font-weight:700;padding:13px;border-radius:10px;border:none;background:linear-gradient(135deg,#0070ba,#003087);color:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;}
   .btn-paypal:hover{transform:translateY(-1px);box-shadow:0 6px 20px rgba(0,112,186,.4);}
-  .btn-virement{font-family:'Rajdhani',sans-serif;font-size:14px;font-weight:700;padding:13px;border-radius:10px;border:1px solid var(--border);background:var(--card);color:var(--text);cursor:pointer;}
-  .virement-info{background:rgba(255,255,255,.03);border:1px solid var(--border);border-radius:10px;padding:14px;text-align:left;margin-top:10px;}
-  .virement-info p{font-size:12px;color:var(--muted);margin-bottom:6px;}
-  .virement-info strong{color:var(--text);display:block;margin-bottom:4px;}
+
   .pay-cancel{font-size:12px;color:var(--muted);cursor:pointer;margin-top:14px;text-decoration:underline;}
   /* REGISTER */
   .reg-ov{position:fixed;inset:0;background:rgba(6,10,20,.97);z-index:300;display:flex;align-items:center;justify-content:center;padding:20px;}
@@ -412,7 +409,6 @@ export default function App() {
 
   // PAYMENT
   const [showPayment, setShowPayment]   = useState(false);
-  const [showVirement, setShowVirement] = useState(false);
   const [pendingGen, setPendingGen]     = useState(false);
 
   // CLIENT
@@ -925,50 +921,45 @@ async function doRegister() {
         {showPayment && (
           <div className="pay-ov">
             <div className="pay-box">
-              <div style={{marginBottom:16}}>
-                <div style={{fontSize:13,color:"var(--muted)",marginBottom:4}}>Accès suivi supplémentaire</div>
-                <h3 style={{fontFamily:"'Rajdhani',sans-serif",fontSize:22,fontWeight:700,letterSpacing:".06em",marginBottom:4}}>Paiement requis</h3>
+              <div style={{textAlign:"center",marginBottom:20}}>
+                <div style={{fontSize:13,color:"var(--muted)",marginBottom:6}}>Accès suivi supplémentaire</div>
                 <div className="pay-amount">10<span>€</span></div>
-                <div style={{fontSize:12,color:"var(--green)",fontWeight:600}}>✨ Premier suivi offert — à partir du 2ème : 10€</div>
+                <div style={{fontSize:12,color:"var(--green)",fontWeight:600,marginBottom:4}}>✨ Premier suivi offert — à partir du 2ème : 10€/suivi</div>
               </div>
-              {!showVirement ? (
-                <div className="pay-btns">
-                  <button className="btn-paypal" onClick={()=>window.open("https://paypal.me/autoreachgmbh/10EUR","_blank")}>
-                    <span style={{fontSize:18}}>🅿️</span> Payer 10€ via PayPal
-                  </button>
-                  <div style={{display:"flex",alignItems:"center",gap:8,color:"var(--muted)",fontSize:12,margin:"4px 0"}}>
-                    <div style={{flex:1,height:1,background:"var(--border)"}}/>ou<div style={{flex:1,height:1,background:"var(--border)"}}/>
-                  </div>
-                  <button className="btn-virement" onClick={()=>setShowVirement(true)}>
-                    🏦 Payer par virement bancaire
-                  </button>
-                  <p style={{fontSize:11,color:"var(--muted)",marginTop:8}}>
-                    Après paiement → envoyez la preuve à <strong style={{color:"var(--blue)"}}>krediitas@gmail.com</strong>
-                  </p>
-                  <span className="pay-cancel" onClick={()=>{setShowPayment(false);setPendingGen(false);}}>Annuler</span>
+              <div className="pay-btns">
+                <button className="btn-paypal" onClick={async ()=>{
+                  // Notify Make with partner email
+                  try {
+                    await fetch(MAKE_WEBHOOK, {
+                      method:"POST",
+                      headers:{"Content-Type":"application/json"},
+                      body:JSON.stringify({email: adminUser?.email||"", amount:"10EUR", action:"unlock"})
+                    });
+                  } catch(e) { console.error("Make webhook error",e); }
+                  // Open PayPal
+                  window.open("https://paypal.me/JaanusAalmaa/10EUR","_blank");
+                }}>
+                  <span style={{fontSize:20}}>🅿️</span> Payer 10€ via PayPal
+                </button>
+                <div style={{background:"rgba(255,255,255,.04)",border:"1px solid var(--border)",borderRadius:10,padding:"12px 14px",textAlign:"left",marginTop:6}}>
+                  <p style={{fontSize:12,color:"var(--muted)",marginBottom:6}}>📲 Après paiement, contactez-nous avec votre preuve :</p>
+                  <p style={{fontSize:11,color:"var(--muted)",marginTop:4}}>Indiquez votre email de compte. Votre suivi sera activé rapidement.</p>
                 </div>
-              ) : (
-                <div>
-                  <div className="virement-info">
-                    <p>Bénéficiaire</p>
-                    <strong>{IBAN_NAME}</strong>
-                    <p style={{marginTop:8}}>IBAN</p>
-                    <strong style={{letterSpacing:".08em",fontFamily:"'Rajdhani',sans-serif",fontSize:14}}>{IBAN}</strong>
-                    <p style={{marginTop:8}}>Montant</p>
-                    <strong style={{color:"var(--blue)",fontSize:18}}>10,00 EUR</strong>
-                    <p style={{marginTop:8}}>Référence (obligatoire)</p>
-                    <strong style={{color:"var(--orange)",fontSize:12}}>{adminUser?.email||""}</strong>
-                  </div>
-                  <p style={{fontSize:11,color:"var(--muted)",marginTop:10}}>
-                    Envoyez la preuve à <strong style={{color:"var(--blue)"}}>krediitas@gmail.com</strong>
-                  </p>
-                  <p style={{fontSize:12,color:"var(--orange)",marginTop:6,fontWeight:600}}>⏳ En attente de confirmation…</p>
-                  <div style={{display:"flex",gap:10,marginTop:14,justifyContent:"center"}}>
-                    <button className="btn-virement" onClick={()=>setShowVirement(false)}>← Retour</button>
-                    <span className="pay-cancel" onClick={()=>{setShowPayment(false);setShowVirement(false);setPendingGen(false);}}>Annuler</span>
-                  </div>
+                <p style={{fontSize:12,color:"var(--orange)",fontWeight:600,marginTop:4}}>⏳ Votre suivi sera activé après confirmation.</p>
+                <div style={{display:"flex",gap:10,marginTop:4}}>
+                  <button
+                    onClick={()=>window.open("https://wa.me/"+WHATSAPP_NUM+"?text=Bonjour%2C+j%27ai+pay%C3%A9+mon+suivi+AutoTrack+%2810%E2%82%AC%29+via+PayPal.+Mon+email+est+:+"+encodeURIComponent(adminUser?.email||""),"_blank")}
+                    style={{flex:1,display:"flex",alignItems:"center",justifyContent:"center",gap:8,padding:"11px",borderRadius:10,border:"1px solid rgba(37,211,102,.3)",background:"rgba(37,211,102,.08)",color:"#25d366",cursor:"pointer",fontFamily:"'Rajdhani',sans-serif",fontSize:13,fontWeight:700,letterSpacing:".06em"}}>
+                    <span style={{fontSize:18}}>💬</span> WhatsApp
+                  </button>
+                  <button
+                    onClick={()=>window.open("mailto:krediitas@gmail.com?subject=Paiement AutoTrack&body=Bonjour, j'ai payé mon suivi AutoTrack (10€) via PayPal. Mon email est : "+(adminUser?.email||""),"_blank")}
+                    style={{flex:1,display:"flex",alignItems:"center",justifyContent:"center",gap:8,padding:"11px",borderRadius:10,border:"1px solid var(--border)",background:"var(--card)",color:"var(--muted)",cursor:"pointer",fontFamily:"'Rajdhani',sans-serif",fontSize:13,fontWeight:700}}>
+                    <span style={{fontSize:16}}>📧</span> Email
+                  </button>
                 </div>
-              )}
+                <span className="pay-cancel" onClick={()=>{setShowPayment(false);setPendingGen(false);}}>Annuler</span>
+              </div>
             </div>
           </div>
         )}
