@@ -1858,7 +1858,6 @@ async function doRegister() {
                 }
               </div>
             </div>
-          </div>
         )}
 
         {/* NOT LOGGED */}
