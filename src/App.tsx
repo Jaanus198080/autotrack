@@ -97,94 +97,96 @@ const css = `
   .btn-blue:disabled{opacity:.5;cursor:not-allowed;transform:none;}
   .s-hint{font-size:11px;color:var(--muted);margin-top:10px;text-align:center;}
   .err-msg{margin-top:13px;background:rgba(240,97,32,.1);border:1px solid rgba(240,97,32,.3);border-radius:8px;padding:10px 14px;font-size:13px;color:var(--orange);text-align:center;}
-  .res-wrap{max-width:880px;margin:0 auto;padding:20px 16px 60px;}
-  .back-btn{display:inline-flex;align-items:center;gap:7px;font-size:13px;color:var(--muted);cursor:pointer;border:1px solid var(--border);padding:7px 13px;border-radius:8px;background:var(--card);margin-bottom:16px;transition:all .2s;}
-  .back-btn:hover{color:var(--text);border-color:var(--blue);}
-  /* HERO CARD */
-  .top-card{background:linear-gradient(135deg,rgba(34,120,232,.15) 0%,rgba(6,10,20,.95) 60%);border:1px solid rgba(34,120,232,.3);border-radius:20px;padding:24px;margin-bottom:14px;position:relative;overflow:hidden;}
-  .top-card::before{content:'';position:absolute;top:-40px;right:-40px;width:180px;height:180px;background:radial-gradient(circle,rgba(34,120,232,.15),transparent 70%);pointer-events:none;}
-  .res-id{font-family:'Rajdhani',sans-serif;font-size:14px;font-weight:700;letter-spacing:.2em;color:rgba(34,120,232,.8);margin-bottom:8px;text-transform:uppercase;}
-  .res-client-row{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:12px;flex-wrap:wrap;gap:8px;}
-  .res-name{font-size:20px;font-weight:700;color:#fff;margin-bottom:2px;}
-  .res-veh{font-size:14px;color:var(--blue);font-weight:600;}
-  .res-co{font-size:11px;color:var(--muted);margin-top:3px;}
-  .res-eta-box{background:rgba(93,184,50,.1);border:1px solid rgba(93,184,50,.25);border-radius:10px;padding:8px 12px;text-align:right;}
-  .res-eta-lbl{font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:.1em;margin-bottom:2px;}
-  .res-eta{font-size:14px;color:var(--green);font-weight:700;}
-  .res-route-row{display:flex;align-items:center;gap:8px;margin-bottom:12px;font-size:13px;}
-  .res-route-from{color:var(--text);font-weight:600;}
-  .res-route-arrow{color:var(--muted);}
-  .res-route-to{color:var(--text);font-weight:600;}
-  .sbadge{display:inline-flex;align-items:center;gap:7px;padding:6px 14px;border-radius:30px;font-family:'Rajdhani',sans-serif;font-size:12px;font-weight:700;letter-spacing:.08em;}
-  .s-wait{background:rgba(122,132,153,.12);border:1px solid rgba(122,132,153,.3);color:var(--muted);}
-  .s-transit{background:rgba(34,120,232,.15);border:1px solid rgba(34,120,232,.4);color:var(--blue);}
-  .s-customs{background:rgba(240,97,32,.15);border:1px solid rgba(240,97,32,.4);color:var(--orange);}
-  .s-done{background:rgba(93,184,50,.15);border:1px solid rgba(93,184,50,.4);color:var(--green);}
-  .s-susp{background:rgba(224,32,32,.15);border:1px solid rgba(224,32,32,.4);color:var(--red);}
-  .sdot{width:6px;height:6px;border-radius:50%;background:currentColor;animation:pulse 1.5s infinite;}
-  @keyframes pulse{0%,100%{opacity:1;transform:scale(1);}50%{opacity:.5;transform:scale(1.3);}}
+  /* ── CLIENT RESULT — DHL STYLE ── */
+  .res-wrap{max-width:680px;margin:0 auto;padding:16px 16px 60px;}
+  .back-btn{display:inline-flex;align-items:center;gap:6px;font-size:12px;color:var(--muted);cursor:pointer;padding:6px 0;margin-bottom:14px;transition:color .2s;background:none;border:none;}
+  .back-btn:hover{color:var(--blue);}
+  /* TOP CARD */
+  .top-card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:20px;margin-bottom:10px;}
+  .res-id{font-family:'Rajdhani',sans-serif;font-size:11px;font-weight:700;letter-spacing:.18em;color:var(--muted);margin-bottom:12px;text-transform:uppercase;}
+  .res-client-row{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:14px;gap:10px;}
+  .res-name{font-size:18px;font-weight:700;color:var(--text);margin-bottom:3px;}
+  .res-veh{font-size:13px;color:var(--muted);}
+  .res-co{font-size:11px;color:var(--muted);margin-top:2px;}
+  .res-eta-box{text-align:right;flex-shrink:0;}
+  .res-eta-lbl{font-size:10px;color:var(--muted);margin-bottom:3px;}
+  .res-eta{font-size:15px;color:var(--text);font-weight:700;}
+  /* ROUTE BAR */
+  .res-route-row{display:flex;align-items:center;gap:0;background:rgba(255,255,255,.03);border-radius:8px;padding:12px 14px;margin-bottom:12px;}
+  .res-route-from{font-size:13px;font-weight:700;color:var(--text);}
+  .res-route-arrow{flex:1;height:1px;background:var(--border);margin:0 10px;position:relative;}
+  .res-route-arrow::after{content:'';position:absolute;right:-1px;top:-3px;width:7px;height:7px;border-top:1px solid var(--border);border-right:1px solid var(--border);transform:rotate(45deg);}
+  .res-route-to{font-size:13px;font-weight:700;color:var(--text);}
+  /* STATUS BADGE */
+  .sbadge{display:inline-flex;align-items:center;gap:6px;padding:5px 12px;border-radius:4px;font-size:12px;font-weight:700;letter-spacing:.04em;}
+  .s-wait{background:rgba(122,132,153,.1);color:var(--muted);}
+  .s-transit{background:rgba(34,120,232,.1);color:var(--blue);}
+  .s-customs{background:rgba(240,97,32,.1);color:var(--orange);}
+  .s-done{background:rgba(93,184,50,.1);color:var(--green);}
+  .s-susp{background:rgba(224,32,32,.1);color:var(--red);}
+  .sdot{width:6px;height:6px;border-radius:50%;background:currentColor;}
   /* SUSPENSION */
-  .susp-banner{background:rgba(224,32,32,.1);border:1px solid rgba(224,32,32,.4);border-radius:14px;padding:20px 22px;margin-bottom:14px;display:flex;flex-direction:column;gap:12px;}
-  .susp-banner p{font-size:14px;font-weight:600;color:#ff6b6b;line-height:1.5;}
-  .susp-contact-btn{display:inline-flex;align-items:center;gap:7px;font-size:13px;font-weight:700;padding:9px 18px;border-radius:8px;border:1px solid rgba(224,32,32,.4);background:rgba(224,32,32,.15);color:#ff6b6b;cursor:pointer;width:fit-content;transition:all .2s;}
-  /* PROGRESS */
-  .prog-card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:18px 20px;margin-bottom:14px;}
-  .ctitle{font-family:'Rajdhani',sans-serif;font-size:10px;font-weight:700;letter-spacing:.14em;color:var(--muted);text-transform:uppercase;margin-bottom:14px;display:flex;align-items:center;gap:8px;}
-  .ctitle::after{content:'';flex:1;height:1px;background:var(--border);}
-  .pbar-wrap{position:relative;margin-bottom:6px;}
-  .pbar{background:rgba(255,255,255,.06);border-radius:8px;height:10px;overflow:hidden;}
-  .pfill{height:100%;border-radius:8px;background:linear-gradient(90deg,var(--green),var(--blue));transition:width 1s ease;position:relative;}
-  .pfill::after{content:'🚗';position:absolute;right:-10px;top:50%;transform:translateY(-50%);font-size:16px;filter:drop-shadow(0 0 6px var(--blue));}
-  .plabels{display:flex;justify-content:space-between;margin-top:6px;font-size:11px;}
+  .susp-banner{background:rgba(224,32,32,.06);border-left:3px solid var(--red);border-radius:0 8px 8px 0;padding:14px 18px;margin-bottom:10px;}
+  .susp-banner p{font-size:13px;color:#ff6b6b;line-height:1.6;margin-bottom:10px;}
+  .susp-contact-btn{display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:700;padding:8px 16px;border-radius:6px;border:1px solid rgba(224,32,32,.3);background:transparent;color:#ff6b6b;cursor:pointer;transition:all .2s;}
+  /* STEPS — DHL STYLE */
+  .prog-card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:18px 20px;margin-bottom:10px;}
+  .ctitle{font-size:10px;font-weight:700;letter-spacing:.14em;color:var(--muted);text-transform:uppercase;margin-bottom:16px;}
+  .pbar{background:rgba(255,255,255,.06);border-radius:2px;height:4px;margin-bottom:20px;}
+  .pfill{height:100%;border-radius:2px;background:var(--blue);transition:width 1s ease;}
+  .plabels{display:flex;justify-content:space-between;font-size:11px;margin-top:-16px;margin-bottom:20px;}
   .plbl-city{color:var(--muted);}
-  .ppct{color:var(--blue);font-weight:700;font-family:'Rajdhani',sans-serif;font-size:13px;}
-  /* STEPS */
-  .steps-row{display:flex;align-items:flex-start;justify-content:space-between;margin-top:18px;position:relative;}
-  .steps-row::before{content:'';position:absolute;top:16px;left:8%;right:8%;height:2px;background:var(--border);z-index:0;}
-  .step-item{display:flex;flex-direction:column;align-items:center;gap:5px;flex:1;position:relative;z-index:1;}
-  .step-dot{width:32px;height:32px;border-radius:50%;border:2px solid;background:var(--bg);display:flex;align-items:center;justify-content:center;font-size:14px;transition:all .3s;}
-  .sd-done{border-color:var(--green);background:rgba(93,184,50,.2);box-shadow:0 0 10px rgba(93,184,50,.3);}
-  .sd-active{border-color:var(--orange);background:rgba(240,97,32,.2);animation:gpulse 2s infinite;}
-  @keyframes gpulse{0%,100%{box-shadow:0 0 12px rgba(240,97,32,.5);}50%{box-shadow:0 0 24px rgba(240,97,32,.8);}}
-  .sd-pend{border-color:rgba(255,255,255,.1);opacity:.5;}
-  .step-lbl{font-size:9px;font-weight:600;text-align:center;color:var(--muted);max-width:50px;line-height:1.3;}
-  .sl-active{color:var(--orange);font-weight:700;}
-  .sl-done{color:var(--green);}
+  .ppct{color:var(--blue);font-weight:700;font-family:'Rajdhani',sans-serif;}
+  /* STEPS ROW */
+  .steps-row{display:flex;align-items:flex-start;justify-content:space-between;position:relative;}
+  .steps-row::before{content:'';position:absolute;top:10px;left:calc(100%/12);right:calc(100%/12);height:2px;background:var(--border);z-index:0;}
+  .step-item{display:flex;flex-direction:column;align-items:center;gap:6px;flex:1;position:relative;z-index:1;}
+  .step-dot{width:20px;height:20px;border-radius:50%;border:2px solid var(--border);background:var(--bg);flex-shrink:0;}
+  .sd-done{border-color:var(--blue);background:var(--blue);}
+  .sd-active{border-color:var(--blue);background:var(--bg);box-shadow:0 0 0 3px rgba(34,120,232,.2);}
+  .sd-pend{border-color:var(--border);background:var(--bg);}
+  .step-lbl{font-size:9px;font-weight:600;text-align:center;color:var(--muted);max-width:52px;line-height:1.3;}
+  .sl-active{color:var(--blue);font-weight:700;}
+  .sl-done{color:var(--blue);}
   /* CARDS */
-  .g2{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px;}
-  .card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:18px;transition:border-color .2s;}
-  .card:hover{border-color:rgba(34,120,232,.2);}
+  .g2{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px;}
+  .card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:16px;}
   /* ROUTE */
-  .rp{display:flex;gap:12px;padding-bottom:16px;position:relative;}
+  .rp{display:flex;gap:12px;padding-bottom:14px;position:relative;}
   .rp:last-child{padding-bottom:0;}
-  .rp::before{content:'';position:absolute;left:11px;top:26px;bottom:0;width:2px;background:linear-gradient(to bottom,var(--blue),transparent);}
+  .rp::before{content:'';position:absolute;left:9px;top:22px;bottom:0;width:1px;background:var(--border);}
   .rp:last-child::before{display:none;}
-  .pi{width:24px;height:24px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;flex-shrink:0;z-index:1;position:relative;border:2px solid;}
-  .pi-o{background:rgba(93,184,50,.2);border-color:var(--green);}
-  .pi-s{background:rgba(34,120,232,.18);border-color:var(--blue);}
-  .pi-c{background:rgba(240,97,32,.2);border-color:var(--orange);animation:gpulse 2s infinite;}
-  .pi-d{background:rgba(255,255,255,.04);border-color:rgba(255,255,255,.15);}
+  .pi{width:18px;height:18px;border-radius:50%;flex-shrink:0;z-index:1;position:relative;border:2px solid;}
+  .pi-o{background:var(--green);border-color:var(--green);}
+  .pi-s{background:transparent;border-color:var(--blue);}
+  .pi-c{background:var(--blue);border-color:var(--blue);}
+  .pi-d{background:transparent;border-color:var(--border);}
   .plabel{font-size:9px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-bottom:2px;}
-  .pcity{font-size:14px;font-weight:700;color:#fff;}
+  .pcity{font-size:13px;font-weight:700;color:var(--text);}
   .ptime{font-size:11px;color:var(--muted);margin-top:1px;}
   .pnote{font-size:11px;color:var(--orange);margin-top:2px;font-weight:600;}
   /* TIMELINE */
-  .tli{display:flex;gap:11px;padding-bottom:14px;position:relative;}
+  .tli{display:flex;gap:12px;padding-bottom:14px;position:relative;}
   .tli:last-child{padding-bottom:0;}
-  .tli::before{content:'';position:absolute;left:11px;top:24px;bottom:0;width:1px;background:var(--border);}
+  .tli::before{content:'';position:absolute;left:7px;top:18px;bottom:0;width:1px;background:var(--border);}
   .tli:last-child::before{display:none;}
-  .tld{width:24px;height:24px;border-radius:50%;border:2px solid;background:var(--bg);display:flex;align-items:center;justify-content:center;font-size:10px;flex-shrink:0;z-index:1;}
-  .td{border-color:var(--green);color:var(--green);background:rgba(93,184,50,.1);}
-  .ta{border-color:var(--orange);color:var(--orange);background:rgba(240,97,32,.1);}
-  .tp{border-color:rgba(255,255,255,.1);color:var(--muted);}
-  .tlc{flex:1;padding-top:2px;}
-  .tlt{font-size:13px;font-weight:600;margin-bottom:2px;}
+  .tld{width:14px;height:14px;border-radius:50%;border:2px solid;background:var(--bg);flex-shrink:0;margin-top:3px;z-index:1;position:relative;}
+  .td{border-color:var(--blue);background:var(--blue);}
+  .ta{border-color:var(--blue);background:transparent;}
+  .tp{border-color:var(--border);background:transparent;}
+  .tlc{flex:1;}
+  .tlt{font-size:13px;font-weight:600;margin-bottom:2px;color:var(--text);}
   .tltime{font-size:11px;color:var(--muted);}
   /* INFO GRID */
-  .ig{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;}
-  .ii{background:linear-gradient(135deg,rgba(34,120,232,.06),rgba(255,255,255,.02));border:1px solid var(--border);border-radius:12px;padding:14px;}
-  .il{font-size:9px;color:var(--muted);letter-spacing:.12em;text-transform:uppercase;margin-bottom:5px;display:flex;align-items:center;gap:4px;}
-  .iv{font-size:14px;font-weight:700;color:#fff;}
+  .ig{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;}
+  .ii{background:transparent;border:1px solid var(--border);border-radius:8px;padding:12px;}
+  .il{font-size:9px;color:var(--muted);letter-spacing:.1em;text-transform:uppercase;margin-bottom:4px;}
+  .iv{font-size:13px;font-weight:700;color:var(--text);}
+  /* ACTION BUTTONS */
+  .pdf-btn{display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:600;padding:7px 14px;border-radius:6px;border:1px solid var(--border);background:transparent;color:var(--muted);cursor:pointer;transition:all .2s;}
+  .pdf-btn:hover{border-color:var(--blue);color:var(--blue);}
+  .notif-btn{display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:600;padding:7px 14px;border-radius:6px;border:1px solid var(--border);background:transparent;color:var(--muted);cursor:pointer;transition:all .2s;}
+  .notif-btn:hover,.notif-btn.active{border-color:var(--green);color:var(--green);}
   .adm-wrap{max-width:960px;margin:0 auto;padding:44px 20px 80px;}
   .adm-hdr{text-align:center;margin-bottom:30px;}
   .adm-hdr h2{font-family:'Rajdhani',sans-serif;font-size:28px;font-weight:700;letter-spacing:.06em;margin-bottom:6px;}
@@ -1122,7 +1124,7 @@ async function doRegister() {
 
   /* ── BADGE HELPERS ── */
   const steps = ["st0","st1","st2","st3","st4","st5"];
-  const stepIcons = ["⏳","📦","🚛","🛃","🏠","✅"];
+  const stepIcons = ["","","","","",""];
   const trackLink = genId ? window.location.origin+"/?track="+genId : "";
 
   function sBadgeClass(stk: string) {
@@ -1351,8 +1353,8 @@ async function doRegister() {
             ) : (
               <button className="nav-btn" onClick={()=>{setShowLogin(true);setLoginErr("");}}>🔐 Admin</button>
             ))}
-            <button className="theme-btn" onClick={()=>setDarkMode(p=>!p)} title="Mode clair/sombre">
-              {darkMode ? "☀️" : "🌙"}
+            <button className="theme-btn" onClick={()=>setDarkMode(p=>!p)} title="Mode clair/sombre" style={{fontSize:12,fontWeight:700,letterSpacing:".05em"}}>
+              {darkMode ? "LIGHT" : "DARK"}
             </button>
             <div className="lang-wrap" onClick={e=>e.stopPropagation()}>
               <button className="lang-btn" onClick={()=>setShowLang(p=>!p)}>{T[lang]?.flag||"🌐"} {T[lang]?.code||"FR"} ▾</button>
@@ -1455,19 +1457,20 @@ async function doRegister() {
         {view==="client" && trackData && (
           <div className="z1">
             <div className="res-wrap">
-              <div style={{display:"flex",gap:10,marginBottom:14,flexWrap:"wrap"}}>
-                <div className="back-btn" style={{marginBottom:0}} onClick={()=>{if(unsubTrackRef.current){unsubTrackRef.current();unsubTrackRef.current=null;}setTrackData(null);setTrackError(false);setTrackInput("");}}>← {t("back")}</div>
-                <button className="pdf-btn" onClick={generatePDF}>📄 PDF</button>
+              <div style={{display:"flex",gap:8,marginBottom:16,flexWrap:"wrap",alignItems:"center"}}>
+                <div className="back-btn" onClick={()=>{if(unsubTrackRef.current){unsubTrackRef.current();unsubTrackRef.current=null;}setTrackData(null);setTrackError(false);setTrackInput("");}}>← {t("back")}</div>
+                <div style={{flex:1}}/>
+                <button className="pdf-btn" onClick={generatePDF}>PDF</button>
                 <button className={"notif-btn"+(notifEnabled?" active":"")} onClick={enableNotifications}>
-                  {notifEnabled?"🔔 Activé":"🔕 Activer les notifications"}
+                  {notifEnabled?"Notifications ON":"Notifications"}
                 </button>
               </div>
               <div className="top-card">
-                <div className="res-id">📦 {trackId}</div>
+                <div className="res-id">{trackId}</div>
                 <div className="res-client-row">
                   <div>
                     <div className="res-name">{trackData.client}</div>
-                    <div className="res-veh">🚗 {trackData.vehicle}{trackData.color&&trackData.color!=="—"?" · "+trackData.color:""}</div>
+                    <div className="res-veh">{trackData.vehicle}{trackData.color&&trackData.color!=="—"?" · "+trackData.color:""}</div>
                     <div className="res-co">{trackData.company}</div>
                   </div>
                   <div className="res-eta-box">
@@ -1476,9 +1479,9 @@ async function doRegister() {
                   </div>
                 </div>
                 <div className="res-route-row">
-                  <span className="res-route-from">📍 {trackData.fromCity}</span>
-                  <span className="res-route-arrow">✈️ ──────</span>
-                  <span className="res-route-to">🏁 {trackData.toCity}</span>
+                  <span className="res-route-from">{trackData.fromCity}</span>
+                  <span className="res-route-arrow">————→</span>
+                  <span className="res-route-to">{trackData.toCity}</span>
                 </div>
                 <span className={sBadgeClass(trackData.statusKey)}><span className="sdot"/>{t(trackData.statusKey+"f")}</span>
               </div>
@@ -1495,9 +1498,9 @@ async function doRegister() {
                     <div className="pbar"><div className="pfill" style={{width:(trackData.progress||0)+"%"}}/></div>
                   </div>
                   <div className="plabels">
-                    <span className="plbl-city">🛫 {trackData.fromCity}</span>
+                    <span className="plbl-city">{trackData.fromCity}</span>
                     <span className="ppct">{trackData.progress||0}%</span>
-                    <span className="plbl-city">{trackData.toCity} 🛬</span>
+                    <span className="plbl-city">{trackData.toCity}</span>
                   </div>
                   <div className="steps-row">
                     {steps.map((s,i)=>{
@@ -1506,7 +1509,7 @@ async function doRegister() {
                       const lc=i<ci?"sl-done":i===ci?"sl-active":"";
                       return (
                         <div key={s} className="step-item">
-                          <div className={"step-dot "+state}>{stepIcons[i]}</div>
+                          <div className={"step-dot "+state}></div>
                           <div className={"step-lbl "+lc}>{t(s)}</div>
                         </div>
                       );
@@ -1536,10 +1539,9 @@ async function doRegister() {
                 <div className="ctitle">{t("info")}</div>
                 <div className="ig">
                   {(trackData.info||[]).map((item:any,i:number)=>{
-                    const icons: Record<string,string> = {lbl_mt:"🚛",lbl_carr:"🏢",lbl_dd:"📅",lbl_eta:"🎯",lbl_vin:"🔑",lbl_pl:"🪪"};
                     return (
                       <div key={i} className="ii">
-                        <div className="il">{icons[item.lk]||"📋"} {infoLkMap(item.lk)}</div>
+                        <div className="il">{infoLkMap(item.lk)}</div>
                         <div className="iv">{item.val}</div>
                       </div>
                     );
