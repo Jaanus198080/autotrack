@@ -37,6 +37,32 @@ const css = `
   @import url('https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;600;700&family=Exo+2:wght@300;400;500;600;700&display=swap');
   *{margin:0;padding:0;box-sizing:border-box;}
   :root{--blue:#2278e8;--orange:#f06120;--green:#5db832;--red:#e02020;--gold:#f5a623;--bg:#060a14;--card:rgba(255,255,255,0.04);--border:rgba(255,255,255,0.09);--text:#eaecf4;--muted:#7a8499;}
+  .light-mode{--bg:#f0f4ff;--card:rgba(255,255,255,0.9);--border:rgba(34,120,232,0.15);--text:#1a2040;--muted:#6b7280;}
+  .light-mode body{background:var(--bg);}
+  .light-mode .hdr{background:rgba(240,244,255,.97);border-bottom-color:var(--border);}
+  .light-mode .bg-grid{background:linear-gradient(rgba(34,120,232,.04) 1px,transparent 1px),linear-gradient(90deg,rgba(34,120,232,.04) 1px,transparent 1px);background-size:40px 40px;}
+  .light-mode .bg-glow{background:radial-gradient(ellipse 80% 50% at 50% -10%,rgba(34,120,232,.08),transparent);}
+  .light-mode .hdr-title{color:#1a2040;}
+  .light-mode .nav-btn{background:rgba(34,120,232,.06);border-color:rgba(34,120,232,.15);color:#4b5563;}
+  .light-mode .s-in{background:rgba(255,255,255,.9);color:#1a2040;border-color:rgba(34,120,232,.2);}
+  .light-mode .search-box{background:rgba(255,255,255,.9);border-color:rgba(34,120,232,.2);}
+  .light-mode .top-card{background:linear-gradient(135deg,rgba(34,120,232,.08),rgba(255,255,255,.95));border-color:rgba(34,120,232,.2);}
+  .light-mode .prog-card,.light-mode .card{background:rgba(255,255,255,.9);border-color:rgba(34,120,232,.12);}
+  .light-mode .fi,.light-mode .fs{background:rgba(255,255,255,.9);color:#1a2040;border-color:rgba(34,120,232,.2);}
+  .light-mode .htable td,.light-mode .htable th{color:#1a2040;}
+  .light-mode .loader-ov{background:rgba(240,244,255,.97);}
+  .light-mode .login-box,.light-mode .reg-box,.light-mode .pay-box,.light-mode .confirm-box{background:rgba(255,255,255,.98);}
+  .light-mode footer{background:rgba(240,244,255,.97);border-top-color:var(--border);}
+  .light-mode .gen-card{background:rgba(34,120,232,.06);}
+  .light-mode .pbar{background:rgba(34,120,232,.1);}
+  .light-mode .ii{background:rgba(34,120,232,.04);}
+  .theme-btn{background:none;border:1px solid var(--border);border-radius:8px;padding:7px 10px;cursor:pointer;font-size:16px;transition:all .2s;color:var(--text);}
+  .theme-btn:hover{border-color:var(--blue);background:rgba(34,120,232,.1);}
+  .pdf-btn{display:flex;align-items:center;gap:7px;font-family:'Rajdhani',sans-serif;font-size:13px;font-weight:700;letter-spacing:.08em;padding:9px 16px;border-radius:10px;border:1px solid rgba(34,120,232,.3);background:rgba(34,120,232,.08);color:var(--blue);cursor:pointer;transition:all .2s;}
+  .pdf-btn:hover{background:rgba(34,120,232,.15);border-color:var(--blue);}
+  .notif-btn{display:flex;align-items:center;gap:7px;font-family:'Rajdhani',sans-serif;font-size:13px;font-weight:700;letter-spacing:.08em;padding:9px 16px;border-radius:10px;border:1px solid rgba(93,184,50,.3);background:rgba(93,184,50,.08);color:var(--green);cursor:pointer;transition:all .2s;}
+  .notif-btn:hover{background:rgba(93,184,50,.15);border-color:var(--green);}
+  .notif-btn.active{background:rgba(93,184,50,.15);border-color:var(--green);}
   body{font-family:'Exo 2',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;}
   .at-root{position:relative;min-height:100vh;display:flex;flex-direction:column;}
   .bg-grid{position:fixed;inset:0;background:linear-gradient(rgba(34,120,232,.03) 1px,transparent 1px),linear-gradient(90deg,rgba(34,120,232,.03) 1px,transparent 1px);background-size:40px 40px;pointer-events:none;z-index:0;}
@@ -71,77 +97,94 @@ const css = `
   .btn-blue:disabled{opacity:.5;cursor:not-allowed;transform:none;}
   .s-hint{font-size:11px;color:var(--muted);margin-top:10px;text-align:center;}
   .err-msg{margin-top:13px;background:rgba(240,97,32,.1);border:1px solid rgba(240,97,32,.3);border-radius:8px;padding:10px 14px;font-size:13px;color:var(--orange);text-align:center;}
-  .res-wrap{max-width:880px;margin:0 auto;padding:32px 20px 60px;}
-  .back-btn{display:inline-flex;align-items:center;gap:7px;font-size:13px;color:var(--muted);cursor:pointer;border:1px solid var(--border);padding:7px 13px;border-radius:8px;background:var(--card);margin-bottom:18px;transition:all .2s;}
+  .res-wrap{max-width:880px;margin:0 auto;padding:20px 16px 60px;}
+  .back-btn{display:inline-flex;align-items:center;gap:7px;font-size:13px;color:var(--muted);cursor:pointer;border:1px solid var(--border);padding:7px 13px;border-radius:8px;background:var(--card);margin-bottom:16px;transition:all .2s;}
   .back-btn:hover{color:var(--text);border-color:var(--blue);}
-  .top-card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:22px 26px;margin-bottom:14px;display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:14px;}
-  .res-id{font-family:'Rajdhani',sans-serif;font-size:23px;font-weight:700;letter-spacing:.15em;color:var(--blue);margin-bottom:4px;}
-  .res-route{font-size:13px;color:var(--muted);margin-bottom:9px;}
-  .sbadge{display:inline-flex;align-items:center;gap:7px;padding:7px 15px;border-radius:30px;font-family:'Rajdhani',sans-serif;font-size:13px;font-weight:700;letter-spacing:.08em;}
+  /* HERO CARD */
+  .top-card{background:linear-gradient(135deg,rgba(34,120,232,.15) 0%,rgba(6,10,20,.95) 60%);border:1px solid rgba(34,120,232,.3);border-radius:20px;padding:24px;margin-bottom:14px;position:relative;overflow:hidden;}
+  .top-card::before{content:'';position:absolute;top:-40px;right:-40px;width:180px;height:180px;background:radial-gradient(circle,rgba(34,120,232,.15),transparent 70%);pointer-events:none;}
+  .res-id{font-family:'Rajdhani',sans-serif;font-size:14px;font-weight:700;letter-spacing:.2em;color:rgba(34,120,232,.8);margin-bottom:8px;text-transform:uppercase;}
+  .res-client-row{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:12px;flex-wrap:wrap;gap:8px;}
+  .res-name{font-size:20px;font-weight:700;color:#fff;margin-bottom:2px;}
+  .res-veh{font-size:14px;color:var(--blue);font-weight:600;}
+  .res-co{font-size:11px;color:var(--muted);margin-top:3px;}
+  .res-eta-box{background:rgba(93,184,50,.1);border:1px solid rgba(93,184,50,.25);border-radius:10px;padding:8px 12px;text-align:right;}
+  .res-eta-lbl{font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:.1em;margin-bottom:2px;}
+  .res-eta{font-size:14px;color:var(--green);font-weight:700;}
+  .res-route-row{display:flex;align-items:center;gap:8px;margin-bottom:12px;font-size:13px;}
+  .res-route-from{color:var(--text);font-weight:600;}
+  .res-route-arrow{color:var(--muted);}
+  .res-route-to{color:var(--text);font-weight:600;}
+  .sbadge{display:inline-flex;align-items:center;gap:7px;padding:6px 14px;border-radius:30px;font-family:'Rajdhani',sans-serif;font-size:12px;font-weight:700;letter-spacing:.08em;}
   .s-wait{background:rgba(122,132,153,.12);border:1px solid rgba(122,132,153,.3);color:var(--muted);}
   .s-transit{background:rgba(34,120,232,.15);border:1px solid rgba(34,120,232,.4);color:var(--blue);}
   .s-customs{background:rgba(240,97,32,.15);border:1px solid rgba(240,97,32,.4);color:var(--orange);}
   .s-done{background:rgba(93,184,50,.15);border:1px solid rgba(93,184,50,.4);color:var(--green);}
   .s-susp{background:rgba(224,32,32,.15);border:1px solid rgba(224,32,32,.4);color:var(--red);}
-  .sdot{width:7px;height:7px;border-radius:50%;background:currentColor;animation:pulse 1.5s infinite;}
+  .sdot{width:6px;height:6px;border-radius:50%;background:currentColor;animation:pulse 1.5s infinite;}
   @keyframes pulse{0%,100%{opacity:1;transform:scale(1);}50%{opacity:.5;transform:scale(1.3);}}
-  .res-right{text-align:right;}
-  .res-name{font-size:16px;font-weight:700;margin-bottom:3px;}
-  .res-veh{font-size:13px;color:var(--muted);}
-  .res-eta{font-size:13px;color:var(--green);margin-top:5px;font-weight:600;}
-  .res-co{font-size:11px;color:var(--muted);margin-top:3px;}
+  /* SUSPENSION */
   .susp-banner{background:rgba(224,32,32,.1);border:1px solid rgba(224,32,32,.4);border-radius:14px;padding:20px 22px;margin-bottom:14px;display:flex;flex-direction:column;gap:12px;}
   .susp-banner p{font-size:14px;font-weight:600;color:#ff6b6b;line-height:1.5;}
   .susp-contact-btn{display:inline-flex;align-items:center;gap:7px;font-size:13px;font-weight:700;padding:9px 18px;border-radius:8px;border:1px solid rgba(224,32,32,.4);background:rgba(224,32,32,.15);color:#ff6b6b;cursor:pointer;width:fit-content;transition:all .2s;}
-  .prog-card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:18px 22px;margin-bottom:14px;}
-  .ctitle{font-family:'Rajdhani',sans-serif;font-size:11px;font-weight:700;letter-spacing:.14em;color:var(--muted);text-transform:uppercase;margin-bottom:12px;display:flex;align-items:center;gap:8px;}
+  /* PROGRESS */
+  .prog-card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:18px 20px;margin-bottom:14px;}
+  .ctitle{font-family:'Rajdhani',sans-serif;font-size:10px;font-weight:700;letter-spacing:.14em;color:var(--muted);text-transform:uppercase;margin-bottom:14px;display:flex;align-items:center;gap:8px;}
   .ctitle::after{content:'';flex:1;height:1px;background:var(--border);}
-  .pbar{background:rgba(255,255,255,.06);border-radius:6px;height:7px;overflow:hidden;}
-  .pfill{height:100%;border-radius:6px;background:linear-gradient(90deg,var(--green),var(--blue),var(--orange));transition:width .8s ease;}
-  .plabels{display:flex;justify-content:space-between;margin-top:7px;font-size:10px;color:var(--muted);}
-  .ppct{color:var(--blue);font-weight:700;}
-  .steps-row{display:flex;align-items:flex-start;justify-content:space-between;margin-top:16px;position:relative;}
-  .steps-row::before{content:'';position:absolute;top:14px;left:6%;right:6%;height:2px;background:var(--border);z-index:0;}
-  .step-item{display:flex;flex-direction:column;align-items:center;gap:6px;flex:1;position:relative;z-index:1;}
-  .step-dot{width:28px;height:28px;border-radius:50%;border:2px solid;background:var(--bg);display:flex;align-items:center;justify-content:center;font-size:11px;}
-  .sd-done{border-color:var(--green);background:rgba(93,184,50,.15);color:var(--green);}
-  .sd-active{border-color:var(--orange);background:rgba(240,97,32,.15);color:var(--orange);animation:gpulse 2s infinite;}
-  @keyframes gpulse{0%,100%{box-shadow:0 0 12px rgba(240,97,32,.4);}50%{box-shadow:0 0 24px rgba(240,97,32,.7);}}
-  .sd-pend{border-color:var(--border);color:var(--muted);}
-  .step-lbl{font-size:9px;font-weight:600;text-align:center;color:var(--muted);max-width:55px;line-height:1.3;}
-  .sl-active{color:var(--orange);}
+  .pbar-wrap{position:relative;margin-bottom:6px;}
+  .pbar{background:rgba(255,255,255,.06);border-radius:8px;height:10px;overflow:hidden;}
+  .pfill{height:100%;border-radius:8px;background:linear-gradient(90deg,var(--green),var(--blue));transition:width 1s ease;position:relative;}
+  .pfill::after{content:'🚗';position:absolute;right:-10px;top:50%;transform:translateY(-50%);font-size:16px;filter:drop-shadow(0 0 6px var(--blue));}
+  .plabels{display:flex;justify-content:space-between;margin-top:6px;font-size:11px;}
+  .plbl-city{color:var(--muted);}
+  .ppct{color:var(--blue);font-weight:700;font-family:'Rajdhani',sans-serif;font-size:13px;}
+  /* STEPS */
+  .steps-row{display:flex;align-items:flex-start;justify-content:space-between;margin-top:18px;position:relative;}
+  .steps-row::before{content:'';position:absolute;top:16px;left:8%;right:8%;height:2px;background:var(--border);z-index:0;}
+  .step-item{display:flex;flex-direction:column;align-items:center;gap:5px;flex:1;position:relative;z-index:1;}
+  .step-dot{width:32px;height:32px;border-radius:50%;border:2px solid;background:var(--bg);display:flex;align-items:center;justify-content:center;font-size:14px;transition:all .3s;}
+  .sd-done{border-color:var(--green);background:rgba(93,184,50,.2);box-shadow:0 0 10px rgba(93,184,50,.3);}
+  .sd-active{border-color:var(--orange);background:rgba(240,97,32,.2);animation:gpulse 2s infinite;}
+  @keyframes gpulse{0%,100%{box-shadow:0 0 12px rgba(240,97,32,.5);}50%{box-shadow:0 0 24px rgba(240,97,32,.8);}}
+  .sd-pend{border-color:rgba(255,255,255,.1);opacity:.5;}
+  .step-lbl{font-size:9px;font-weight:600;text-align:center;color:var(--muted);max-width:50px;line-height:1.3;}
+  .sl-active{color:var(--orange);font-weight:700;}
   .sl-done{color:var(--green);}
-  .g2{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px;}
-  .card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:20px;transition:border-color .2s;}
+  /* CARDS */
+  .g2{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px;}
+  .card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:18px;transition:border-color .2s;}
   .card:hover{border-color:rgba(34,120,232,.2);}
-  .rp{display:flex;gap:12px;padding-bottom:18px;position:relative;}
+  /* ROUTE */
+  .rp{display:flex;gap:12px;padding-bottom:16px;position:relative;}
   .rp:last-child{padding-bottom:0;}
-  .rp::before{content:'';position:absolute;left:11px;top:26px;bottom:0;width:2px;background:linear-gradient(to bottom,var(--blue),rgba(34,120,232,.04));}
+  .rp::before{content:'';position:absolute;left:11px;top:26px;bottom:0;width:2px;background:linear-gradient(to bottom,var(--blue),transparent);}
   .rp:last-child::before{display:none;}
-  .pi{width:24px;height:24px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;flex-shrink:0;z-index:1;position:relative;border:2px solid;}
+  .pi{width:24px;height:24px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;flex-shrink:0;z-index:1;position:relative;border:2px solid;}
   .pi-o{background:rgba(93,184,50,.2);border-color:var(--green);}
   .pi-s{background:rgba(34,120,232,.18);border-color:var(--blue);}
   .pi-c{background:rgba(240,97,32,.2);border-color:var(--orange);animation:gpulse 2s infinite;}
-  .pi-d{background:rgba(34,120,232,.06);border-color:rgba(34,120,232,.2);}
-  .plabel{font-size:9px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-bottom:1px;}
-  .pcity{font-size:13px;font-weight:600;color:#fff;}
-  .ptime{font-size:10px;color:var(--muted);margin-top:1px;}
-  .pnote{font-size:10px;color:var(--orange);margin-top:2px;}
+  .pi-d{background:rgba(255,255,255,.04);border-color:rgba(255,255,255,.15);}
+  .plabel{font-size:9px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-bottom:2px;}
+  .pcity{font-size:14px;font-weight:700;color:#fff;}
+  .ptime{font-size:11px;color:var(--muted);margin-top:1px;}
+  .pnote{font-size:11px;color:var(--orange);margin-top:2px;font-weight:600;}
+  /* TIMELINE */
   .tli{display:flex;gap:11px;padding-bottom:14px;position:relative;}
   .tli:last-child{padding-bottom:0;}
   .tli::before{content:'';position:absolute;left:11px;top:24px;bottom:0;width:1px;background:var(--border);}
   .tli:last-child::before{display:none;}
-  .tld{width:23px;height:23px;border-radius:50%;border:2px solid;background:var(--bg);display:flex;align-items:center;justify-content:center;font-size:9px;flex-shrink:0;z-index:1;position:relative;}
-  .td{border-color:var(--green);color:var(--green);}
-  .ta{border-color:var(--orange);color:var(--orange);}
-  .tp{border-color:var(--border);color:var(--muted);}
+  .tld{width:24px;height:24px;border-radius:50%;border:2px solid;background:var(--bg);display:flex;align-items:center;justify-content:center;font-size:10px;flex-shrink:0;z-index:1;}
+  .td{border-color:var(--green);color:var(--green);background:rgba(93,184,50,.1);}
+  .ta{border-color:var(--orange);color:var(--orange);background:rgba(240,97,32,.1);}
+  .tp{border-color:rgba(255,255,255,.1);color:var(--muted);}
   .tlc{flex:1;padding-top:2px;}
-  .tlt{font-size:12px;font-weight:600;margin-bottom:1px;}
-  .tltime{font-size:10px;color:var(--muted);}
-  .ig{display:grid;grid-template-columns:repeat(3,1fr);gap:9px;}
-  .ii{background:rgba(255,255,255,.02);border-radius:8px;padding:11px;}
-  .il{font-size:9px;color:var(--muted);letter-spacing:.1em;text-transform:uppercase;margin-bottom:3px;}
-  .iv{font-size:13px;font-weight:600;}
+  .tlt{font-size:13px;font-weight:600;margin-bottom:2px;}
+  .tltime{font-size:11px;color:var(--muted);}
+  /* INFO GRID */
+  .ig{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;}
+  .ii{background:linear-gradient(135deg,rgba(34,120,232,.06),rgba(255,255,255,.02));border:1px solid var(--border);border-radius:12px;padding:14px;}
+  .il{font-size:9px;color:var(--muted);letter-spacing:.12em;text-transform:uppercase;margin-bottom:5px;display:flex;align-items:center;gap:4px;}
+  .iv{font-size:14px;font-weight:700;color:#fff;}
   .adm-wrap{max-width:960px;margin:0 auto;padding:44px 20px 80px;}
   .adm-hdr{text-align:center;margin-bottom:30px;}
   .adm-hdr h2{font-family:'Rajdhani',sans-serif;font-size:28px;font-weight:700;letter-spacing:.06em;margin-bottom:6px;}
@@ -222,6 +265,24 @@ const css = `
   .btn-block{font-size:11px;padding:4px 10px;border-radius:6px;border:1px solid rgba(224,32,32,.3);background:rgba(224,32,32,.1);color:var(--red);cursor:pointer;}
   .btn-unblock{font-size:11px;padding:4px 10px;border-radius:6px;border:1px solid rgba(93,184,50,.3);background:rgba(93,184,50,.1);color:var(--green);cursor:pointer;}
   .btn-confirm-pay{font-size:11px;padding:4px 10px;border-radius:6px;border:1px solid rgba(245,166,35,.3);background:rgba(245,166,35,.1);color:var(--gold);cursor:pointer;}
+  .logs-card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:18px;margin-top:16px;}
+  .log-item{display:flex;gap:10px;padding:8px 0;border-bottom:1px solid rgba(255,255,255,.04);align-items:flex-start;}
+  .log-item:last-child{border-bottom:none;}
+  .log-ico{width:28px;height:28px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0;}
+  .log-ico-ok{background:rgba(93,184,50,.15);}
+  .log-ico-err{background:rgba(224,32,32,.15);}
+  .log-ico-info{background:rgba(34,120,232,.15);}
+  .log-ico-warn{background:rgba(245,166,35,.15);}
+  .log-text{flex:1;}
+  .log-msg{font-size:13px;font-weight:600;margin-bottom:2px;}
+  .log-time{font-size:10px;color:var(--muted);}
+  .log-email{font-size:11px;color:var(--blue);}
+  .pay-hist-card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:18px;margin-top:20px;}
+  .pay-hist-table{width:100%;border-collapse:collapse;}
+  .pay-hist-table th{text-align:left;font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);padding:8px 10px;border-bottom:1px solid var(--border);}
+  .pay-hist-table td{padding:10px 10px;font-size:13px;border-bottom:1px solid rgba(255,255,255,.04);}
+  .pay-badge-ok{display:inline-flex;align-items:center;gap:4px;padding:3px 8px;border-radius:12px;font-size:11px;font-weight:700;background:rgba(93,184,50,.15);border:1px solid rgba(93,184,50,.3);color:var(--green);}
+  .pay-badge-pending{display:inline-flex;align-items:center;gap:4px;padding:3px 8px;border-radius:12px;font-size:11px;font-weight:700;background:rgba(245,166,35,.15);border:1px solid rgba(245,166,35,.3);color:var(--gold);}
   .inv-row{display:flex;gap:10px;align-items:center;margin-bottom:16px;flex-wrap:wrap;}
   .inv-code{font-family:'Rajdhani',sans-serif;font-size:22px;font-weight:700;letter-spacing:.2em;color:var(--blue);background:rgba(34,120,232,.08);border:1px solid rgba(34,120,232,.2);border-radius:10px;padding:10px 18px;}
   /* PAYMENT MODAL */
@@ -249,6 +310,12 @@ const css = `
   .login-box p{font-size:12px;color:var(--muted);margin-bottom:24px;}
   .login-box .fgroup{text-align:left;margin-bottom:12px;}
   .login-err{background:rgba(240,97,32,.1);border:1px solid rgba(240,97,32,.3);border-radius:8px;padding:9px 13px;font-size:12px;color:var(--orange);margin-bottom:13px;}
+  .twofa-ov{position:fixed;inset:0;background:rgba(6,10,20,.97);z-index:350;display:flex;align-items:center;justify-content:center;}
+  .twofa-box{background:rgba(255,255,255,.04);border:1px solid var(--border);border-radius:20px;padding:36px;width:100%;max-width:360px;text-align:center;}
+  .twofa-box h2{font-family:'Rajdhani',sans-serif;font-size:22px;font-weight:700;letter-spacing:.1em;margin-bottom:8px;}
+  .twofa-box p{font-size:13px;color:var(--muted);margin-bottom:22px;line-height:1.6;}
+  .code-input{font-family:'Rajdhani',sans-serif;font-size:28px;font-weight:700;letter-spacing:.4em;text-align:center;background:rgba(255,255,255,.06);border:2px solid rgba(34,120,232,.3);border-radius:12px;padding:14px;color:#fff;width:100%;outline:none;margin-bottom:16px;}
+  .code-input:focus{border-color:var(--blue);}
   .confirm-ov{position:fixed;inset:0;background:rgba(6,10,20,.85);z-index:400;display:flex;align-items:center;justify-content:center;}
   .confirm-box{background:rgba(15,20,35,.98);border:1px solid var(--border);border-radius:16px;padding:28px;max-width:340px;width:90%;text-align:center;}
   .confirm-box h4{font-family:'Rajdhani',sans-serif;font-size:18px;font-weight:700;margin-bottom:8px;color:var(--orange);}
@@ -291,8 +358,16 @@ const css = `
   .t-ok{background:rgba(34,120,232,.93);border:1px solid rgba(34,120,232,.4);}
   .t-err{background:rgba(240,97,32,.93);border:1px solid rgba(240,97,32,.4);}
   .t-info{background:rgba(93,184,50,.93);border:1px solid rgba(93,184,50,.4);}
-  .loader-ov{position:fixed;inset:0;background:rgba(6,10,20,.9);z-index:200;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;}
-  .loader-spin{width:44px;height:44px;border:3px solid var(--border);border-top-color:var(--blue);border-radius:50%;animation:spinr .8s linear infinite;}
+  .loader-ov{position:fixed;inset:0;background:rgba(6,10,20,.97);z-index:200;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:20px;}
+  .loader-logo{font-family:'Rajdhani',sans-serif;font-size:28px;font-weight:700;letter-spacing:.28em;color:#fff;animation:logopulse 1.5s ease-in-out infinite;}
+  .loader-logo span{color:var(--blue);}
+  @keyframes logopulse{0%,100%{opacity:1;}50%{opacity:.4;}}
+  .loader-car{font-size:36px;animation:carslide 1.5s ease-in-out infinite;}
+  @keyframes carslide{0%{transform:translateX(-30px);opacity:0;}30%{opacity:1;}70%{opacity:1;}100%{transform:translateX(30px);opacity:0;}}
+  .loader-track{width:120px;height:3px;background:var(--border);border-radius:3px;overflow:hidden;position:relative;}
+  .loader-fill{height:100%;width:40%;background:linear-gradient(90deg,transparent,var(--blue),transparent);border-radius:3px;animation:trackfill 1.5s ease-in-out infinite;}
+  @keyframes trackfill{0%{transform:translateX(-100%);}100%{transform:translateX(300%);}}
+  .loader-text{font-size:12px;color:var(--muted);letter-spacing:.1em;text-transform:uppercase;animation:logopulse 1.5s ease-in-out infinite;}
   footer{position:relative;z-index:1;padding:16px 24px;border-top:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;margin-top:auto;}
   .fl{display:flex;align-items:center;gap:11px;font-family:'Rajdhani',sans-serif;font-size:13px;font-weight:700;letter-spacing:.1em;}
   footer p{font-size:11px;color:var(--muted);}
@@ -372,6 +447,8 @@ function nowStr() { return new Date().toLocaleString("fr-FR",{day:"2-digit",mont
 ══════════════════════════════════════════════ */
 export default function App() {
   const [lang, setLangState] = useState("fr");
+  const [darkMode, setDarkMode] = useState(true);
+  const [notifEnabled, setNotifEnabled] = useState(false);
   const t = (k: string) => T[lang]?.[k] ?? T.fr[k] ?? k;
   const params = new URLSearchParams(window.location.search);
   const isAdminUrl    = params.get("admin") === "1";
@@ -436,6 +513,8 @@ export default function App() {
   const [inviteCodes, setInviteCodes] = useState<any[]>([]);
   const [newCode, setNewCode]       = useState<string|null>(null);
   const [saLoading, setSaLoading]   = useState(false);
+  const [payHistory, setPayHistory] = useState<any[]>([]);
+  const [activityLogs, setActivityLogs] = useState<any[]>([]);
 
   const toast = (msg: string, type="ok") => {
     const id = Date.now();
@@ -492,6 +571,8 @@ export default function App() {
         setInviteCodes(c);
         setSaLoading(false);
       });
+      loadPayHistory();
+      loadLogs();
     }
   }, [view, adminUser]);
 
@@ -583,11 +664,52 @@ async function doRegister() {
         setLoginBusy(false);
         return;
       }
-      setAdminProfile(profile);
+      // Generate 2FA code
+      const code = String(Math.floor(100000 + Math.random() * 900000));
+      // Send code via EmailJS
+      try {
+        await emailjs.send(EMAILJS_SERVICE, EMAILJS_TEMPLATE, {
+          client_name: profile?.name || cred.user.email,
+          vehicle: "Code de vérification AutoTrack",
+          city: code,
+          status: "Double authentification",
+          date: new Date().toLocaleString("fr-FR"),
+          note: "Ce code expire dans 5 minutes. Ne le partagez pas.",
+          tracking_id: "2FA-" + code,
+          tracking_link: "autotrack.live/?admin=1",
+          to_email: cred.user.email,
+        }, EMAILJS_PUBLIC);
+      } catch(e) { console.error("2FA email error", e); }
+      // Store code temporarily
+      await signOut(auth);
+      setPendingUser({email: loginEmail, pass: loginPass, code, profile, isSA: isSA(cred.user.email)});
       setShowLogin(false);
-      setView(isSA(cred.user.email) ? "superadmin" : "admin");
+      setShow2FA(true);
+      setTwoFACode("");
+      setTwoFAErr("");
     } catch { setLoginErr(t("login_err")); }
     setLoginBusy(false);
+  }
+
+  async function verify2FA() {
+    if (!pendingUser) return;
+    setTwoFABusy(true);
+    setTwoFAErr("");
+    if (twoFACode.trim() !== pendingUser.code) {
+      setTwoFAErr("❌ Code incorrect. Vérifiez votre email.");
+      setTwoFABusy(false);
+      return;
+    }
+    try {
+      const cred = await signInWithEmailAndPassword(auth, pendingUser.email, pendingUser.pass);
+      setAdminProfile(pendingUser.profile);
+      setShow2FA(false);
+      setPendingUser(null);
+      setView(pendingUser.isSA ? "superadmin" : "admin");
+      toast("✅ Connexion sécurisée !", "ok");
+      addLog("ok", "Connexion admin réussie (2FA)", pendingUser.email);
+    } catch { setTwoFAErr("❌ Erreur de connexion."); }
+    setTwoFABusy(false);
   }
   async function doLogout() { await signOut(auth); setAdminProfile(null); setView("client"); }
 
@@ -615,7 +737,20 @@ async function doRegister() {
     setLoading(false);
     if (!data) { setTrackError(true); setTrackData(null); return; }
     setTrackId(id); setTrackData(data); setTrackError(false);
-    const unsub = onSnapshot(doc(db,"trackings",id), snap => { if(snap.exists()) setTrackData(snap.data()); });
+    const unsub = onSnapshot(doc(db,"trackings",id), snap => {
+      if (snap.exists()) {
+        const newData = snap.data();
+        const oldStatus = trackData?.statusKey;
+        setTrackData(newData);
+        // Send push notification on status change
+        if (oldStatus && oldStatus !== newData.statusKey && Notification.permission === "granted") {
+          sendPushNotification(
+            "🚗 AutoTrack — Mise à jour",
+            "Votre véhicule " + (newData.vehicle||"") + " : " + (newData.statusKey === "st5" ? "Livré ✅" : newData.statusKey === "st2" ? "En transit 🚛" : newData.statusKey === "st3" ? "En douane 🛃" : "Statut mis à jour")
+          );
+        }
+      }
+    });
     unsubTrackRef.current = unsub;
   }
 
@@ -678,6 +813,7 @@ async function doRegister() {
       ]
     };
     await dbWrite(id, rec);
+    addLog("info", "Nouveau suivi créé : " + id + " — " + veh, adminUser?.email);
     // Increment tracking count
     const newCount = (adminProfile?.trackingCount||0)+1;
     await saveAdminProfile(adminUser?.email!, {trackingCount:newCount});
@@ -724,6 +860,7 @@ async function doRegister() {
       } catch { toast("⚠️ Mise à jour OK mais email non envoyé","err"); }
     }
     toast(t("toast_upd"),"ok");
+    addLog("info", "Mise à jour : " + selectedId + " → " + upd.city + " (" + t(upd.status+"f") + ")", adminUser?.email);
     setUpd(p=>({...p,city:"",note:""}));
     setUpdBusy(false);
   }
@@ -740,8 +877,156 @@ async function doRegister() {
       if(selectedId===id){setSelectedId(null);setGenId(null);}
       await loadHistory(adminUser?.email||undefined);
       toast("🗑️ Supprimé : "+id,"ok");
+      addLog("warn", "Suivi supprimé : " + id, adminUser?.email);
     } catch { toast("❌ Erreur suppression","err"); }
     setShowDeleteConfirm(null);
+  }
+
+  /* ── PUSH NOTIFICATIONS ── */
+  async function enableNotifications() {
+    if (!("Notification" in window)) {
+      toast("❌ Votre navigateur ne supporte pas les notifications", "err");
+      return;
+    }
+    if (Notification.permission === "granted") {
+      setNotifEnabled(true);
+      toast("🔔 Notifications déjà activées !", "ok");
+      return;
+    }
+    const perm = await Notification.requestPermission();
+    if (perm === "granted") {
+      setNotifEnabled(true);
+      toast("🔔 Notifications activées !", "ok");
+      // Send test notification
+      new Notification("AutoTrack", {
+        body: "✅ Vous serez notifié des mises à jour de votre véhicule !",
+        icon: "https://api.dicebear.com/7.x/initials/svg?seed=AT&backgroundColor=2278e8"
+      });
+    } else {
+      toast("❌ Notifications refusées", "err");
+    }
+  }
+
+  function sendPushNotification(title: string, body: string) {
+    if (Notification.permission === "granted") {
+      new Notification(title, {
+        body,
+        icon: "https://api.dicebear.com/7.x/initials/svg?seed=AT&backgroundColor=2278e8",
+        badge: "https://api.dicebear.com/7.x/initials/svg?seed=AT&backgroundColor=2278e8"
+      });
+    }
+  }
+
+  /* ── PDF ── */
+  function generatePDF() {
+    const d = trackData;
+    if (!d) return;
+    const html = `<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8"/>
+<title>AutoTrack — ${trackId}</title>
+<style>
+  *{margin:0;padding:0;box-sizing:border-box;}
+  body{font-family:Arial,sans-serif;background:#fff;color:#1a2040;padding:32px;}
+  .header{display:flex;justify-content:space-between;align-items:center;border-bottom:3px solid #2278e8;padding-bottom:16px;margin-bottom:24px;}
+  .logo{font-size:24px;font-weight:900;letter-spacing:.2em;color:#1a2040;}
+  .logo span{color:#2278e8;}
+  .tracking-id{font-size:13px;color:#6b7280;letter-spacing:.1em;}
+  .section{margin-bottom:20px;}
+  .section-title{font-size:10px;font-weight:700;letter-spacing:.15em;text-transform:uppercase;color:#6b7280;margin-bottom:10px;padding-bottom:6px;border-bottom:1px solid #e5e7eb;}
+  .row{display:flex;gap:16px;margin-bottom:8px;}
+  .field{flex:1;}
+  .field-label{font-size:9px;color:#9ca3af;text-transform:uppercase;letter-spacing:.1em;margin-bottom:2px;}
+  .field-value{font-size:14px;font-weight:600;color:#1a2040;}
+  .status-badge{display:inline-block;padding:4px 12px;border-radius:20px;background:#dbeafe;color:#1d4ed8;font-size:12px;font-weight:700;margin-bottom:16px;}
+  .route-box{background:#f8faff;border:1px solid #dbeafe;border-radius:10px;padding:14px;margin-bottom:16px;}
+  .route-row{display:flex;align-items:center;gap:12px;}
+  .route-city{flex:1;}
+  .route-label{font-size:9px;color:#9ca3af;text-transform:uppercase;letter-spacing:.1em;}
+  .route-name{font-size:16px;font-weight:700;color:#1a2040;}
+  .route-arrow{font-size:24px;color:#2278e8;}
+  .progress-bar{background:#e5e7eb;border-radius:4px;height:8px;margin:8px 0;}
+  .progress-fill{height:100%;border-radius:4px;background:linear-gradient(90deg,#5db832,#2278e8);}
+  .progress-labels{display:flex;justify-content:space-between;font-size:11px;color:#6b7280;}
+  .timeline{margin-top:10px;}
+  .tl-item{display:flex;gap:10px;margin-bottom:10px;}
+  .tl-dot{width:20px;height:20px;border-radius:50%;background:#2278e8;color:#fff;display:flex;align-items:center;justify-content:center;font-size:9px;flex-shrink:0;margin-top:2px;}
+  .tl-dot.done{background:#5db832;}
+  .tl-dot.pending{background:#e5e7eb;color:#9ca3af;}
+  .tl-content .tl-title{font-size:13px;font-weight:600;}
+  .tl-content .tl-time{font-size:11px;color:#9ca3af;}
+  .info-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;}
+  .info-item{background:#f8faff;border:1px solid #dbeafe;border-radius:8px;padding:10px;}
+  .footer{margin-top:32px;padding-top:16px;border-top:1px solid #e5e7eb;display:flex;justify-content:space-between;align-items:center;font-size:11px;color:#9ca3af;}
+  .footer-logo{font-weight:900;color:#2278e8;letter-spacing:.15em;}
+</style>
+</head>
+<body>
+  <div class="header">
+    <div class="logo">AUTO<span>TRACK</span></div>
+    <div class="tracking-id">N° ${trackId}<br/>Généré le ${new Date().toLocaleDateString('fr-FR')}</div>
+  </div>
+  <div class="section">
+    <div class="section-title">Informations client</div>
+    <div class="row">
+      <div class="field"><div class="field-label">Nom</div><div class="field-value">${d.client}</div></div>
+      <div class="field"><div class="field-label">Email</div><div class="field-value">${d.email||"—"}</div></div>
+      <div class="field"><div class="field-label">Téléphone</div><div class="field-value">${d.phone||"—"}</div></div>
+    </div>
+    <div class="row">
+      <div class="field"><div class="field-label">Véhicule</div><div class="field-value">${d.vehicle}</div></div>
+      <div class="field"><div class="field-label">Couleur</div><div class="field-value">${d.color||"—"}</div></div>
+      <div class="field"><div class="field-label">Entreprise</div><div class="field-value">${d.company||"—"}</div></div>
+    </div>
+  </div>
+  <div class="section">
+    <div class="section-title">Itinéraire</div>
+    <div class="route-box">
+      <div class="route-row">
+        <div class="route-city"><div class="route-label">Départ</div><div class="route-name">${d.fromCity}</div><div style="font-size:11px;color:#6b7280">${d.dep}</div></div>
+        <div class="route-arrow">→</div>
+        <div class="route-city"><div class="route-label">Destination</div><div class="route-name">${d.toCity}</div><div style="font-size:11px;color:#6b7280">Estimé ${d.arr}</div></div>
+      </div>
+    </div>
+    <div class="status-badge">${d.statusKey === "st5" ? "✓ Livré" : d.statusKey === "st2" ? "🚛 En transit" : d.statusKey === "st3" ? "🛃 Douane" : "📦 En cours"}</div>
+    <div class="progress-bar"><div class="progress-fill" style="width:${d.progress||5}%"></div></div>
+    <div class="progress-labels"><span>${d.fromCity}</span><span>${d.progress||5}%</span><span>${d.toCity}</span></div>
+  </div>
+  <div class="section">
+    <div class="section-title">Informations transport</div>
+    <div class="info-grid">
+      <div class="info-item"><div class="field-label">Mode</div><div class="field-value" style="font-size:12px">${d.mode||"—"}</div></div>
+      <div class="info-item"><div class="field-label">Transporteur</div><div class="field-value" style="font-size:12px">${d.carrier||"—"}</div></div>
+      <div class="info-item"><div class="field-label">VIN</div><div class="field-value" style="font-size:12px">${d.vin||"—"}</div></div>
+      <div class="info-item"><div class="field-label">Plaque</div><div class="field-value" style="font-size:12px">${d.plate||"—"}</div></div>
+      <div class="info-item"><div class="field-label">Départ</div><div class="field-value" style="font-size:12px">${d.dep}</div></div>
+      <div class="info-item"><div class="field-label">Arrivée est.</div><div class="field-value" style="font-size:12px">${d.arr}</div></div>
+    </div>
+  </div>
+  <div class="section">
+    <div class="section-title">Historique</div>
+    <div class="timeline">
+      ${(d.timeline||[]).map((e: any) => `
+        <div class="tl-item">
+          <div class="tl-dot ${e.type==="done"?"done":e.type==="pending"?"pending":""}">${e.type==="done"?"✓":e.type==="pending"?"○":"●"}</div>
+          <div class="tl-content"><div class="tl-title">${e.title}</div><div class="tl-time">${e.time}</div></div>
+        </div>`).join("")}
+    </div>
+  </div>
+  <div class="footer">
+    <div class="footer-logo">AUTOTRACK</div>
+    <div>autotrack.live · Suivi de transport mondial</div>
+    <div>© 2026 AutoTrack</div>
+  </div>
+</body>
+</html>`;
+    const win = window.open("","_blank");
+    if (win) {
+      win.document.write(html);
+      win.document.close();
+      setTimeout(() => win.print(), 500);
+    }
   }
 
   /* ── COPY ── */
@@ -763,6 +1048,7 @@ async function doRegister() {
     const a = await getAllAdmins();
     setAdmins(a);
     toast(blocked?"✅ Débloqué":"🔒 Bloqué","ok");
+    addLog(blocked?"ok":"err", (blocked?"Déblocage":"Blocage") + " partenaire : " + email, SUPER_ADMIN);
   }
   async function confirmPayment(email: string) {
     await saveAdminProfile(email,{pendingPayment:false});
@@ -775,6 +1061,58 @@ async function doRegister() {
     const a = await getAllAdmins();
     setAdmins(a);
     toast("🗑️ Admin supprimé","ok");
+  }
+
+  /* ── ACTIVITY LOGS ── */
+  async function addLog(type: string, msg: string, email?: string) {
+    try {
+      const logEntry = {
+        type, msg,
+        email: email || adminUser?.email || "system",
+        time: new Date().toLocaleString("fr-FR"),
+        timestamp: Date.now()
+      };
+      await setDoc(doc(db, "logs", "log_" + Date.now()), logEntry);
+    } catch(e) { console.error("Log error", e); }
+  }
+
+  async function loadLogs() {
+    try {
+      const snap = await getDocs(collection(db, "logs"));
+      const logs = snap.docs
+        .map(d => ({id:d.id,...d.data()}))
+        .sort((a:any,b:any) => b.timestamp - a.timestamp)
+        .slice(0, 50);
+      setActivityLogs(logs);
+    } catch { setActivityLogs([]); }
+  }
+
+  async function confirmPaymentWithHistory(email: string, name: string) {
+    const payRecord = {
+      email,
+      name,
+      amount: "10€",
+      date: new Date().toLocaleString("fr-FR"),
+      status: "confirmed"
+    };
+    // Save to payment history
+    const histId = "pay_" + Date.now();
+    await setDoc(doc(db, "payments", histId), payRecord);
+    // Update admin profile
+    await saveAdminProfile(email, {pendingPayment: false});
+    const a = await getAllAdmins();
+    setAdmins(a);
+    // Reload payment history
+    const snap = await getDocs(collection(db, "payments"));
+    setPayHistory(snap.docs.map(d => ({id:d.id,...d.data()})).reverse());
+    toast("✅ Paiement confirmé et enregistré", "ok");
+  }
+
+  async function loadPayHistory() {
+    try {
+      const snap = await getDocs(collection(db, "payments"));
+      setPayHistory(snap.docs.map(d => ({id:d.id,...d.data()})).reverse());
+    } catch { setPayHistory([]); }
   }
 
   /* ── BADGE HELPERS ── */
@@ -893,7 +1231,33 @@ async function doRegister() {
           </div>
         )}
 
-        {/* ── LOGIN MODAL ── */}
+        {/* ── 2FA MODAL ── */}
+        {show2FA && (
+          <div className="twofa-ov">
+            <div className="twofa-box">
+              <div style={{fontSize:40,marginBottom:12}}>🔐</div>
+              <h2>Vérification</h2>
+              <p>Un code à 6 chiffres a été envoyé à<br/><strong style={{color:"var(--blue)"}}>{pendingUser?.email}</strong></p>
+              {twoFAErr && <div className="login-err">{twoFAErr}</div>}
+              <input
+                className="code-input"
+                type="number"
+                maxLength={6}
+                value={twoFACode}
+                onChange={e=>setTwoFACode(e.target.value.slice(0,6))}
+                onKeyDown={e=>e.key==="Enter"&&verify2FA()}
+                placeholder="000000"
+              />
+              <button className="btn-blue" style={{width:"100%",marginBottom:10}} onClick={verify2FA} disabled={twoFABusy||twoFACode.length!==6}>
+                {twoFABusy?<><span className="spin"/> Vérification…</>:"✅ Vérifier"}
+              </button>
+              <p style={{fontSize:11,color:"var(--muted)",marginBottom:10}}>Vérifiez vos spams si vous ne recevez pas le code.</p>
+              <button className="nav-btn" style={{width:"100%"}} onClick={()=>{setShow2FA(false);setShowLogin(true);}}>← Retour</button>
+            </div>
+          </div>
+        )}
+
+        {/* ── LOGIN MODAL ── */}}
         {showLogin && (
           <div className="login-ov">
             <div className="login-box">
@@ -927,16 +1291,7 @@ async function doRegister() {
                 <div style={{fontSize:12,color:"var(--green)",fontWeight:600,marginBottom:4}}>✨ Premier suivi offert — à partir du 2ème : 10€/suivi</div>
               </div>
               <div className="pay-btns">
-                <button className="btn-paypal" onClick={async ()=>{
-                  // Notify Make with partner email
-                  try {
-                    await fetch(MAKE_WEBHOOK, {
-                      method:"POST",
-                      headers:{"Content-Type":"application/json"},
-                      body:JSON.stringify({email: adminUser?.email||"", amount:"10EUR", action:"unlock"})
-                    });
-                  } catch(e) { console.error("Make webhook error",e); }
-                  // Open PayPal
+                <button className="btn-paypal" onClick={()=>{
                   window.open("https://paypal.me/JaanusAalmaa/10EUR","_blank");
                 }}>
                   <span style={{fontSize:20}}>🅿️</span> Payer 10€ via PayPal
@@ -965,7 +1320,14 @@ async function doRegister() {
         )}
 
         {/* ── LOADER ── */}
-        {loading && <div className="loader-ov"><div className="loader-spin"/><p style={{color:"var(--muted)",fontSize:14}}>{t("loading")}</p></div>}
+        {loading && (
+          <div className="loader-ov">
+            <div className="loader-logo">AUTO<span>TRACK</span></div>
+            <div className="loader-car">🚗</div>
+            <div className="loader-track"><div className="loader-fill"/></div>
+            <div className="loader-text">{t("loading")}</div>
+          </div>
+        )}
 
         {/* ── HEADER ── */}
         <header className="hdr">
@@ -984,6 +1346,9 @@ async function doRegister() {
             ) : (
               <button className="nav-btn" onClick={()=>{setShowLogin(true);setLoginErr("");}}>🔐 Admin</button>
             ))}
+            <button className="theme-btn" onClick={()=>setDarkMode(p=>!p)} title="Mode clair/sombre">
+              {darkMode ? "☀️" : "🌙"}
+            </button>
             <div className="lang-wrap" onClick={e=>e.stopPropagation()}>
               <button className="lang-btn" onClick={()=>setShowLang(p=>!p)}>{T[lang]?.flag||"🌐"} {T[lang]?.code||"FR"} ▾</button>
               {showLang && (
@@ -1085,19 +1450,32 @@ async function doRegister() {
         {view==="client" && trackData && (
           <div className="z1">
             <div className="res-wrap">
-              <div className="back-btn" onClick={()=>{if(unsubTrackRef.current){unsubTrackRef.current();unsubTrackRef.current=null;}setTrackData(null);setTrackError(false);setTrackInput("");}}>← {t("back")}</div>
+              <div style={{display:"flex",gap:10,marginBottom:14,flexWrap:"wrap"}}>
+                <div className="back-btn" style={{marginBottom:0}} onClick={()=>{if(unsubTrackRef.current){unsubTrackRef.current();unsubTrackRef.current=null;}setTrackData(null);setTrackError(false);setTrackInput("");}}>← {t("back")}</div>
+                <button className="pdf-btn" onClick={generatePDF}>📄 PDF</button>
+                <button className={"notif-btn"+(notifEnabled?" active":"")} onClick={enableNotifications}>
+                  {notifEnabled?"🔔 Activé":"🔕 Activer les notifications"}
+                </button>
+              </div>
               <div className="top-card">
-                <div>
-                  <div className="res-id">{trackId}</div>
-                  <div className="res-route"><b>{trackData.from}</b> → <b>{trackData.to}</b></div>
-                  <span className={sBadgeClass(trackData.statusKey)}><span className="sdot"/>{t(trackData.statusKey+"f")}</span>
+                <div className="res-id">📦 {trackId}</div>
+                <div className="res-client-row">
+                  <div>
+                    <div className="res-name">{trackData.client}</div>
+                    <div className="res-veh">🚗 {trackData.vehicle}{trackData.color&&trackData.color!=="—"?" · "+trackData.color:""}</div>
+                    <div className="res-co">{trackData.company}</div>
+                  </div>
+                  <div className="res-eta-box">
+                    <div className="res-eta-lbl">Arrivée estimée</div>
+                    <div className="res-eta">{trackData.arr}</div>
+                  </div>
                 </div>
-                <div className="res-right">
-                  <div className="res-name">{trackData.client}</div>
-                  <div className="res-veh">{trackData.vehicle}{trackData.color&&trackData.color!=="—"?" — "+trackData.color:""}</div>
-                  <div className="res-eta">{t("eta_pre")} {trackData.arr}</div>
-                  <div className="res-co">{trackData.company}</div>
+                <div className="res-route-row">
+                  <span className="res-route-from">📍 {trackData.fromCity}</span>
+                  <span className="res-route-arrow">✈️ ──────</span>
+                  <span className="res-route-to">🏁 {trackData.toCity}</span>
                 </div>
+                <span className={sBadgeClass(trackData.statusKey)}><span className="sdot"/>{t(trackData.statusKey+"f")}</span>
               </div>
               {(trackData.statusKey==="st6"||trackData.statusKey==="st7") && (
                 <div className="susp-banner">
@@ -1108,8 +1486,14 @@ async function doRegister() {
               {trackData.statusKey!=="st6" && trackData.statusKey!=="st7" && (
                 <div className="prog-card">
                   <div className="ctitle">{t("prog")}</div>
-                  <div className="pbar"><div className="pfill" style={{width:(trackData.progress||0)+"%"}}/></div>
-                  <div className="plabels"><span>{trackData.fromCity}</span><span className="ppct">{trackData.progress||0}%</span><span>{trackData.toCity}</span></div>
+                  <div className="pbar-wrap">
+                    <div className="pbar"><div className="pfill" style={{width:(trackData.progress||0)+"%"}}/></div>
+                  </div>
+                  <div className="plabels">
+                    <span className="plbl-city">🛫 {trackData.fromCity}</span>
+                    <span className="ppct">{trackData.progress||0}%</span>
+                    <span className="plbl-city">{trackData.toCity} 🛬</span>
+                  </div>
                   <div className="steps-row">
                     {steps.map((s,i)=>{
                       const ci=steps.indexOf(trackData.statusKey);
@@ -1145,7 +1529,17 @@ async function doRegister() {
               </div>
               <div className="card">
                 <div className="ctitle">{t("info")}</div>
-                <div className="ig">{(trackData.info||[]).map((item:any,i:number)=>(<div key={i} className="ii"><div className="il">{infoLkMap(item.lk)}</div><div className="iv">{item.val}</div></div>))}</div>
+                <div className="ig">
+                  {(trackData.info||[]).map((item:any,i:number)=>{
+                    const icons: Record<string,string> = {lbl_mt:"🚛",lbl_carr:"🏢",lbl_dd:"📅",lbl_eta:"🎯",lbl_vin:"🔑",lbl_pl:"🪪"};
+                    return (
+                      <div key={i} className="ii">
+                        <div className="il">{icons[item.lk]||"📋"} {infoLkMap(item.lk)}</div>
+                        <div className="iv">{item.val}</div>
+                      </div>
+                    );
+                  })}
+                </div>
               </div>
             </div>
           </div>
@@ -1405,6 +1799,63 @@ async function doRegister() {
                     </tbody>
                   </table>
                 )}
+              </div>
+            </div>
+
+              {/* PAYMENT HISTORY */}
+              <div className="pay-hist-card">
+                <div className="ctitle">💰 Historique des paiements
+                  <button className="ref-btn" onClick={loadPayHistory}>↻</button>
+                </div>
+                {payHistory.length === 0
+                  ? <p style={{color:"var(--muted)",fontSize:13,padding:"10px 0"}}>Aucun paiement enregistré.</p>
+                  : <table className="pay-hist-table">
+                      <thead><tr>
+                        <th>Date</th><th>Partenaire</th><th>Email</th><th>Montant</th><th>Statut</th>
+                      </tr></thead>
+                      <tbody>
+                        {payHistory.map((p,i) => (
+                          <tr key={i}>
+                            <td style={{fontSize:11,color:"var(--muted)"}}>{p.date}</td>
+                            <td style={{fontWeight:600}}>{p.name||"—"}</td>
+                            <td style={{fontSize:11,color:"var(--blue)"}}>{p.email}</td>
+                            <td><span style={{color:"var(--green)",fontWeight:700}}>{p.amount}</span></td>
+                            <td><span className="pay-badge-ok">✅ Confirmé</span></td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                }
+                {payHistory.length > 0 && (
+                  <div style={{marginTop:14,padding:"10px 0",borderTop:"1px solid var(--border)",display:"flex",justifyContent:"space-between",alignItems:"center"}}>
+                    <span style={{fontSize:13,color:"var(--muted)"}}>Total reçu</span>
+                    <span style={{fontFamily:"'Rajdhani',sans-serif",fontSize:20,fontWeight:700,color:"var(--green)"}}>{payHistory.length * 10}€</span>
+                  </div>
+                )}
+              </div>
+
+              {/* ACTIVITY LOGS */}
+              <div className="logs-card">
+                <div className="ctitle">📋 Logs d&apos;activité
+                  <button className="ref-btn" onClick={loadLogs}>↻</button>
+                </div>
+                {activityLogs.length === 0
+                  ? <p style={{color:"var(--muted)",fontSize:13,padding:"10px 0"}}>Aucune activité enregistrée.</p>
+                  : activityLogs.map((log:any, i:number) => {
+                      const icoClass = log.type==="ok"?"log-ico-ok":log.type==="err"?"log-ico-err":log.type==="warn"?"log-ico-warn":"log-ico-info";
+                      const ico = log.type==="ok"?"✅":log.type==="err"?"🔒":log.type==="warn"?"⚠️":"📍";
+                      return (
+                        <div key={i} className="log-item">
+                          <div className={"log-ico "+icoClass}>{ico}</div>
+                          <div className="log-text">
+                            <div className="log-msg">{log.msg}</div>
+                            <div className="log-email">{log.email}</div>
+                            <div className="log-time">{log.time}</div>
+                          </div>
+                        </div>
+                      );
+                    })
+                }
               </div>
             </div>
           </div>
