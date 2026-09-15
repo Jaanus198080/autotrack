@@ -70,7 +70,7 @@ const css = `
   .z1{position:relative;z-index:1;}
   .hdr{position:sticky;top:0;z-index:50;padding:0 24px;height:64px;display:flex;align-items:center;justify-content:space-between;background:rgba(6,10,20,.97);border-bottom:1px solid var(--border);backdrop-filter:blur(20px);gap:12px;}
   .hdr-brand{text-align:center;flex:1;}
-  .hdr-title{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:26px;letter-spacing:.28em;color:#fff;}
+  .hdr-title{font-family:'Rajdhani',sans-serif;font-weight:900;font-size:22px;letter-spacing:.15em;color:#fff;text-transform:uppercase;}
   .hdr-title span{color:var(--blue);}
   .hdr-right{display:flex;align-items:center;gap:6px;flex-wrap:wrap;}
   .lang-wrap{position:relative;}
@@ -114,8 +114,9 @@ const css = `
   /* ROUTE BAR */
   .res-route-row{display:flex;align-items:center;gap:0;background:rgba(255,255,255,.03);border-radius:8px;padding:12px 14px;margin-bottom:12px;}
   .res-route-from{font-size:13px;font-weight:700;color:var(--text);}
-  .res-route-arrow{flex:1;height:1px;background:var(--border);margin:0 10px;position:relative;}
-  .res-route-arrow::after{content:'';position:absolute;right:-1px;top:-3px;width:7px;height:7px;border-top:1px solid var(--border);border-right:1px solid var(--border);transform:rotate(45deg);}
+  .res-route-arrow{flex:1;display:flex;align-items:center;margin:0 10px;gap:2px;}
+  .res-route-arrow::before{content:'';flex:1;height:1px;background:var(--border);}
+  .res-route-arrow::after{content:'›';color:var(--border);font-size:16px;line-height:1;}
   .res-route-to{font-size:13px;font-weight:700;color:var(--text);}
   /* STATUS BADGE */
   .sbadge{display:inline-flex;align-items:center;gap:6px;padding:5px 12px;border-radius:4px;font-size:12px;font-weight:700;letter-spacing:.04em;}
@@ -138,14 +139,14 @@ const css = `
   .plbl-city{color:var(--muted);}
   .ppct{color:var(--blue);font-weight:700;font-family:'Rajdhani',sans-serif;}
   /* STEPS ROW */
-  .steps-row{display:flex;align-items:flex-start;justify-content:space-between;position:relative;}
-  .steps-row::before{content:'';position:absolute;top:10px;left:calc(100%/12);right:calc(100%/12);height:2px;background:var(--border);z-index:0;}
-  .step-item{display:flex;flex-direction:column;align-items:center;gap:6px;flex:1;position:relative;z-index:1;}
-  .step-dot{width:20px;height:20px;border-radius:50%;border:2px solid var(--border);background:var(--bg);flex-shrink:0;}
-  .sd-done{border-color:var(--blue);background:var(--blue);}
-  .sd-active{border-color:var(--blue);background:var(--bg);box-shadow:0 0 0 3px rgba(34,120,232,.2);}
-  .sd-pend{border-color:var(--border);background:var(--bg);}
-  .step-lbl{font-size:9px;font-weight:600;text-align:center;color:var(--muted);max-width:52px;line-height:1.3;}
+  .steps-row{display:flex;align-items:flex-start;justify-content:space-between;position:relative;overflow:hidden;}
+  .steps-row::before{content:'';position:absolute;top:11px;left:10%;right:10%;height:2px;background:var(--border);z-index:0;}
+  .step-item{display:flex;flex-direction:column;align-items:center;gap:5px;flex:1;position:relative;z-index:1;min-width:0;}
+  .step-dot{width:22px;height:22px;border-radius:50%;border:2px solid var(--border);background:var(--bg);flex-shrink:0;display:flex;align-items:center;justify-content:center;font-family:'Rajdhani',sans-serif;font-size:10px;font-weight:700;}
+  .sd-done{border-color:var(--blue);background:var(--blue);color:#fff;}
+  .sd-active{border-color:var(--blue);background:var(--bg);color:var(--blue);box-shadow:0 0 0 3px rgba(34,120,232,.15);}
+  .sd-pend{border-color:var(--border);color:var(--muted);}
+  .step-lbl{font-size:8px;font-weight:600;text-align:center;color:var(--muted);width:100%;line-height:1.3;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;padding:0 2px;}
   .sl-active{color:var(--blue);font-weight:700;}
   .sl-done{color:var(--blue);}
   /* CARDS */
@@ -1124,7 +1125,7 @@ async function doRegister() {
 
   /* ── BADGE HELPERS ── */
   const steps = ["st0","st1","st2","st3","st4","st5"];
-  const stepIcons = ["","","","","",""];
+  const stepIcons = ["1","2","3","4","5","6"];
   const trackLink = genId ? window.location.origin+"/?track="+genId : "";
 
   function sBadgeClass(stk: string) {
@@ -1480,7 +1481,7 @@ async function doRegister() {
                 </div>
                 <div className="res-route-row">
                   <span className="res-route-from">{trackData.fromCity}</span>
-                  <span className="res-route-arrow">————→</span>
+                  <div className="res-route-arrow"></div>
                   <span className="res-route-to">{trackData.toCity}</span>
                 </div>
                 <span className={sBadgeClass(trackData.statusKey)}><span className="sdot"/>{t(trackData.statusKey+"f")}</span>
@@ -1499,8 +1500,10 @@ async function doRegister() {
                   </div>
                   <div className="plabels">
                     <span className="plbl-city">{trackData.fromCity}</span>
-                    <span className="ppct">{trackData.progress||0}%</span>
                     <span className="plbl-city">{trackData.toCity}</span>
+                  </div>
+                  <div style={{textAlign:"right",marginTop:4,marginBottom:12}}>
+                    <span className="ppct">{trackData.progress||0}% complété</span>
                   </div>
                   <div className="steps-row">
                     {steps.map((s,i)=>{
@@ -1509,7 +1512,7 @@ async function doRegister() {
                       const lc=i<ci?"sl-done":i===ci?"sl-active":"";
                       return (
                         <div key={s} className="step-item">
-                          <div className={"step-dot "+state}></div>
+                          <div className={"step-dot "+state}>{stepIcons[i]}</div>
                           <div className={"step-lbl "+lc}>{t(s)}</div>
                         </div>
                       );
