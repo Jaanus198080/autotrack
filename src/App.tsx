@@ -471,6 +471,11 @@ export default function App() {
   const [loginPass, setLoginPass]   = useState("");
   const [loginErr, setLoginErr]     = useState("");
   const [loginBusy, setLoginBusy]   = useState(false);
+  const [show2FA, setShow2FA]       = useState(false);
+  const [twoFACode, setTwoFACode]   = useState("");
+  const [twoFABusy, setTwoFABusy]   = useState(false);
+  const [twoFAErr, setTwoFAErr]     = useState("");
+  const [pendingUser, setPendingUser] = useState<any>(null);
 
   // REGISTER
   const [showRegister, setShowRegister] = useState(isRegisterUrl);
