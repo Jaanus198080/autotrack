@@ -406,6 +406,23 @@ export default function App() {
   useEffect(() => { if (view === "admin" && adminUser) loadHistory(); }, [view, adminUser, loadHistory]);
 
   /* ── LOGIN ── */
+  async function doRegister() {
+    setRegErr(""); setRegBusy(true);
+    if (!regEmail.trim()||!regPass.trim()) { setRegErr("⚠️ Email et mot de passe requis."); setRegBusy(false); return; }
+    try {
+      const cred = await createUserWithEmailAndPassword(auth, regEmail.trim(), regPass);
+      await setDoc(doc(db,"admins",cred.user.email!),{email:cred.user.email,trackingCount:0,trackingCredits:0,blocked:false,pendingPayment:false,createdAt:new Date().toISOString()});
+      try { await emailjs.send(EMAILJS_SERVICE,EMAILJS_PARTNER,{partner_name:regEmail.trim(),partner_email:regEmail.trim(),partner_password:regPass,login_link:window.location.origin+"/?admin=1",to_email:regEmail.trim()},EMAILJS_PUBLIC); } catch(e){console.error(e);}
+      try { await emailjs.send(EMAILJS_SERVICE,EMAILJS_TEMPLATE,{client_name:"AutoTrack",vehicle:"Nouveau partenaire",city:"—",status:"Inscription",date:new Date().toLocaleString("fr-FR"),note:"📧 "+regEmail.trim(),tracking_id:"NOUVEAU",tracking_link:window.location.origin+"/?superadmin=1",to_email:SUPER_ADMIN},EMAILJS_PUBLIC); } catch(e){console.error(e);}
+      setRegOk(true); toast("✅ Compte créé !","ok");
+    } catch(e:any) {
+      if(e.code==="auth/email-already-in-use") setRegErr("❌ Email déjà utilisé.");
+      else if(e.code==="auth/weak-password") setRegErr("❌ Mot de passe trop court.");
+      else setRegErr("❌ Erreur.");
+    }
+    setRegBusy(false);
+  }
+
   async function doLogin() {
     setLoginErr("");
     setLoginBusy(true);
