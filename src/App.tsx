@@ -290,8 +290,9 @@ export default function App() {
   const [lang, setLangState] = useState("fr");
   const t = (k: string) => T[lang]?.[k] ?? T.fr[k] ?? k;
 
-  const isAdminUrl = new URLSearchParams(window.location.search).get("admin") === "1";
-  const [view, setView] = useState<"client"|"admin"|"stats"|"superadmin">(params.get("superadmin")==="1" ? "superadmin" : isAdminUrl ? "admin" : "client");
+  const isAdminUrl   = new URLSearchParams(window.location.search).get("admin") === "1";
+  const isSuperAdmin = new URLSearchParams(window.location.search).get("superadmin") === "1";
+  const [view, setView] = useState<"client"|"admin"|"stats"|"superadmin">(isSuperAdmin ? "superadmin" : isAdminUrl ? "admin" : "client");
   const [showLang, setShowLang] = useState(false);
   const [toasts, setToasts] = useState<{id:number;msg:string;type:string}[]>([]);
   const [loading, setLoading] = useState(false);
