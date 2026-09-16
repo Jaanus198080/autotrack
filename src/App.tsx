@@ -14,20 +14,34 @@ import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, PieChart, Pi
 
 const EMAILJS_SERVICE  = "service_tbg6vp7";
 const EMAILJS_TEMPLATE = "template_petii59";
-const EMAILJS_PUBLIC   = "sycumEw72eiYqMsyK";
 const EMAILJS_PARTNER  = "template_l91lawt";
+const EMAILJS_PUBLIC   = "sycumEw72eiYqMsyK";
 const SUPER_ADMIN      = "krediitas@gmail.com";
 const PAYPAL_EMAIL     = "autoreachgmbh@gmail.com";
 const WHATSAPP_NUM     = "32460211559";
 const MAKE_WEBHOOK     = "https://hook.eu1.make.com/9r5uy7wh3pkuy6b3uufiayd8ywylwimw";
+const EMAILJS_TEMPLATE = "template_petii59";
+const EMAILJS_PARTNER  = "template_l91lawt";
+const EMAILJS_PUBLIC   = "sycumEw72eiYqMsyK";
+const SUPER_ADMIN      = "krediitas@gmail.com";
+const PAYPAL_EMAIL     = "autoreachgmbh@gmail.com";
+const WHATSAPP_NUM     = "32460211559";
+const MAKE_WEBHOOK     = "https://hook.eu1.make.com/9r5uy7wh3pkuy6b3uufiayd8ywylwimw";
+const PAYPAL_EMAIL     = "autoreachgmbh@gmail.com";
+const IBAN             = "CH25 0884 3156 2544 2102 0";
+const IBAN_NAME        = "JAANUS AALMAA";
 
 /* ══════════════════════════════════════════════
    TRANSLATIONS (fr/en/de/hr/it/ro/bg)
 ══════════════════════════════════════════════ */
 const T: Record<string, Record<string, string>> = {
-  fr: { flag:"🇫🇷", code:"FR", h1a:"Suivez votre", h1b:"véhicule", h1c:"en temps réel", h1sub:"Entrez votre numéro de suivi pour voir l'état de votre transport", btn_track:"SUIVRE →", hint:"Numéro reçu par email à la confirmation de commande", not_found:"❌ Numéro introuvable. Vérifiez et réessayez.", loading:"Chargement…", back:"Nouvelle recherche", prog:"Progression du transport", itin:"Itinéraire", tl:"Historique des événements", info:"Informations transport", eta_pre:"⏱ Arrivée estimée :", lbl_dep:"Départ", lbl_step:"Étape", lbl_pos:"Position actuelle", lbl_dest:"Destination", lbl_mt:"Mode transport", lbl_carr:"Transporteur", lbl_dd:"Date départ", lbl_eta:"Arrivée est.", lbl_vin:"VIN", lbl_pl:"Plaque", st0:"En attente", st1:"Chargé", st2:"En transit", st3:"Douane", st4:"Livraison", st5:"Livré", st6:"Suspendu", st7:"Retardé", st0f:"En attente de chargement", st1f:"Véhicule chargé", st2f:"En transit", st3f:"Passage en douane", st4f:"Livraison en cours", st5f:"Livré ✓", st6f:"⚠️ Suspendu — Défaut de paiement", st7f:"⏰ Livraison retardée", adm_title:"Créer un suivi de transport", adm_sub:"Remplissez les informations pour générer un numéro de suivi", s_cli:"Informations Client", s_veh:"Véhicule", s_rou:"Itinéraire", l_name:"Nom complet", l_email:"Email", l_phone:"Téléphone", l_co:"Entreprise", l_veh:"Marque & Modèle", l_col:"Couleur", l_vin:"Numéro VIN", l_plate:"Immatriculation", l_from:"Adresse de départ", l_to:"Adresse de livraison", l_dep:"Date de départ", l_arr:"Arrivée estimée", l_mode:"Mode de transport", l_carrier:"Transporteur", m1:"Camion porte-voiture", m2:"Transport maritime (RoRo)", m3:"Transport aérien cargo", m4:"Transport combiné", btn_gen:"🚗 GÉNÉRER LE NUMÉRO DE SUIVI", gen_ok:"✅ Numéro de suivi créé avec succès", btn_copy:"Copier le numéro", lbl_link:"🔗 Lien à envoyer au client :", link_note:"Le client verra uniquement ses informations.", upd_h:"📍 Mettre à jour la position", u_city:"Ville / Localisation actuelle", u_date:"Date", u_time:"Heure", u_status:"Statut", u_note:"Note / Détail", btn_upd:"📡 ENVOYER LA MISE À JOUR", hist_h:"📦 Mes suivis", th1:"N° Suivi", th2:"Client", th3:"Véhicule", th4:"Trajet", th5:"Statut", th6:"Entreprise", ft_tag:"Suivi de transport · Livraison mondiale", ft_r:"Tous droits réservés.", toast_gen:"✅ Suivi créé :", toast_cop:"📋 Copié !", toast_upd:"📡 Mise à jour envoyée !", err_fill:"⚠️ Champs obligatoires manquants", err_city:"⚠️ Entrez la ville actuelle", err_nosel:"⚠️ Aucun suivi sélectionné", sel:"Suivi sélectionné :", login_title:"Accès", login_email:"Email", login_pass:"Mot de passe", login_btn:"SE CONNECTER", login_err:"Email ou mot de passe incorrect.", logout:"Déconnexion", susp_msg:"⚠️ Votre livraison est temporairement suspendue. Veuillez contacter notre service client.", susp_contact:"Contacter le service client", reg_title:"Créer un compte", reg_code:"Code d'invitation", reg_email:"Email", reg_pass:"Mot de passe", reg_btn:"CRÉER MON COMPTE", reg_err_code:"❌ Code d'invitation invalide ou déjà utilisé.", reg_err:"❌ Erreur lors de la création du compte.", reg_ok:"✅ Compte créé ! Connectez-vous.", pay_title:"💳 Paiement requis", pay_msg:"Chaque suivi coûte 10€. Le premier était gratuit.", pay_paypal:"Payer via PayPal", pay_virement:"Payer par virement bancaire", pay_pending:"⏳ En attente de confirmation de paiement…", pay_note:"Après paiement, envoyez votre preuve à" },
-  en: { flag:"🇬🇧", code:"EN", h1a:"Track your", h1b:"vehicle", h1c:"in real time", h1sub:"Enter your tracking number", btn_track:"TRACK →", hint:"Number received by email", not_found:"❌ Not found.", loading:"Loading…", back:"New search", prog:"Progress", itin:"Route", tl:"History", info:"Information", eta_pre:"⏱ ETA:", lbl_dep:"Departure", lbl_step:"Stop", lbl_pos:"Position", lbl_dest:"Destination", lbl_mt:"Transport", lbl_carr:"Carrier", lbl_dd:"Departure", lbl_eta:"ETA", lbl_vin:"VIN", lbl_pl:"Plate", st0:"Waiting", st1:"Loaded", st2:"In transit", st3:"Customs", st4:"Delivery", st5:"Delivered", st6:"Suspended", st7:"Delayed", st0f:"Awaiting loading", st1f:"Vehicle loaded", st2f:"In transit", st3f:"Customs clearance", st4f:"Out for delivery", st5f:"Delivered ✓", st6f:"⚠️ Suspended — Payment issue", st7f:"⏰ Delivery delayed", adm_title:"Create tracking", adm_sub:"Fill in the information", s_cli:"Client", s_veh:"Vehicle", s_rou:"Route", l_name:"Full name", l_email:"Email", l_phone:"Phone", l_co:"Company", l_veh:"Make & Model", l_col:"Color", l_vin:"VIN", l_plate:"Plate", l_from:"Pickup address", l_to:"Delivery address", l_dep:"Departure", l_arr:"ETA", l_mode:"Transport", l_carrier:"Carrier", m1:"Car transporter", m2:"Maritime (RoRo)", m3:"Air cargo", m4:"Combined", btn_gen:"🚗 GENERATE TRACKING", gen_ok:"✅ Tracking created", btn_copy:"Copy", lbl_link:"🔗 Client link:", link_note:"Client sees only their info.", upd_h:"📍 Update position", u_city:"City", u_date:"Date", u_time:"Time", u_status:"Status", u_note:"Note", btn_upd:"📡 SEND UPDATE", hist_h:"📦 My trackings", th1:"Tracking #", th2:"Client", th3:"Vehicle", th4:"Route", th5:"Status", th6:"Company", ft_tag:"Transport tracking · Global delivery", ft_r:"All rights reserved.", toast_gen:"✅ Created:", toast_cop:"📋 Copied!", toast_upd:"📡 Updated!", err_fill:"⚠️ Required fields missing", err_city:"⚠️ Enter current city", err_nosel:"⚠️ No tracking selected", sel:"Selected:", login_title:"Access", login_email:"Email", login_pass:"Password", login_btn:"SIGN IN", login_err:"Incorrect email or password.", logout:"Sign out", susp_msg:"⚠️ Your delivery is suspended. Please contact us.", susp_contact:"Contact us", reg_title:"Create account", reg_code:"Invitation code", reg_email:"Email", reg_pass:"Password", reg_btn:"CREATE ACCOUNT", reg_err_code:"❌ Invalid or already used invitation code.", reg_err:"❌ Error creating account.", reg_ok:"✅ Account created! Sign in.", pay_title:"💳 Payment required", pay_msg:"Each tracking costs €10. The first was free.", pay_paypal:"Pay via PayPal", pay_virement:"Pay by bank transfer", pay_pending:"⏳ Awaiting payment confirmation…", pay_note:"After payment, send proof to" },
-  de: { flag:"🇩🇪", code:"DE", h1a:"Verfolgen Sie Ihr", h1b:"Fahrzeug", h1c:"in Echtzeit", h1sub:"Sendungsnummer eingeben", btn_track:"VERFOLGEN →", hint:"Nummer per E-Mail erhalten", not_found:"❌ Nicht gefunden.", loading:"Laden…", back:"Neue Suche", prog:"Fortschritt", itin:"Route", tl:"Verlauf", info:"Info", eta_pre:"⏱ Ankunft:", lbl_dep:"Abfahrt", lbl_step:"Stopp", lbl_pos:"Position", lbl_dest:"Ziel", lbl_mt:"Transport", lbl_carr:"Spediteur", lbl_dd:"Abfahrt", lbl_eta:"Ankunft", lbl_vin:"VIN", lbl_pl:"Kennzeichen", st0:"Warten", st1:"Verladen", st2:"Unterwegs", st3:"Zoll", st4:"Zustellung", st5:"Zugestellt", st6:"Gesperrt", st7:"Verspätet", st0f:"Warten auf Verladung", st1f:"Verladen", st2f:"Unterwegs", st3f:"Zollabfertigung", st4f:"Zustellung", st5f:"Zugestellt ✓", st6f:"⚠️ Gesperrt — Zahlungsproblem", st7f:"⏰ Verspätet", adm_title:"Tracking erstellen", adm_sub:"Daten eingeben", s_cli:"Kunde", s_veh:"Fahrzeug", s_rou:"Route", l_name:"Name", l_email:"E-Mail", l_phone:"Telefon", l_co:"Firma", l_veh:"Marke", l_col:"Farbe", l_vin:"VIN", l_plate:"Kennzeichen", l_from:"Abholung", l_to:"Lieferung", l_dep:"Abfahrt", l_arr:"Ankunft", l_mode:"Transport", l_carrier:"Spediteur", m1:"LKW", m2:"Seetransport", m3:"Luftfracht", m4:"Kombiniert", btn_gen:"🚗 GENERIEREN", gen_ok:"✅ Erstellt", btn_copy:"Kopieren", lbl_link:"🔗 Link:", link_note:"Kunde sieht nur seine Daten.", upd_h:"📍 Aktualisieren", u_city:"Stadt", u_date:"Datum", u_time:"Uhrzeit", u_status:"Status", u_note:"Notiz", btn_upd:"📡 SENDEN", hist_h:"📦 Meine Sendungen", th1:"Nr.", th2:"Kunde", th3:"Fahrzeug", th4:"Route", th5:"Status", th6:"Firma", ft_tag:"Transportsendung · Weltweite Lieferung", ft_r:"Alle Rechte vorbehalten.", toast_gen:"✅ Erstellt:", toast_cop:"📋 Kopiert!", toast_upd:"📡 Aktualisiert!", err_fill:"⚠️ Fehlende Felder", err_city:"⚠️ Stadt eingeben", err_nosel:"⚠️ Nichts ausgewählt", sel:"Ausgewählt:", login_title:"Zugang", login_email:"E-Mail", login_pass:"Passwort", login_btn:"ANMELDEN", login_err:"Falsche Daten.", logout:"Abmelden", susp_msg:"⚠️ Gesperrt. Bitte kontaktieren Sie uns.", susp_contact:"Kontakt", reg_title:"Konto erstellen", reg_code:"Einladungscode", reg_email:"E-Mail", reg_pass:"Passwort", reg_btn:"KONTO ERSTELLEN", reg_err_code:"❌ Ungültiger Code.", reg_err:"❌ Fehler.", reg_ok:"✅ Konto erstellt!", pay_title:"💳 Zahlung erforderlich", pay_msg:"Jede Sendung kostet 10€. Die erste war kostenlos.", pay_paypal:"Per PayPal zahlen", pay_virement:"Per Banküberweisung", pay_pending:"⏳ Warten auf Bestätigung…", pay_note:"Senden Sie den Nachweis an" }
+  fr: { flag:"🇫🇷", code:"FR", h1a:"Suivez votre", h1b:"véhicule", h1c:"en temps réel", h1sub:"Entrez votre numéro de suivi pour voir l'état de votre transport", btn_track:"SUIVRE →", hint:"Numéro reçu par email à la confirmation de commande", not_found:"❌ Numéro introuvable. Vérifiez et réessayez.", loading:"Chargement…", back:"Nouvelle recherche", prog:"Progression du transport", itin:"Itinéraire", tl:"Historique des événements", info:"Informations transport", eta_pre:"⏱ Arrivée estimée :", lbl_dep:"Départ", lbl_step:"Étape", lbl_pos:"Position actuelle", lbl_dest:"Destination", lbl_mt:"Mode transport", lbl_carr:"Transporteur", lbl_dd:"Date départ", lbl_eta:"Arrivée est.", lbl_vin:"VIN", lbl_pl:"Plaque", st0:"En attente", st1:"Chargé", st2:"En transit", st3:"Douane", st4:"Livraison", st5:"Livré", st0f:"En attente de chargement", st1f:"Véhicule chargé", st2f:"En transit", st3f:"Passage en douane", st4f:"Livraison en cours", st5f:"Livré ✓", st6:"Retardé", st7:"Annulé", st6f:"Livraison retardée", st7f:"Livraison annulée", adm_title:"Créer un suivi de transport", adm_sub:"Remplissez les informations pour générer un numéro de suivi", s_cli:"Informations Client", s_veh:"Véhicule", s_rou:"Itinéraire", l_name:"Nom complet", l_email:"Email", l_phone:"Téléphone", l_co:"Entreprise", l_veh:"Marque & Modèle", l_col:"Couleur", l_vin:"Numéro VIN", l_plate:"Immatriculation", l_from:"Adresse de départ (chargement)", l_to:"Adresse de livraison", l_dep:"Date de départ", l_arr:"Arrivée estimée", l_mode:"Mode de transport", l_carrier:"Transporteur", m1:"Camion porte-voiture", m2:"Transport maritime (RoRo)", m3:"Transport aérien cargo", m4:"Transport combiné", btn_gen:"🚗 GÉNÉRER LE NUMÉRO DE SUIVI", gen_ok:"✅ Numéro de suivi créé avec succès", btn_copy:"Copier le numéro", lbl_link:"🔗 Lien à envoyer au client :", link_note:"Le client verra uniquement ses informations — sans accès admin.", upd_h:"📍 Mettre à jour la position du transporteur", u_city:"Ville / Localisation actuelle", u_date:"Date de l'événement", u_time:"Heure", u_status:"Statut", u_note:"Note / Détail", btn_upd:"📡 ENVOYER LA MISE À JOUR", hist_h:"📦 Suivis actifs", th1:"N° Suivi", th2:"Client", th3:"Véhicule", th4:"Trajet", th5:"Statut", th6:"Entreprise", ft_tag:"Import Auto · Livraison mondiale · Votre confiance, notre mission", ft_r:"Tous droits réservés.", toast_gen:"✅ Suivi créé :", toast_cop:"📋 Copié !", toast_upd:"📡 Mise à jour envoyée !", err_fill:"⚠️ Champs obligatoires manquants", err_city:"⚠️ Entrez la ville actuelle", err_nosel:"⚠️ Aucun suivi sélectionné", sel:"Suivi sélectionné :", login_title:"Accès Administrateur", login_email:"Email", login_pass:"Mot de passe", login_btn:"SE CONNECTER", login_err:"Email ou mot de passe incorrect.", logout:"Déconnexion", confirm_cancel:"Confirmez-vous l'annulation de cette livraison ? Le client en sera informé." },
+  en: { flag:"🇬🇧", code:"EN", h1a:"Track your", h1b:"vehicle", h1c:"in real time", h1sub:"Enter your tracking number to check your transport status", btn_track:"TRACK →", hint:"Tracking number received by email upon order confirmation", not_found:"❌ Number not found. Please check and try again.", loading:"Loading…", back:"New search", prog:"Transport progress", itin:"Route", tl:"Event history", info:"Transport information", eta_pre:"⏱ Estimated arrival:", lbl_dep:"Departure", lbl_step:"Stop", lbl_pos:"Current position", lbl_dest:"Destination", lbl_mt:"Transport mode", lbl_carr:"Carrier", lbl_dd:"Departure", lbl_eta:"Est. arrival", lbl_vin:"VIN", lbl_pl:"Plate", st0:"Waiting", st1:"Loaded", st2:"In transit", st3:"Customs", st4:"Delivery", st5:"Delivered", st0f:"Awaiting loading", st1f:"Vehicle loaded", st2f:"In transit", st3f:"Customs clearance", st4f:"Out for delivery", st5f:"Delivered ✓", st6:"Delayed", st7:"Cancelled", st6f:"Delivery delayed", st7f:"Delivery cancelled", adm_title:"Create a transport tracking", adm_sub:"Fill in the information to generate a tracking number", s_cli:"Client Information", s_veh:"Vehicle", s_rou:"Route", l_name:"Full name", l_email:"Email", l_phone:"Phone", l_co:"Company", l_veh:"Make & Model", l_col:"Color", l_vin:"VIN number", l_plate:"License plate", l_from:"Pickup address (loading)", l_to:"Delivery address", l_dep:"Departure date", l_arr:"Estimated arrival", l_mode:"Transport mode", l_carrier:"Carrier", m1:"Car transporter truck", m2:"Maritime transport (RoRo)", m3:"Air cargo", m4:"Combined transport", btn_gen:"🚗 GENERATE TRACKING NUMBER", gen_ok:"✅ Tracking number created", btn_copy:"Copy number", lbl_link:"🔗 Link to send to client:", link_note:"The client will only see their transport info — no admin access.", upd_h:"📍 Update carrier position", u_city:"City / Current location", u_date:"Event date", u_time:"Time", u_status:"Status", u_note:"Note / Detail", btn_upd:"📡 SEND UPDATE", hist_h:"📦 Active shipments", th1:"Tracking #", th2:"Client", th3:"Vehicle", th4:"Route", th5:"Status", th6:"Company", ft_tag:"Car Import · Global Delivery · Your Trust, Our Mission", ft_r:"All rights reserved.", toast_gen:"✅ Tracking created:", toast_cop:"📋 Copied!", toast_upd:"📡 Update sent!", err_fill:"⚠️ Required fields missing", err_city:"⚠️ Please enter current city", err_nosel:"⚠️ No tracking selected", sel:"Tracking selected:", login_title:"Admin Access", login_email:"Email", login_pass:"Password", login_btn:"SIGN IN", login_err:"Incorrect email or password.", logout:"Sign out", confirm_cancel:"Confirm cancellation of this delivery? The client will be notified." },
+  de: { flag:"🇩🇪", code:"DE", h1a:"Verfolgen Sie Ihr", h1b:"Fahrzeug", h1c:"in Echtzeit", h1sub:"Sendungsnummer eingeben, um den Transportstatus zu prüfen", btn_track:"VERFOLGEN →", hint:"Sendungsnummer per E-Mail erhalten", not_found:"❌ Nummer nicht gefunden.", loading:"Wird geladen…", back:"Neue Suche", prog:"Transportfortschritt", itin:"Route", tl:"Ereignisverlauf", info:"Transportinformationen", eta_pre:"⏱ Ankunft:", lbl_dep:"Abfahrt", lbl_step:"Stopp", lbl_pos:"Standort", lbl_dest:"Ziel", lbl_mt:"Transport", lbl_carr:"Spediteur", lbl_dd:"Abfahrt", lbl_eta:"Ankunft", lbl_vin:"VIN", lbl_pl:"Kennzeichen", st0:"Warten", st1:"Verladen", st2:"Unterwegs", st3:"Zoll", st4:"Zustellung", st5:"Zugestellt", st0f:"Warten auf Verladung", st1f:"Fahrzeug verladen", st2f:"Unterwegs", st3f:"Zollabfertigung", st4f:"Zustellung läuft", st5f:"Zugestellt ✓", st6:"Verzögert", st7:"Storniert", st6f:"Lieferung verzögert", st7f:"Lieferung storniert", adm_title:"Transport-Tracking erstellen", adm_sub:"Ausfüllen zum Generieren einer Sendungsnummer", s_cli:"Kundeninformationen", s_veh:"Fahrzeug", s_rou:"Route", l_name:"Vollständiger Name", l_email:"E-Mail", l_phone:"Telefon", l_co:"Unternehmen", l_veh:"Marke & Modell", l_col:"Farbe", l_vin:"VIN", l_plate:"Kennzeichen", l_from:"Abholadresse", l_to:"Lieferadresse", l_dep:"Abfahrtsdatum", l_arr:"Voraussichtliche Ankunft", l_mode:"Transportmittel", l_carrier:"Spediteur", m1:"Autotransporter-LKW", m2:"Seetransport (RoRo)", m3:"Luftfracht", m4:"Kombinierter Transport", btn_gen:"🚗 SENDUNGSNUMMER GENERIEREN", gen_ok:"✅ Sendungsnummer erstellt", btn_copy:"Kopieren", lbl_link:"🔗 Link für den Kunden:", link_note:"Der Kunde sieht nur seine Transportinformationen.", upd_h:"📍 Standort aktualisieren", u_city:"Stadt / Standort", u_date:"Datum", u_time:"Uhrzeit", u_status:"Status", u_note:"Notiz", btn_upd:"📡 UPDATE SENDEN", hist_h:"📦 Aktive Sendungen", th1:"Sendungs-Nr.", th2:"Kunde", th3:"Fahrzeug", th4:"Route", th5:"Status", th6:"Unternehmen", ft_tag:"Fahrzeugimport · Weltweite Lieferung · Ihr Vertrauen", ft_r:"Alle Rechte vorbehalten.", toast_gen:"✅ Sendung erstellt:", toast_cop:"📋 Kopiert!", toast_upd:"📡 Update gesendet!", err_fill:"⚠️ Pflichtfelder ausfüllen", err_city:"⚠️ Bitte Stadt eingeben", err_nosel:"⚠️ Keine Sendung ausgewählt", sel:"Sendung ausgewählt:", login_title:"Admin-Zugang", login_email:"E-Mail", login_pass:"Passwort", login_btn:"ANMELDEN", login_err:"Falsche E-Mail oder Passwort.", logout:"Abmelden", confirm_cancel:"Lieferung wirklich stornieren? Der Kunde wird informiert." },
+  hr: { flag:"🇭🇷", code:"HR", h1a:"Pratite svoje", h1b:"vozilo", h1c:"u realnom vremenu", h1sub:"Unesite broj praćenja za provjeru statusa", btn_track:"PRATITI →", hint:"Broj praćenja primljen emailom", not_found:"❌ Broj nije pronađen.", loading:"Učitavanje…", back:"Nova pretraga", prog:"Napredak transporta", itin:"Ruta", tl:"Povijest događaja", info:"Informacije o transportu", eta_pre:"⏱ Dolazak:", lbl_dep:"Polazak", lbl_step:"Postaja", lbl_pos:"Pozicija", lbl_dest:"Odredište", lbl_mt:"Prijevoz", lbl_carr:"Prijevoznik", lbl_dd:"Polazak", lbl_eta:"Dolazak", lbl_vin:"VIN", lbl_pl:"Registracija", st0:"Čeka", st1:"Natovareno", st2:"U tranzitu", st3:"Carina", st4:"Dostava", st5:"Isporučeno", st0f:"Čeka se utovar", st1f:"Vozilo natovareno", st2f:"U tranzitu", st3f:"Carinjenje", st4f:"Dostava u tijeku", st5f:"Isporučeno ✓", st6:"Kasni", st7:"Otkazano", st6f:"Dostava kasni", st7f:"Dostava otkazana", adm_title:"Kreiranje praćenja", adm_sub:"Ispunite informacije za generiranje broja praćenja", s_cli:"Podaci o klijentu", s_veh:"Vozilo", s_rou:"Ruta", l_name:"Puno ime", l_email:"Email", l_phone:"Telefon", l_co:"Tvrtka", l_veh:"Marka i model", l_col:"Boja", l_vin:"VIN", l_plate:"Registracija", l_from:"Adresa preuzimanja", l_to:"Adresa dostave", l_dep:"Datum polaska", l_arr:"Procijenjeni dolazak", l_mode:"Prijevoz", l_carrier:"Prijevoznik", m1:"Kamion", m2:"Pomorski (RoRo)", m3:"Zračni teret", m4:"Kombinirani", btn_gen:"🚗 GENERIRAJ BROJ", gen_ok:"✅ Broj praćenja kreiran", btn_copy:"Kopirati", lbl_link:"🔗 Link za klijenta:", link_note:"Klijent vidi samo transportne podatke.", upd_h:"📍 Ažuriraj lokaciju", u_city:"Grad / Lokacija", u_date:"Datum", u_time:"Vrijeme", u_status:"Status", u_note:"Napomena", btn_upd:"📡 POŠALJI", hist_h:"📦 Aktivne pošiljke", th1:"Br.", th2:"Klijent", th3:"Vozilo", th4:"Ruta", th5:"Status", th6:"Tvrtka", ft_tag:"Uvoz automobila · Globalna dostava · Vaše povjerenje", ft_r:"Sva prava pridržana.", toast_gen:"✅ Kreiran:", toast_cop:"📋 Kopirano!", toast_upd:"📡 Ažurirano!", err_fill:"⚠️ Nedostaju polja", err_city:"⚠️ Unesite grad", err_nosel:"⚠️ Nije odabrano", sel:"Odabrano:", login_title:"Admin pristup", login_email:"Email", login_pass:"Lozinka", login_btn:"PRIJAVA", login_err:"Pogrešan email ili lozinka.", logout:"Odjava", confirm_cancel:"Potvrđujete otkazivanje ove dostave? Klijent će biti obaviješten." },
+  it: { flag:"🇮🇹", code:"IT", h1a:"Segui il tuo", h1b:"veicolo", h1c:"in tempo reale", h1sub:"Inserisci il numero di tracciamento per controllare lo stato", btn_track:"TRACCIA →", hint:"Numero ricevuto via email", not_found:"❌ Numero non trovato.", loading:"Caricamento…", back:"Nuova ricerca", prog:"Avanzamento", itin:"Itinerario", tl:"Cronologia", info:"Informazioni", eta_pre:"⏱ Arrivo:", lbl_dep:"Partenza", lbl_step:"Tappa", lbl_pos:"Posizione", lbl_dest:"Destinazione", lbl_mt:"Trasporto", lbl_carr:"Vettore", lbl_dd:"Partenza", lbl_eta:"Arrivo", lbl_vin:"VIN", lbl_pl:"Targa", st0:"Attesa", st1:"Caricato", st2:"In transito", st3:"Dogana", st4:"Consegna", st5:"Consegnato", st0f:"In attesa di carico", st1f:"Veicolo caricato", st2f:"In transito", st3f:"Sdoganamento", st4f:"Consegna in corso", st5f:"Consegnato ✓", st6:"In ritardo", st7:"Annullato", st6f:"Consegna in ritardo", st7f:"Consegna annullata", adm_title:"Crea tracciamento", adm_sub:"Compila le informazioni", s_cli:"Cliente", s_veh:"Veicolo", s_rou:"Itinerario", l_name:"Nome completo", l_email:"Email", l_phone:"Telefono", l_co:"Azienda", l_veh:"Marca e Modello", l_col:"Colore", l_vin:"VIN", l_plate:"Targa", l_from:"Indirizzo di partenza", l_to:"Indirizzo di consegna", l_dep:"Data partenza", l_arr:"Arrivo stimato", l_mode:"Modalità", l_carrier:"Vettore", m1:"Camion", m2:"Marittimo (RoRo)", m3:"Aereo cargo", m4:"Combinato", btn_gen:"🚗 GENERA NUMERO", gen_ok:"✅ Numero generato", btn_copy:"Copia", lbl_link:"🔗 Link cliente:", link_note:"Il cliente vede solo le sue informazioni.", upd_h:"📍 Aggiorna posizione", u_city:"Città", u_date:"Data", u_time:"Ora", u_status:"Stato", u_note:"Nota", btn_upd:"📡 INVIA", hist_h:"📦 Spedizioni attive", th1:"N°", th2:"Cliente", th3:"Veicolo", th4:"Percorso", th5:"Stato", th6:"Azienda", ft_tag:"Importazione Auto · Consegna Globale · La Tua Fiducia", ft_r:"Tutti i diritti riservati.", toast_gen:"✅ Creato:", toast_cop:"📋 Copiato!", toast_upd:"📡 Aggiornato!", err_fill:"⚠️ Campi mancanti", err_city:"⚠️ Inserisci città", err_nosel:"⚠️ Nessun tracciamento", sel:"Selezionato:", login_title:"Accesso Admin", login_email:"Email", login_pass:"Password", login_btn:"ACCEDI", login_err:"Email o password errati.", logout:"Esci", confirm_cancel:"Confermi l'annullamento di questa consegna? Il cliente sarà informato." },
+  bg: { flag:"🇧🇬", code:"BG", h1a:"Проследете вашето", h1b:"превозно средство", h1c:"в реално време", h1sub:"Въведете номера за проследяване", btn_track:"СЛЕДИ →", hint:"Номерът е изпратен по имейл", not_found:"❌ Номерът не е намерен.", loading:"Зареждане…", back:"Ново търсене", prog:"Напредък", itin:"Маршрут", tl:"История", info:"Информация", eta_pre:"⏱ Пристигане:", lbl_dep:"Заминаване", lbl_step:"Спирка", lbl_pos:"Позиция", lbl_dest:"Дестинация", lbl_mt:"Транспорт", lbl_carr:"Превозвач", lbl_dd:"Заминаване", lbl_eta:"Пристигане", lbl_vin:"VIN", lbl_pl:"Регистрация", st0:"Изчаква", st1:"Натоварено", st2:"В транзит", st3:"Митница", st4:"Доставка", st5:"Доставено", st0f:"Изчаква товарене", st1f:"Натоварено", st2f:"В транзит", st3f:"Митническо оформление", st4f:"Доставката е в ход", st5f:"Доставено ✓", st6:"Забавено", st7:"Отказано", st6f:"Доставката е забавена", st7f:"Доставката е отказана", adm_title:"Създаване на проследяване", adm_sub:"Попълнете информацията", s_cli:"Клиент", s_veh:"Превозно средство", s_rou:"Маршрут", l_name:"Пълно име", l_email:"Имейл", l_phone:"Телефон", l_co:"Компания", l_veh:"Марка и модел", l_col:"Цвят", l_vin:"VIN", l_plate:"Регистрация", l_from:"Адрес за товарене", l_to:"Адрес за доставка", l_dep:"Дата", l_arr:"Пристигане", l_mode:"Транспорт", l_carrier:"Превозвач", m1:"Камион", m2:"Морски (RoRo)", m3:"Въздушен", m4:"Комбиниран", btn_gen:"🚗 ГЕНЕРИРАЙ", gen_ok:"✅ Номерът е създаден", btn_copy:"Копиране", lbl_link:"🔗 Линк за клиента:", link_note:"Клиентът вижда само своите данни.", upd_h:"📍 Актуализиране", u_city:"Град", u_date:"Дата", u_time:"Час", u_status:"Статус", u_note:"Бележка", btn_upd:"📡 ИЗПРАТИ", hist_h:"📦 Активни пратки", th1:"№", th2:"Клиент", th3:"Превозно средство", th4:"Маршрут", th5:"Статус", th6:"Компания", ft_tag:"Внос на автомобили · Глобална доставка · Вашето доверие", ft_r:"Всички права запазени.", toast_gen:"✅ Създадено:", toast_cop:"📋 Копирано!", toast_upd:"📡 Актуализирано!", err_fill:"⚠️ Попълнете полетата", err_city:"⚠️ Въведете град", err_nosel:"⚠️ Не е избрано", sel:"Избрано:", login_title:"Администраторски достъп", login_email:"Имейл", login_pass:"Парола", login_btn:"ВЛЕЗ", login_err:"Грешен имейл или парола.", logout:"Изход", confirm_cancel:"Потвърждавате анулирането на тази доставка? Клиентът ще бъде уведомен." },
+  ro: { flag:"🇷🇴", code:"RO", h1a:"Urmăriți-vă", h1b:"vehiculul", h1c:"în timp real", h1sub:"Introduceți numărul de urmărire", btn_track:"URMĂRIRE →", hint:"Numărul a fost trimis prin email", not_found:"❌ Numărul nu a fost găsit.", loading:"Se încarcă…", back:"Căutare nouă", prog:"Progresul", itin:"Itinerar", tl:"Istoricul", info:"Informații", eta_pre:"⏱ Sosire:", lbl_dep:"Plecare", lbl_step:"Oprire", lbl_pos:"Poziție", lbl_dest:"Destinație", lbl_mt:"Transport", lbl_carr:"Transportator", lbl_dd:"Plecare", lbl_eta:"Sosire", lbl_vin:"VIN", lbl_pl:"Înmatriculare", st0:"Așteptare", st1:"Încărcat", st2:"În tranzit", st3:"Vamă", st4:"Livrare", st5:"Livrat", st0f:"În așteptare încărcare", st1f:"Vehicul încărcat", st2f:"În tranzit", st3f:"Vămuire", st4f:"Livrare în curs", st5f:"Livrat ✓", st6:"Întârziat", st7:"Anulat", st6f:"Livrare întârziată", st7f:"Livrare anulată", adm_title:"Creare urmărire", adm_sub:"Completați informațiile", s_cli:"Client", s_veh:"Vehicul", s_rou:"Itinerar", l_name:"Nume complet", l_email:"Email", l_phone:"Telefon", l_co:"Companie", l_veh:"Marcă și Model", l_col:"Culoare", l_vin:"VIN", l_plate:"Înmatriculare", l_from:"Adresă plecare", l_to:"Adresă livrare", l_dep:"Data plecare", l_arr:"Sosire estimată", l_mode:"Transport", l_carrier:"Transportator", m1:"Camion", m2:"Maritim (RoRo)", m3:"Aerian cargo", m4:"Combinat", btn_gen:"🚗 GENEREAZĂ NUMĂRUL", gen_ok:"✅ Numărul a fost creat", btn_copy:"Copiați", lbl_link:"🔗 Link client:", link_note:"Clientul vede doar informațiile sale.", upd_h:"📍 Actualizați poziția", u_city:"Orașul", u_date:"Data", u_time:"Ora", u_status:"Status", u_note:"Notă", btn_upd:"📡 TRIMITE", hist_h:"📦 Expedieri active", th1:"Nr.", th2:"Client", th3:"Vehicul", th4:"Traseu", th5:"Status", th6:"Companie", ft_tag:"Import Auto · Livrare globală · Încrederea dvs.", ft_r:"Toate drepturile rezervate.", toast_gen:"✅ Creat:", toast_cop:"📋 Copiat!", toast_upd:"📡 Actualizat!", err_fill:"⚠️ Câmpuri lipsesc", err_city:"⚠️ Introduceți orașul", err_nosel:"⚠️ Nicio urmărire", sel:"Selectat:", login_title:"Acces Administrator", login_email:"Email", login_pass:"Parolă", login_btn:"CONECTARE", login_err:"Email sau parolă incorectă.", logout:"Deconectare", confirm_cancel:"Confirmați anularea acestei livrări? Clientul va fi notificat." }
 };
 
 /* ══════════════════════════════════════════════
@@ -36,53 +50,32 @@ const T: Record<string, Record<string, string>> = {
 const css = `
   @import url('https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;600;700&family=Exo+2:wght@300;400;500;600;700&display=swap');
   *{margin:0;padding:0;box-sizing:border-box;}
-  :root{--blue:#2278e8;--orange:#f06120;--green:#5db832;--red:#e02020;--gold:#f5a623;--bg:#060a14;--card:rgba(255,255,255,0.04);--border:rgba(255,255,255,0.09);--text:#eaecf4;--muted:#7a8499;}
-  .light-mode{--bg:#f0f4ff;--card:rgba(255,255,255,0.9);--border:rgba(34,120,232,0.15);--text:#1a2040;--muted:#6b7280;}
-  .light-mode body{background:var(--bg);}
-  .light-mode .hdr{background:rgba(240,244,255,.97);border-bottom-color:var(--border);}
-  .light-mode .bg-grid{background:linear-gradient(rgba(34,120,232,.04) 1px,transparent 1px),linear-gradient(90deg,rgba(34,120,232,.04) 1px,transparent 1px);background-size:40px 40px;}
-  .light-mode .bg-glow{background:radial-gradient(ellipse 80% 50% at 50% -10%,rgba(34,120,232,.08),transparent);}
-  .light-mode .hdr-title{color:#1a2040;}
-  .light-mode .nav-btn{background:rgba(34,120,232,.06);border-color:rgba(34,120,232,.15);color:#4b5563;}
-  .light-mode .s-in{background:rgba(255,255,255,.9);color:#1a2040;border-color:rgba(34,120,232,.2);}
-  .light-mode .search-box{background:rgba(255,255,255,.9);border-color:rgba(34,120,232,.2);}
-  .light-mode .top-card{background:linear-gradient(135deg,rgba(34,120,232,.08),rgba(255,255,255,.95));border-color:rgba(34,120,232,.2);}
-  .light-mode .prog-card,.light-mode .card{background:rgba(255,255,255,.9);border-color:rgba(34,120,232,.12);}
-  .light-mode .fi,.light-mode .fs{background:rgba(255,255,255,.9);color:#1a2040;border-color:rgba(34,120,232,.2);}
-  .light-mode .htable td,.light-mode .htable th{color:#1a2040;}
-  .light-mode .loader-ov{background:rgba(240,244,255,.97);}
-  .light-mode .login-box,.light-mode .reg-box,.light-mode .pay-box,.light-mode .confirm-box{background:rgba(255,255,255,.98);}
-  .light-mode footer{background:rgba(240,244,255,.97);border-top-color:var(--border);}
-  .light-mode .gen-card{background:rgba(34,120,232,.06);}
-  .light-mode .pbar{background:rgba(34,120,232,.1);}
-  .light-mode .ii{background:rgba(34,120,232,.04);}
-  .theme-btn{background:none;border:1px solid var(--border);border-radius:8px;padding:7px 10px;cursor:pointer;font-size:16px;transition:all .2s;color:var(--text);}
-  .theme-btn:hover{border-color:var(--blue);background:rgba(34,120,232,.1);}
-  .pdf-btn{display:flex;align-items:center;gap:7px;font-family:'Rajdhani',sans-serif;font-size:13px;font-weight:700;letter-spacing:.08em;padding:9px 16px;border-radius:10px;border:1px solid rgba(34,120,232,.3);background:rgba(34,120,232,.08);color:var(--blue);cursor:pointer;transition:all .2s;}
-  .pdf-btn:hover{background:rgba(34,120,232,.15);border-color:var(--blue);}
-  .notif-btn{display:flex;align-items:center;gap:7px;font-family:'Rajdhani',sans-serif;font-size:13px;font-weight:700;letter-spacing:.08em;padding:9px 16px;border-radius:10px;border:1px solid rgba(93,184,50,.3);background:rgba(93,184,50,.08);color:var(--green);cursor:pointer;transition:all .2s;}
-  .notif-btn:hover{background:rgba(93,184,50,.15);border-color:var(--green);}
-  .notif-btn.active{background:rgba(93,184,50,.15);border-color:var(--green);}
+  :root{--blue:#1a6fd4;--orange:#e85d04;--green:#5a9e2f;--red:#d43d3d;--bg:#080c18;--card:rgba(255,255,255,0.035);--border:rgba(255,255,255,0.08);--text:#e8eaf0;--muted:#7a8499;}
   body{font-family:'Exo 2',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;}
   .at-root{position:relative;min-height:100vh;display:flex;flex-direction:column;}
-  .bg-grid{position:fixed;inset:0;background:linear-gradient(rgba(34,120,232,.03) 1px,transparent 1px),linear-gradient(90deg,rgba(34,120,232,.03) 1px,transparent 1px);background-size:40px 40px;pointer-events:none;z-index:0;}
-  .bg-glow{position:fixed;inset:0;background:radial-gradient(ellipse 80% 50% at 50% -10%,rgba(34,120,232,.14),transparent);pointer-events:none;z-index:0;}
+  .bg-grid{position:fixed;inset:0;background:linear-gradient(rgba(26,111,212,.03) 1px,transparent 1px),linear-gradient(90deg,rgba(26,111,212,.03) 1px,transparent 1px);background-size:40px 40px;pointer-events:none;z-index:0;}
+  .bg-glow{position:fixed;inset:0;background:radial-gradient(ellipse 80% 50% at 50% -10%,rgba(26,111,212,.14),transparent);pointer-events:none;z-index:0;}
   .z1{position:relative;z-index:1;}
-  .hdr{position:sticky;top:0;z-index:50;padding:0 24px;height:64px;display:flex;align-items:center;justify-content:space-between;background:rgba(6,10,20,.97);border-bottom:1px solid var(--border);backdrop-filter:blur(20px);gap:12px;}
+  .hdr{position:sticky;top:0;z-index:50;padding:0 24px;height:64px;display:flex;align-items:center;justify-content:space-between;background:rgba(8,12,24,.97);border-bottom:1px solid var(--border);backdrop-filter:blur(20px);gap:12px;}
+  .hdr-badges{display:flex;align-items:center;gap:8px;}
+  .bdg{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:11px;letter-spacing:.07em;padding:3px 9px;border-radius:4px;border:1px solid;}
+  .bdg-ar{color:var(--orange);border-color:var(--orange);background:rgba(232,93,4,.08);}
+  .bdg-ad{color:var(--blue);border-color:var(--blue);background:rgba(26,111,212,.08);}
   .hdr-brand{text-align:center;flex:1;}
-  .hdr-title{font-family:'Rajdhani',sans-serif;font-weight:900;font-size:22px;letter-spacing:.15em;color:#fff;text-transform:uppercase;}
+  .hdr-title{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:20px;letter-spacing:.22em;color:#fff;}
   .hdr-title span{color:var(--blue);}
-  .hdr-right{display:flex;align-items:center;gap:6px;flex-wrap:wrap;}
+  .hdr-sub{font-size:9px;letter-spacing:.12em;color:var(--muted);text-transform:uppercase;}
+  .hdr-right{display:flex;align-items:center;gap:6px;}
   .lang-wrap{position:relative;}
-  .lang-btn{font-size:12px;font-weight:600;padding:6px 10px;border-radius:6px;border:1px solid var(--border);background:var(--card);color:var(--text);cursor:pointer;display:flex;align-items:center;gap:4px;}
+  .lang-btn{font-size:12px;font-weight:600;padding:6px 10px;border-radius:6px;border:1px solid var(--border);background:var(--card);color:var(--text);cursor:pointer;display:flex;align-items:center;gap:4px;font-family:'Exo 2',sans-serif;}
   .lang-btn:hover{border-color:var(--blue);}
   .lang-drop{position:absolute;top:calc(100% + 6px);right:0;background:rgba(10,14,26,.98);border:1px solid var(--border);border-radius:10px;overflow:hidden;z-index:200;min-width:145px;box-shadow:0 12px 40px rgba(0,0,0,.6);}
   .lang-opt{padding:9px 13px;font-size:13px;cursor:pointer;color:var(--text);}
-  .lang-opt:hover{background:rgba(34,120,232,.13);}
+  .lang-opt:hover{background:rgba(26,111,212,.13);}
   .lang-opt.active{color:var(--blue);}
   .nav-btn{font-family:'Exo 2',sans-serif;font-size:12px;font-weight:600;padding:7px 13px;border-radius:6px;border:1px solid var(--border);background:var(--card);color:var(--muted);cursor:pointer;white-space:nowrap;transition:all .2s;}
-  .nav-btn:hover,.nav-btn.active{border-color:var(--blue);color:var(--blue);background:rgba(34,120,232,.1);}
-  .op-chip{display:inline-flex;align-items:center;gap:5px;background:rgba(240,97,32,.1);border:1px solid rgba(240,97,32,.3);color:var(--orange);font-size:11px;font-weight:700;letter-spacing:.09em;padding:5px 11px;border-radius:30px;white-space:nowrap;}
+  .nav-btn:hover,.nav-btn.active{border-color:var(--blue);color:var(--blue);background:rgba(26,111,212,.1);}
+  .op-chip{display:inline-flex;align-items:center;gap:5px;background:rgba(232,93,4,.1);border:1px solid rgba(232,93,4,.3);color:var(--orange);font-size:11px;font-weight:700;letter-spacing:.09em;padding:5px 11px;border-radius:30px;white-space:nowrap;}
   .hero{text-align:center;padding:72px 20px 52px;}
   .hero h1{font-family:'Rajdhani',sans-serif;font-size:clamp(26px,5vw,52px);font-weight:700;letter-spacing:.05em;line-height:1.1;margin-bottom:10px;}
   .hero h1 .ac{color:var(--blue);}
@@ -93,101 +86,79 @@ const css = `
   .s-in:focus{border-color:var(--blue);}
   .s-in::placeholder{color:var(--muted);text-transform:none;letter-spacing:0;}
   .btn-blue{font-family:'Rajdhani',sans-serif;font-size:15px;font-weight:700;letter-spacing:.1em;padding:13px 20px;border-radius:10px;border:none;background:linear-gradient(135deg,var(--blue),#0d4fa0);color:#fff;cursor:pointer;transition:all .2s;white-space:nowrap;}
-  .btn-blue:hover{transform:translateY(-1px);box-shadow:0 8px 24px rgba(34,120,232,.4);}
+  .btn-blue:hover{transform:translateY(-1px);box-shadow:0 8px 24px rgba(26,111,212,.4);}
   .btn-blue:disabled{opacity:.5;cursor:not-allowed;transform:none;}
   .s-hint{font-size:11px;color:var(--muted);margin-top:10px;text-align:center;}
-  .err-msg{margin-top:13px;background:rgba(240,97,32,.1);border:1px solid rgba(240,97,32,.3);border-radius:8px;padding:10px 14px;font-size:13px;color:var(--orange);text-align:center;}
-  /* ── CLIENT RESULT — DHL STYLE ── */
-  .res-wrap{max-width:680px;margin:0 auto;padding:16px 16px 60px;}
-  .back-btn{display:inline-flex;align-items:center;gap:6px;font-size:12px;color:var(--muted);cursor:pointer;padding:6px 0;margin-bottom:14px;transition:color .2s;background:none;border:none;}
-  .back-btn:hover{color:var(--blue);}
-  /* TOP CARD */
-  .top-card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:20px;margin-bottom:10px;}
-  .res-id{font-family:'Rajdhani',sans-serif;font-size:11px;font-weight:700;letter-spacing:.18em;color:var(--muted);margin-bottom:12px;text-transform:uppercase;}
-  .res-client-row{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:14px;gap:10px;}
-  .res-name{font-size:18px;font-weight:700;color:var(--text);margin-bottom:3px;}
+  .err-msg{margin-top:13px;background:rgba(232,93,4,.1);border:1px solid rgba(232,93,4,.3);border-radius:8px;padding:10px 14px;font-size:13px;color:var(--orange);text-align:center;}
+  .res-wrap{max-width:880px;margin:0 auto;padding:32px 20px 60px;}
+  .back-btn{display:inline-flex;align-items:center;gap:7px;font-size:13px;color:var(--muted);cursor:pointer;border:1px solid var(--border);padding:7px 13px;border-radius:8px;background:var(--card);margin-bottom:18px;transition:all .2s;}
+  .back-btn:hover{color:var(--text);border-color:var(--blue);}
+  .top-card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:22px 26px;margin-bottom:14px;display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:14px;}
+  .res-id{font-family:'Rajdhani',sans-serif;font-size:23px;font-weight:700;letter-spacing:.15em;color:var(--blue);margin-bottom:4px;}
+  .res-route{font-size:13px;color:var(--muted);margin-bottom:9px;}
+  .res-route b{color:var(--text);}
+  .sbadge{display:inline-flex;align-items:center;gap:7px;padding:7px 15px;border-radius:30px;font-family:'Rajdhani',sans-serif;font-size:13px;font-weight:700;letter-spacing:.08em;}
+  .s-wait{background:rgba(122,132,153,.12);border:1px solid rgba(122,132,153,.3);color:var(--muted);}
+  .s-transit{background:rgba(26,111,212,.15);border:1px solid rgba(26,111,212,.4);color:var(--blue);}
+  .s-customs{background:rgba(232,93,4,.15);border:1px solid rgba(232,93,4,.4);color:var(--orange);}
+  .s-done{background:rgba(90,158,47,.15);border:1px solid rgba(90,158,47,.4);color:var(--green);}
+  .s-delayed{background:rgba(232,93,4,.15);border:1px solid rgba(232,93,4,.4);color:var(--orange);}
+  .s-cancelled{background:rgba(212,61,61,.15);border:1px solid rgba(212,61,61,.4);color:var(--red);}
+  .sdot{width:7px;height:7px;border-radius:50%;background:currentColor;animation:pulse 1.5s infinite;}
+  @keyframes pulse{0%,100%{opacity:1;transform:scale(1);}50%{opacity:.5;transform:scale(1.3);}}
+  .res-right{text-align:right;}
+  .res-name{font-size:16px;font-weight:700;margin-bottom:3px;}
   .res-veh{font-size:13px;color:var(--muted);}
-  .res-co{font-size:11px;color:var(--muted);margin-top:2px;}
-  .res-eta-box{text-align:right;flex-shrink:0;}
-  .res-eta-lbl{font-size:10px;color:var(--muted);margin-bottom:3px;}
-  .res-eta{font-size:15px;color:var(--text);font-weight:700;}
-  /* ROUTE BAR */
-  .res-route-row{display:flex;align-items:center;gap:0;background:rgba(255,255,255,.03);border-radius:8px;padding:12px 14px;margin-bottom:12px;}
-  .res-route-from{font-size:13px;font-weight:700;color:var(--text);}
-  .res-route-arrow{flex:1;display:flex;align-items:center;margin:0 10px;gap:2px;}
-  .res-route-arrow::before{content:'';flex:1;height:1px;background:var(--border);}
-  .res-route-arrow::after{content:'›';color:var(--border);font-size:16px;line-height:1;}
-  .res-route-to{font-size:13px;font-weight:700;color:var(--text);}
-  /* STATUS BADGE */
-  .sbadge{display:inline-flex;align-items:center;gap:6px;padding:5px 12px;border-radius:4px;font-size:12px;font-weight:700;letter-spacing:.04em;}
-  .s-wait{background:rgba(122,132,153,.1);color:var(--muted);}
-  .s-transit{background:rgba(34,120,232,.1);color:var(--blue);}
-  .s-customs{background:rgba(240,97,32,.1);color:var(--orange);}
-  .s-done{background:rgba(93,184,50,.1);color:var(--green);}
-  .s-susp{background:rgba(224,32,32,.1);color:var(--red);}
-  .sdot{width:6px;height:6px;border-radius:50%;background:currentColor;}
-  /* SUSPENSION */
-  .susp-banner{background:rgba(224,32,32,.06);border-left:3px solid var(--red);border-radius:0 8px 8px 0;padding:14px 18px;margin-bottom:10px;}
-  .susp-banner p{font-size:13px;color:#ff6b6b;line-height:1.6;margin-bottom:10px;}
-  .susp-contact-btn{display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:700;padding:8px 16px;border-radius:6px;border:1px solid rgba(224,32,32,.3);background:transparent;color:#ff6b6b;cursor:pointer;transition:all .2s;}
-  /* STEPS — DHL STYLE */
-  .prog-card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:18px 20px;margin-bottom:10px;}
-  .ctitle{font-size:10px;font-weight:700;letter-spacing:.14em;color:var(--muted);text-transform:uppercase;margin-bottom:16px;}
-  .pbar{background:rgba(255,255,255,.06);border-radius:2px;height:4px;margin-bottom:20px;}
-  .pfill{height:100%;border-radius:2px;background:var(--blue);transition:width 1s ease;}
-  .plabels{display:flex;justify-content:space-between;font-size:11px;margin-top:-16px;margin-bottom:20px;}
-  .plbl-city{color:var(--muted);}
-  .ppct{color:var(--blue);font-weight:700;font-family:'Rajdhani',sans-serif;}
-  /* STEPS ROW */
-  .steps-row{display:flex;align-items:flex-start;justify-content:space-between;position:relative;overflow:hidden;}
-  .steps-row::before{content:'';position:absolute;top:11px;left:10%;right:10%;height:2px;background:var(--border);z-index:0;}
-  .step-item{display:flex;flex-direction:column;align-items:center;gap:5px;flex:1;position:relative;z-index:1;min-width:0;}
-  .step-dot{width:22px;height:22px;border-radius:50%;border:2px solid var(--border);background:var(--bg);flex-shrink:0;display:flex;align-items:center;justify-content:center;font-family:'Rajdhani',sans-serif;font-size:10px;font-weight:700;}
-  .sd-done{border-color:var(--blue);background:var(--blue);color:#fff;}
-  .sd-active{border-color:var(--blue);background:var(--bg);color:var(--blue);box-shadow:0 0 0 3px rgba(34,120,232,.15);}
+  .res-eta{font-size:13px;color:var(--green);margin-top:5px;font-weight:600;}
+  .res-co{font-size:11px;color:var(--muted);margin-top:3px;}
+  .prog-card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:18px 22px;margin-bottom:14px;}
+  .ctitle{font-family:'Rajdhani',sans-serif;font-size:11px;font-weight:700;letter-spacing:.14em;color:var(--muted);text-transform:uppercase;margin-bottom:12px;display:flex;align-items:center;gap:8px;}
+  .ctitle::after{content:'';flex:1;height:1px;background:var(--border);}
+  .pbar{background:rgba(255,255,255,.06);border-radius:6px;height:7px;overflow:hidden;}
+  .pfill{height:100%;border-radius:6px;background:linear-gradient(90deg,var(--green),var(--blue),var(--orange));transition:width .8s ease;}
+  .plabels{display:flex;justify-content:space-between;margin-top:7px;font-size:10px;color:var(--muted);}
+  .ppct{color:var(--blue);font-weight:700;}
+  .steps-row{display:flex;align-items:flex-start;justify-content:space-between;margin-top:16px;position:relative;}
+  .steps-row::before{content:'';position:absolute;top:14px;left:8%;right:8%;height:2px;background:var(--border);z-index:0;}
+  .step-item{display:flex;flex-direction:column;align-items:center;gap:6px;flex:1;position:relative;z-index:1;}
+  .step-dot{width:28px;height:28px;border-radius:50%;border:2px solid;background:var(--bg);display:flex;align-items:center;justify-content:center;font-size:11px;}
+  .sd-done{border-color:var(--green);background:rgba(90,158,47,.15);color:var(--green);}
+  .sd-active{border-color:var(--orange);background:rgba(232,93,4,.15);color:var(--orange);animation:gpulse 2s infinite;}
+  @keyframes gpulse{0%,100%{box-shadow:0 0 12px rgba(232,93,4,.4);}50%{box-shadow:0 0 24px rgba(232,93,4,.7);}}
   .sd-pend{border-color:var(--border);color:var(--muted);}
-  .step-lbl{font-size:8px;font-weight:600;text-align:center;color:var(--muted);width:100%;line-height:1.3;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;padding:0 2px;}
-  .sl-active{color:var(--blue);font-weight:700;}
-  .sl-done{color:var(--blue);}
-  /* CARDS */
-  .g2{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px;}
-  .card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:16px;}
-  /* ROUTE */
-  .rp{display:flex;gap:12px;padding-bottom:14px;position:relative;}
+  .step-lbl{font-size:9px;font-weight:600;text-align:center;color:var(--muted);max-width:65px;line-height:1.3;}
+  .sl-active{color:var(--orange);}
+  .sl-done{color:var(--green);}
+  .g2{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px;}
+  .card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:18px;}
+  .rp{display:flex;gap:12px;padding-bottom:18px;position:relative;}
   .rp:last-child{padding-bottom:0;}
-  .rp::before{content:'';position:absolute;left:9px;top:22px;bottom:0;width:1px;background:var(--border);}
+  .rp::before{content:'';position:absolute;left:11px;top:26px;bottom:0;width:2px;background:linear-gradient(to bottom,var(--blue),rgba(26,111,212,.04));}
   .rp:last-child::before{display:none;}
-  .pi{width:18px;height:18px;border-radius:50%;flex-shrink:0;z-index:1;position:relative;border:2px solid;}
-  .pi-o{background:var(--green);border-color:var(--green);}
-  .pi-s{background:transparent;border-color:var(--blue);}
-  .pi-c{background:var(--blue);border-color:var(--blue);}
-  .pi-d{background:transparent;border-color:var(--border);}
-  .plabel{font-size:9px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-bottom:2px;}
-  .pcity{font-size:13px;font-weight:700;color:var(--text);}
-  .ptime{font-size:11px;color:var(--muted);margin-top:1px;}
-  .pnote{font-size:11px;color:var(--orange);margin-top:2px;font-weight:600;}
-  /* TIMELINE */
-  .tli{display:flex;gap:12px;padding-bottom:14px;position:relative;}
+  .pi{width:24px;height:24px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;flex-shrink:0;z-index:1;position:relative;border:2px solid;}
+  .pi-o{background:rgba(90,158,47,.2);border-color:var(--green);}
+  .pi-s{background:rgba(26,111,212,.18);border-color:var(--blue);}
+  .pi-c{background:rgba(232,93,4,.2);border-color:var(--orange);animation:gpulse 2s infinite;}
+  .pi-d{background:rgba(26,111,212,.06);border-color:rgba(26,111,212,.2);}
+  .plabel{font-size:9px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-bottom:1px;}
+  .pcity{font-size:13px;font-weight:600;color:#fff;}
+  .ptime{font-size:10px;color:var(--muted);margin-top:1px;}
+  .pnote{font-size:10px;color:var(--orange);margin-top:2px;}
+  .tli{display:flex;gap:11px;padding-bottom:14px;position:relative;}
   .tli:last-child{padding-bottom:0;}
-  .tli::before{content:'';position:absolute;left:7px;top:18px;bottom:0;width:1px;background:var(--border);}
+  .tli::before{content:'';position:absolute;left:11px;top:24px;bottom:0;width:1px;background:var(--border);}
   .tli:last-child::before{display:none;}
-  .tld{width:14px;height:14px;border-radius:50%;border:2px solid;background:var(--bg);flex-shrink:0;margin-top:3px;z-index:1;position:relative;}
-  .td{border-color:var(--blue);background:var(--blue);}
-  .ta{border-color:var(--blue);background:transparent;}
-  .tp{border-color:var(--border);background:transparent;}
-  .tlc{flex:1;}
-  .tlt{font-size:13px;font-weight:600;margin-bottom:2px;color:var(--text);}
-  .tltime{font-size:11px;color:var(--muted);}
-  /* INFO GRID */
-  .ig{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;}
-  .ii{background:transparent;border:1px solid var(--border);border-radius:8px;padding:12px;}
-  .il{font-size:9px;color:var(--muted);letter-spacing:.1em;text-transform:uppercase;margin-bottom:4px;}
-  .iv{font-size:13px;font-weight:700;color:var(--text);}
-  /* ACTION BUTTONS */
-  .pdf-btn{display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:600;padding:7px 14px;border-radius:6px;border:1px solid var(--border);background:transparent;color:var(--muted);cursor:pointer;transition:all .2s;}
-  .pdf-btn:hover{border-color:var(--blue);color:var(--blue);}
-  .notif-btn{display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:600;padding:7px 14px;border-radius:6px;border:1px solid var(--border);background:transparent;color:var(--muted);cursor:pointer;transition:all .2s;}
-  .notif-btn:hover,.notif-btn.active{border-color:var(--green);color:var(--green);}
+  .tld{width:23px;height:23px;border-radius:50%;border:2px solid;background:var(--bg);display:flex;align-items:center;justify-content:center;font-size:9px;flex-shrink:0;z-index:1;position:relative;}
+  .td{border-color:var(--green);color:var(--green);}
+  .ta{border-color:var(--orange);color:var(--orange);}
+  .tp{border-color:var(--border);color:var(--muted);}
+  .tlc{flex:1;padding-top:2px;}
+  .tlt{font-size:12px;font-weight:600;margin-bottom:1px;}
+  .tltime{font-size:10px;color:var(--muted);}
+  .ig{display:grid;grid-template-columns:repeat(3,1fr);gap:9px;}
+  .ii{background:rgba(255,255,255,.02);border-radius:8px;padding:11px;}
+  .il{font-size:9px;color:var(--muted);letter-spacing:.1em;text-transform:uppercase;margin-bottom:3px;}
+  .iv{font-size:13px;font-weight:600;}
   .adm-wrap{max-width:960px;margin:0 auto;padding:44px 20px 80px;}
   .adm-hdr{text-align:center;margin-bottom:30px;}
   .adm-hdr h2{font-family:'Rajdhani',sans-serif;font-size:28px;font-weight:700;letter-spacing:.06em;margin-bottom:6px;}
@@ -197,45 +168,33 @@ const css = `
   .fgroup{display:flex;flex-direction:column;gap:5px;}
   .flabel{font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);}
   .fi,.fs{background:rgba(255,255,255,.04);border:1px solid var(--border);border-radius:9px;padding:10px 12px;color:#fff;font-family:'Exo 2',sans-serif;font-size:13px;outline:none;transition:border-color .2s;width:100%;}
-  .fi:focus,.fs:focus{border-color:var(--blue);background:rgba(34,120,232,.05);}
+  .fi:focus,.fs:focus{border-color:var(--blue);background:rgba(26,111,212,.05);}
   .fs option{background:#0a0e1a;}
   .sdivider{font-family:'Rajdhani',sans-serif;font-size:10px;font-weight:700;letter-spacing:.15em;color:var(--muted);text-transform:uppercase;display:flex;align-items:center;gap:10px;grid-column:1/-1;margin-top:6px;}
   .sdivider::before,.sdivider::after{content:'';flex:1;height:1px;background:var(--border);}
-  .btn-gen{grid-column:1/-1;font-family:'Rajdhani',sans-serif;font-size:15px;font-weight:700;letter-spacing:.12em;padding:14px;border-radius:11px;border:none;background:linear-gradient(135deg,var(--blue),#0d4fa0);color:#fff;cursor:pointer;transition:all .3s;display:flex;align-items:center;justify-content:center;gap:10px;}
-  .btn-gen:hover{transform:translateY(-2px);box-shadow:0 12px 36px rgba(34,120,232,.35);}
+  .btn-gen{grid-column:1/-1;font-family:'Rajdhani',sans-serif;font-size:15px;font-weight:700;letter-spacing:.12em;padding:14px;border-radius:11px;border:none;background:linear-gradient(135deg,var(--blue) 0%,#0d4fa0 50%,#1b2a4a 100%);color:#fff;cursor:pointer;transition:all .3s;display:flex;align-items:center;justify-content:center;gap:10px;}
+  .btn-gen:hover{transform:translateY(-2px);box-shadow:0 12px 36px rgba(26,111,212,.35);}
   .btn-gen:disabled{opacity:.5;cursor:not-allowed;transform:none;}
-  .gen-card{background:rgba(34,120,232,.06);border:1px solid rgba(34,120,232,.25);border-radius:16px;padding:24px;margin-top:20px;text-align:center;}
+  .gen-card{background:rgba(26,111,212,.06);border:1px solid rgba(26,111,212,.25);border-radius:16px;padding:24px;margin-top:20px;text-align:center;}
   .gen-lbl{font-size:10px;color:var(--muted);letter-spacing:.12em;text-transform:uppercase;margin-bottom:8px;}
   .gen-num{font-family:'Rajdhani',sans-serif;font-size:clamp(20px,4vw,38px);font-weight:700;letter-spacing:.2em;color:#fff;margin-bottom:9px;}
   .gen-num span{color:var(--blue);}
-  .copy-btn{display:inline-flex;align-items:center;gap:5px;font-size:12px;color:var(--blue);cursor:pointer;border:1px solid rgba(34,120,232,.3);padding:5px 13px;border-radius:20px;margin-bottom:12px;transition:all .2s;}
-  .copy-btn:hover{background:rgba(34,120,232,.1);}
+  .copy-btn{display:inline-flex;align-items:center;gap:5px;font-size:12px;color:var(--blue);cursor:pointer;border:1px solid rgba(26,111,212,.3);padding:5px 13px;border-radius:20px;margin-bottom:12px;transition:all .2s;}
+  .copy-btn:hover{background:rgba(26,111,212,.1);}
   .link-box{background:rgba(0,0,0,.35);border:1px solid var(--border);border-radius:8px;padding:11px 14px;font-size:12px;color:var(--muted);word-break:break-all;text-align:left;margin-bottom:5px;}
   .link-box a{color:var(--blue);font-weight:600;}
-  .link-note{font-size:11px;color:var(--muted);margin-bottom:14px;}
-  .qr-lbl{font-size:10px;color:var(--muted);letter-spacing:.1em;text-transform:uppercase;margin-bottom:6px;}
-  .qr-wrap{display:flex;justify-content:center;margin:10px 0;}
-  .qr-wrap img{border-radius:10px;border:3px solid rgba(34,120,232,.3);}
-  .qr-dl{display:inline-flex;align-items:center;gap:5px;font-size:11px;color:var(--muted);cursor:pointer;border:1px solid var(--border);padding:4px 10px;border-radius:16px;margin-top:6px;margin-bottom:14px;transition:all .2s;text-decoration:none;}
-  .qr-dl:hover{color:var(--blue);border-color:var(--blue);}
+  .link-note{font-size:11px;color:var(--muted);}
   .upd-section{margin-top:18px;padding-top:18px;border-top:1px solid var(--border);text-align:left;}
   .upd-h{font-family:'Rajdhani',sans-serif;font-size:12px;font-weight:700;letter-spacing:.1em;color:var(--orange);margin-bottom:13px;text-transform:uppercase;}
   .upd-g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:11px;margin-bottom:11px;}
   .upd-g2{display:grid;grid-template-columns:1fr 1fr;gap:11px;margin-bottom:13px;}
   .btn-upd{font-family:'Rajdhani',sans-serif;font-size:13px;font-weight:700;letter-spacing:.08em;padding:12px;border-radius:9px;border:none;background:linear-gradient(135deg,var(--orange),#c44d00);color:#fff;cursor:pointer;transition:all .2s;width:100%;display:flex;align-items:center;justify-content:center;gap:8px;}
-  .btn-upd:hover{transform:translateY(-1px);box-shadow:0 6px 20px rgba(240,97,32,.4);}
+  .btn-upd:hover{transform:translateY(-1px);box-shadow:0 6px 20px rgba(232,93,4,.4);}
   .btn-upd:disabled{opacity:.5;cursor:not-allowed;transform:none;}
   .hist{margin-top:32px;}
   .hist h3{font-family:'Rajdhani',sans-serif;font-size:17px;font-weight:700;letter-spacing:.08em;margin-bottom:11px;display:flex;align-items:center;gap:10px;}
-  .hist-toolbar{display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap;}
-  .search-in{flex:1;min-width:160px;background:rgba(255,255,255,.04);border:1px solid var(--border);border-radius:8px;padding:8px 12px;color:#fff;font-family:'Exo 2',sans-serif;font-size:13px;outline:none;}
-  .search-in:focus{border-color:var(--blue);}
-  .filter-sel{background:rgba(255,255,255,.04);border:1px solid var(--border);border-radius:8px;padding:8px 10px;color:#fff;font-family:'Exo 2',sans-serif;font-size:12px;outline:none;}
-  .filter-sel option{background:#0a0e1a;}
   .ref-btn{font-size:11px;color:var(--muted);cursor:pointer;border:1px solid var(--border);padding:4px 9px;border-radius:6px;background:var(--card);font-family:'Exo 2',sans-serif;}
   .ref-btn:hover{color:var(--blue);border-color:var(--blue);}
-  .del-btn{background:rgba(224,32,32,.1);border:1px solid rgba(224,32,32,.3);color:var(--red);border-radius:6px;padding:4px 9px;font-size:11px;cursor:pointer;}
-  .del-btn:hover{background:rgba(224,32,32,.25);}
   .htable{width:100%;border-collapse:collapse;}
   .htable th{text-align:left;font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);padding:8px 11px;border-bottom:1px solid var(--border);}
   .htable td{padding:11px 11px;font-size:13px;border-bottom:1px solid rgba(255,255,255,.04);}
@@ -244,143 +203,79 @@ const css = `
   .tid:hover{text-decoration:underline;}
   .dstatus{display:inline-flex;align-items:center;gap:5px;}
   .dot{width:6px;height:6px;border-radius:50%;}
-  .kpi-row{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:16px;}
-  .kpi{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:12px;text-align:center;}
-  .kpi-num{font-family:'Rajdhani',sans-serif;font-size:24px;font-weight:700;}
-  .kpi-lbl{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;}
-  .stats-page{max-width:960px;margin:0 auto;padding:44px 20px 80px;}
-  .charts-g2{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px;}
-  .chart-card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:20px;}
-  .chart-title{font-family:'Rajdhani',sans-serif;font-size:13px;font-weight:700;letter-spacing:.1em;color:var(--muted);text-transform:uppercase;margin-bottom:16px;display:flex;align-items:center;gap:8px;}
-  .chart-title::after{content:'';flex:1;height:1px;background:var(--border);}
-  .top-list{display:flex;flex-direction:column;gap:10px;}
-  .top-item{display:flex;align-items:center;gap:10px;}
-  .top-rank{font-family:'Rajdhani',sans-serif;font-size:14px;font-weight:700;color:var(--muted);width:20px;}
-  .top-bar-wrap{flex:1;background:rgba(255,255,255,.05);border-radius:4px;height:8px;overflow:hidden;}
-  .top-bar{height:100%;border-radius:4px;background:linear-gradient(90deg,var(--blue),var(--orange));}
-  .top-name{font-size:12px;min-width:80px;}
-  .top-count{font-size:11px;color:var(--muted);min-width:24px;text-align:right;}
-  /* SUPER ADMIN */
-  .sa-wrap{max-width:960px;margin:0 auto;padding:44px 20px 80px;}
-  .sa-table{width:100%;border-collapse:collapse;}
-  .sa-table th{text-align:left;font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);padding:8px 11px;border-bottom:1px solid var(--border);}
-  .sa-table td{padding:12px 11px;font-size:13px;border-bottom:1px solid rgba(255,255,255,.04);}
-  .btn-block{font-size:11px;padding:4px 10px;border-radius:6px;border:1px solid rgba(224,32,32,.3);background:rgba(224,32,32,.1);color:var(--red);cursor:pointer;}
-  .btn-unblock{font-size:11px;padding:4px 10px;border-radius:6px;border:1px solid rgba(93,184,50,.3);background:rgba(93,184,50,.1);color:var(--green);cursor:pointer;}
-  .btn-confirm-pay{font-size:11px;padding:4px 10px;border-radius:6px;border:1px solid rgba(245,166,35,.3);background:rgba(245,166,35,.1);color:var(--gold);cursor:pointer;}
-  .logs-card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:18px;margin-top:16px;}
-  .log-item{display:flex;gap:10px;padding:8px 0;border-bottom:1px solid rgba(255,255,255,.04);align-items:flex-start;}
-  .log-item:last-child{border-bottom:none;}
-  .log-ico{width:28px;height:28px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0;}
-  .log-ico-ok{background:rgba(93,184,50,.15);}
-  .log-ico-err{background:rgba(224,32,32,.15);}
-  .log-ico-info{background:rgba(34,120,232,.15);}
-  .log-ico-warn{background:rgba(245,166,35,.15);}
-  .log-text{flex:1;}
-  .log-msg{font-size:13px;font-weight:600;margin-bottom:2px;}
-  .log-time{font-size:10px;color:var(--muted);}
-  .log-email{font-size:11px;color:var(--blue);}
-  .pay-hist-card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:18px;margin-top:20px;}
-  .pay-hist-table{width:100%;border-collapse:collapse;}
-  .pay-hist-table th{text-align:left;font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);padding:8px 10px;border-bottom:1px solid var(--border);}
-  .pay-hist-table td{padding:10px 10px;font-size:13px;border-bottom:1px solid rgba(255,255,255,.04);}
-  .pay-badge-ok{display:inline-flex;align-items:center;gap:4px;padding:3px 8px;border-radius:12px;font-size:11px;font-weight:700;background:rgba(93,184,50,.15);border:1px solid rgba(93,184,50,.3);color:var(--green);}
-  .pay-badge-pending{display:inline-flex;align-items:center;gap:4px;padding:3px 8px;border-radius:12px;font-size:11px;font-weight:700;background:rgba(245,166,35,.15);border:1px solid rgba(245,166,35,.3);color:var(--gold);}
-  .inv-row{display:flex;gap:10px;align-items:center;margin-bottom:16px;flex-wrap:wrap;}
-  .inv-code{font-family:'Rajdhani',sans-serif;font-size:22px;font-weight:700;letter-spacing:.2em;color:var(--blue);background:rgba(34,120,232,.08);border:1px solid rgba(34,120,232,.2);border-radius:10px;padding:10px 18px;}
-  /* PAYMENT MODAL */
-  .pay-ov{position:fixed;inset:0;background:rgba(6,10,20,.95);z-index:400;display:flex;align-items:center;justify-content:center;padding:20px;}
-  .pay-box{background:rgba(15,20,35,.98);border:1px solid var(--border);border-radius:20px;padding:32px;max-width:440px;width:100%;text-align:center;}
-  .pay-box h3{font-family:'Rajdhani',sans-serif;font-size:22px;font-weight:700;margin-bottom:8px;color:var(--gold);}
-  .pay-box p{font-size:13px;color:var(--muted);margin-bottom:20px;line-height:1.6;}
-  .pay-amount{font-family:'Rajdhani',sans-serif;font-size:42px;font-weight:700;color:#fff;margin-bottom:6px;}
-  .pay-amount span{color:var(--gold);}
-  .pay-btns{display:flex;flex-direction:column;gap:10px;margin-top:16px;}
-  .btn-paypal{font-family:'Rajdhani',sans-serif;font-size:14px;font-weight:700;padding:13px;border-radius:10px;border:none;background:linear-gradient(135deg,#0070ba,#003087);color:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;}
-  .btn-paypal:hover{transform:translateY(-1px);box-shadow:0 6px 20px rgba(0,112,186,.4);}
-
-  .pay-cancel{font-size:12px;color:var(--muted);cursor:pointer;margin-top:14px;text-decoration:underline;}
-  /* REGISTER */
-  .reg-ov{position:fixed;inset:0;background:rgba(6,10,20,.97);z-index:300;display:flex;align-items:center;justify-content:center;padding:20px;}
-  .reg-box{background:rgba(255,255,255,.04);border:1px solid var(--border);border-radius:20px;padding:36px;width:100%;max-width:400px;text-align:center;}
-  .reg-box h2{font-family:'Rajdhani',sans-serif;font-size:22px;font-weight:700;letter-spacing:.1em;margin-bottom:6px;}
-  .reg-box p{font-size:12px;color:var(--muted);margin-bottom:22px;}
-  .reg-ok{background:rgba(93,184,50,.1);border:1px solid rgba(93,184,50,.3);border-radius:8px;padding:10px;font-size:13px;color:var(--green);margin-bottom:13px;}
-  /* LOGIN */
-  .login-ov{position:fixed;inset:0;background:rgba(6,10,20,.97);z-index:300;display:flex;align-items:center;justify-content:center;}
-  .login-box{background:rgba(255,255,255,.04);border:1px solid var(--border);border-radius:20px;padding:40px 36px;width:100%;max-width:380px;text-align:center;}
-  .login-box h2{font-family:'Rajdhani',sans-serif;font-size:22px;font-weight:700;letter-spacing:.1em;margin-bottom:6px;}
-  .login-box p{font-size:12px;color:var(--muted);margin-bottom:24px;}
-  .login-box .fgroup{text-align:left;margin-bottom:12px;}
-  .login-err{background:rgba(240,97,32,.1);border:1px solid rgba(240,97,32,.3);border-radius:8px;padding:9px 13px;font-size:12px;color:var(--orange);margin-bottom:13px;}
-  .twofa-ov{position:fixed;inset:0;background:rgba(6,10,20,.97);z-index:350;display:flex;align-items:center;justify-content:center;}
-  .twofa-box{background:rgba(255,255,255,.04);border:1px solid var(--border);border-radius:20px;padding:36px;width:100%;max-width:360px;text-align:center;}
-  .twofa-box h2{font-family:'Rajdhani',sans-serif;font-size:22px;font-weight:700;letter-spacing:.1em;margin-bottom:8px;}
-  .twofa-box p{font-size:13px;color:var(--muted);margin-bottom:22px;line-height:1.6;}
-  .code-input{font-family:'Rajdhani',sans-serif;font-size:28px;font-weight:700;letter-spacing:.4em;text-align:center;background:rgba(255,255,255,.06);border:2px solid rgba(34,120,232,.3);border-radius:12px;padding:14px;color:#fff;width:100%;outline:none;margin-bottom:16px;}
-  .code-input:focus{border-color:var(--blue);}
-  .confirm-ov{position:fixed;inset:0;background:rgba(6,10,20,.85);z-index:400;display:flex;align-items:center;justify-content:center;}
-  .confirm-box{background:rgba(15,20,35,.98);border:1px solid var(--border);border-radius:16px;padding:28px;max-width:340px;width:90%;text-align:center;}
-  .confirm-box h4{font-family:'Rajdhani',sans-serif;font-size:18px;font-weight:700;margin-bottom:8px;color:var(--orange);}
-  .confirm-box p{font-size:13px;color:var(--muted);margin-bottom:20px;}
-  .confirm-btns{display:flex;gap:10px;justify-content:center;}
-  .btn-cancel{font-family:'Exo 2',sans-serif;font-size:13px;padding:9px 18px;border-radius:8px;border:1px solid var(--border);background:var(--card);color:var(--muted);cursor:pointer;}
-  .btn-del-confirm{font-family:'Rajdhani',sans-serif;font-size:13px;font-weight:700;padding:9px 18px;border-radius:8px;border:none;background:linear-gradient(135deg,var(--red),#8b0000);color:#fff;cursor:pointer;}
-  .contact-ov{position:fixed;inset:0;background:rgba(6,10,20,.97);z-index:350;display:flex;align-items:center;justify-content:center;padding:20px;}
-  .contact-box{background:rgba(15,20,35,.98);border:1px solid var(--border);border-radius:20px;padding:36px;width:100%;max-width:440px;}
-  .contact-box h2{font-family:'Rajdhani',sans-serif;font-size:22px;font-weight:700;letter-spacing:.1em;margin-bottom:6px;}
-  .contact-box p{font-size:13px;color:var(--muted);margin-bottom:22px;line-height:1.6;}
-  .contact-ok{background:rgba(93,184,50,.1);border:1px solid rgba(93,184,50,.3);border-radius:10px;padding:16px;text-align:center;font-size:14px;color:var(--green);margin-bottom:16px;}
-  .landing{max-width:900px;margin:0 auto;padding:60px 20px 80px;text-align:center;}
-  .landing h1{font-family:'Rajdhani',sans-serif;font-size:clamp(28px,5vw,56px);font-weight:700;letter-spacing:.05em;line-height:1.1;margin-bottom:16px;}
-  .landing h1 .ac{color:var(--blue);}
-  .landing .sub{font-size:16px;color:var(--muted);max-width:600px;margin:0 auto 48px;line-height:1.7;}
-  .features{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;margin-bottom:52px;text-align:left;}
-  .feat{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:22px;}
-  .feat-ico{font-size:28px;margin-bottom:12px;}
-  .feat-title{font-family:'Rajdhani',sans-serif;font-size:16px;font-weight:700;letter-spacing:.06em;margin-bottom:8px;}
-  .feat-desc{font-size:13px;color:var(--muted);line-height:1.6;}
-  .pricing-card{background:linear-gradient(135deg,rgba(34,120,232,.1),rgba(34,120,232,.03));border:1px solid rgba(34,120,232,.3);border-radius:20px;padding:36px;max-width:420px;margin:0 auto 48px;}
-  .pricing-card h3{font-family:'Rajdhani',sans-serif;font-size:22px;font-weight:700;letter-spacing:.08em;margin-bottom:6px;}
-  .price-tag{font-family:'Rajdhani',sans-serif;font-size:52px;font-weight:700;color:var(--blue);line-height:1;}
-  .price-tag span{font-size:20px;color:var(--muted);}
-  .price-free{font-size:13px;color:var(--green);font-weight:600;margin-bottom:16px;}
-  .price-features{list-style:none;text-align:left;display:flex;flex-direction:column;gap:8px;margin-bottom:24px;}
-  .price-features li{font-size:13px;color:var(--text);display:flex;align-items:center;gap:8px;}
-  .price-features li::before{content:"✓";color:var(--green);font-weight:700;}
-  .btn-cta{font-family:'Rajdhani',sans-serif;font-size:16px;font-weight:700;letter-spacing:.1em;padding:15px 32px;border-radius:12px;border:none;background:linear-gradient(135deg,var(--blue),#0d4fa0);color:#fff;cursor:pointer;transition:all .2s;width:100%;}
-  .btn-cta:hover{transform:translateY(-2px);box-shadow:0 12px 36px rgba(34,120,232,.4);}
-  .track-demo{margin-bottom:52px;}
-  .track-demo h3{font-family:'Rajdhani',sans-serif;font-size:18px;font-weight:700;letter-spacing:.08em;margin-bottom:20px;}
-  @media(max-width:640px){.features{grid-template-columns:1fr;}}
+  footer{position:relative;z-index:1;padding:16px 24px;border-top:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;margin-top:auto;}
+  .fl{display:flex;align-items:center;gap:11px;font-family:'Rajdhani',sans-serif;font-size:13px;font-weight:700;letter-spacing:.1em;}
+  footer p{font-size:11px;color:var(--muted);}
   .spin{width:15px;height:15px;border:2px solid rgba(255,255,255,.25);border-top-color:#fff;border-radius:50%;animation:spinr .7s linear infinite;display:inline-block;}
   @keyframes spinr{to{transform:rotate(360deg);}}
   .toast-wrap{position:fixed;bottom:22px;right:22px;z-index:9999;display:flex;flex-direction:column;gap:8px;}
   .toast{backdrop-filter:blur(20px);color:#fff;padding:11px 18px;border-radius:10px;font-size:13px;font-weight:600;max-width:290px;animation:toastin .3s ease;}
   @keyframes toastin{from{opacity:0;transform:translateY(10px);}to{opacity:1;transform:translateY(0);}}
-  .t-ok{background:rgba(34,120,232,.93);border:1px solid rgba(34,120,232,.4);}
-  .t-err{background:rgba(240,97,32,.93);border:1px solid rgba(240,97,32,.4);}
-  .t-info{background:rgba(93,184,50,.93);border:1px solid rgba(93,184,50,.4);}
-  .loader-ov{position:fixed;inset:0;background:rgba(6,10,20,.97);z-index:200;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:20px;}
+  .t-ok{background:rgba(26,111,212,.93);border:1px solid rgba(26,111,212,.4);}
+  .t-err{background:rgba(232,93,4,.93);border:1px solid rgba(232,93,4,.4);}
+  .t-info{background:rgba(90,158,47,.93);border:1px solid rgba(90,158,47,.4);}
+  .loader-ov{position:fixed;inset:0;background:rgba(8,12,24,.9);z-index:200;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;}
+  .loader-spin{width:44px;height:44px;border:3px solid var(--border);border-top-color:var(--blue);border-radius:50%;animation:spinr .8s linear infinite;}
+
+  /* LOGIN */
+  .login-ov{position:fixed;inset:0;background:rgba(8,12,24,.97);z-index:300;display:flex;align-items:center;justify-content:center;}
+  .login-box{background:rgba(255,255,255,.04);border:1px solid var(--border);border-radius:20px;padding:40px 36px;width:100%;max-width:380px;text-align:center;}
+  .login-box h2{font-family:'Rajdhani',sans-serif;font-size:22px;font-weight:700;letter-spacing:.1em;margin-bottom:6px;}
+  .login-box p{font-size:12px;color:var(--muted);margin-bottom:24px;}
+  .login-box .fgroup{text-align:left;margin-bottom:12px;}
+  .login-err{background:rgba(232,93,4,.1);border:1px solid rgba(232,93,4,.3);border-radius:8px;padding:9px 13px;font-size:12px;color:var(--orange);margin-bottom:13px;}
+
+  /* LOADER */
+  .loader-ov{position:fixed;inset:0;background:rgba(8,12,24,.97);z-index:200;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:20px;}
   .loader-logo{font-family:'Rajdhani',sans-serif;font-size:28px;font-weight:700;letter-spacing:.28em;color:#fff;animation:logopulse 1.5s ease-in-out infinite;}
   .loader-logo span{color:var(--blue);}
   @keyframes logopulse{0%,100%{opacity:1;}50%{opacity:.4;}}
   .loader-car{font-size:36px;animation:carslide 1.5s ease-in-out infinite;}
   @keyframes carslide{0%{transform:translateX(-30px);opacity:0;}30%{opacity:1;}70%{opacity:1;}100%{transform:translateX(30px);opacity:0;}}
-  .loader-track{width:120px;height:3px;background:var(--border);border-radius:3px;overflow:hidden;position:relative;}
-  .loader-fill{height:100%;width:40%;background:linear-gradient(90deg,transparent,var(--blue),transparent);border-radius:3px;animation:trackfill 1.5s ease-in-out infinite;}
+  .loader-track{width:120px;height:3px;background:var(--border);border-radius:3px;overflow:hidden;}
+  .loader-fill{height:100%;width:40%;background:linear-gradient(90deg,transparent,var(--blue),transparent);animation:trackfill 1.5s ease-in-out infinite;}
   @keyframes trackfill{0%{transform:translateX(-100%);}100%{transform:translateX(300%);}}
   .loader-text{font-size:12px;color:var(--muted);letter-spacing:.1em;text-transform:uppercase;animation:logopulse 1.5s ease-in-out infinite;}
-  footer{position:relative;z-index:1;padding:16px 24px;border-top:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;margin-top:auto;}
-  .fl{display:flex;align-items:center;gap:11px;font-family:'Rajdhani',sans-serif;font-size:13px;font-weight:700;letter-spacing:.1em;}
-  footer p{font-size:11px;color:var(--muted);}
+  /* DARK/LIGHT MODE */
+  .light-mode{--bg:#f0f4ff;--card:rgba(255,255,255,0.9);--border:rgba(26,111,212,0.15);--text:#1a2040;--muted:#6b7280;}
+  .light-mode .hdr{background:rgba(240,244,255,.97);}
+  .light-mode .bg-grid{background:linear-gradient(rgba(26,111,212,.04) 1px,transparent 1px),linear-gradient(90deg,rgba(26,111,212,.04) 1px,transparent 1px);background-size:40px 40px;}
+  .light-mode .s-in,.light-mode .fi,.light-mode .fs{background:rgba(255,255,255,.9);color:#1a2040;border-color:rgba(26,111,212,.2);}
+  .light-mode .search-box,.light-mode .card,.light-mode .prog-card,.light-mode .top-card{background:rgba(255,255,255,.9);border-color:rgba(26,111,212,.12);}
+  .light-mode footer{background:rgba(240,244,255,.97);}
+  .light-mode .loader-ov{background:rgba(240,244,255,.97);}
+  .theme-btn{background:none;border:1px solid var(--border);border-radius:6px;padding:5px 9px;cursor:pointer;font-size:11px;font-weight:700;letter-spacing:.05em;color:var(--muted);transition:all .2s;}
+  .theme-btn:hover{border-color:var(--blue);color:var(--blue);}
+  /* PDF & NOTIF BUTTONS */
+  .pdf-btn{display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:600;padding:6px 12px;border-radius:6px;border:1px solid var(--border);background:var(--card);color:var(--muted);cursor:pointer;transition:all .2s;}
+  .pdf-btn:hover{border-color:var(--blue);color:var(--blue);}
+  .notif-btn{display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:600;padding:6px 12px;border-radius:6px;border:1px solid var(--border);background:var(--card);color:var(--muted);cursor:pointer;transition:all .2s;}
+  .notif-btn.active{border-color:var(--green);color:var(--green);}
+  /* 2FA */
+  .twofa-ov{position:fixed;inset:0;background:rgba(8,12,24,.97);z-index:350;display:flex;align-items:center;justify-content:center;}
+  .twofa-box{background:rgba(255,255,255,.04);border:1px solid var(--border);border-radius:20px;padding:36px;width:100%;max-width:360px;text-align:center;}
+  .twofa-box h2{font-family:'Rajdhani',sans-serif;font-size:22px;font-weight:700;margin-bottom:8px;}
+  .twofa-box p{font-size:13px;color:var(--muted);margin-bottom:22px;line-height:1.6;}
+  .code-input{font-family:'Rajdhani',sans-serif;font-size:28px;font-weight:700;letter-spacing:.4em;text-align:center;background:rgba(255,255,255,.06);border:2px solid rgba(26,111,212,.3);border-radius:12px;padding:14px;color:#fff;width:100%;outline:none;margin-bottom:16px;}
+  .code-input:focus{border-color:var(--blue);}
+  /* LOGS */
+  .logs-card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:18px;margin-top:16px;}
+  .log-item{display:flex;gap:10px;padding:8px 0;border-bottom:1px solid rgba(255,255,255,.04);align-items:flex-start;}
+  .log-item:last-child{border-bottom:none;}
+  .log-ico{width:26px;height:26px;border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:13px;flex-shrink:0;}
+  .log-ico-ok{background:rgba(90,158,47,.15);}
+  .log-ico-err{background:rgba(212,32,32,.15);}
+  .log-ico-info{background:rgba(26,111,212,.15);}
+  .log-ico-warn{background:rgba(232,93,4,.15);}
+  .log-msg{font-size:12px;font-weight:600;margin-bottom:2px;}
+  .log-sub{font-size:10px;color:var(--muted);}
   @media(max-width:640px){
-    .g2,.ig,.fg,.upd-g3,.upd-g2,.charts-g2,.kpi-row{grid-template-columns:1fr;}
+    .g2,.ig,.fg,.upd-g3,.upd-g2{grid-template-columns:1fr;}
     .fg .full,.sdivider,.btn-gen{grid-column:1;}
     .s-row{flex-direction:column;}
     .top-card{flex-direction:column;}
     .res-right{text-align:left;}
-    .steps-row{flex-wrap:wrap;gap:6px;}
+    .steps-row{flex-wrap:wrap;gap:8px;}
     .steps-row::before{display:none;}
     .step-item{flex-direction:row;width:48%;}
     .step-lbl{text-align:left;max-width:none;}
@@ -452,6 +347,13 @@ export default function App() {
   const [lang, setLangState] = useState("fr");
   const [darkMode, setDarkMode] = useState(true);
   const [notifEnabled, setNotifEnabled] = useState(false);
+  const [show2FA, setShow2FA] = useState(false);
+  const [twoFACode, setTwoFACode] = useState("");
+  const [twoFABusy, setTwoFABusy] = useState(false);
+  const [twoFAErr, setTwoFAErr] = useState("");
+  const [pendingUser, setPendingUser] = useState<any>(null);
+  const [activityLogs, setActivityLogs] = useState<any[]>([]);
+  const unsubTrackRef = useRef<(()=>void)|null>(null);
   const t = (k: string) => T[lang]?.[k] ?? T.fr[k] ?? k;
   const params = new URLSearchParams(window.location.search);
   const isAdminUrl    = params.get("admin") === "1";
@@ -474,26 +376,19 @@ export default function App() {
   const [loginPass, setLoginPass]   = useState("");
   const [loginErr, setLoginErr]     = useState("");
   const [loginBusy, setLoginBusy]   = useState(false);
-  const [show2FA, setShow2FA]       = useState(false);
-  const [twoFACode, setTwoFACode]   = useState("");
-  const [twoFABusy, setTwoFABusy]   = useState(false);
-  const [twoFAErr, setTwoFAErr]     = useState("");
-  const [pendingUser, setPendingUser] = useState<any>(null);
 
   // REGISTER
   const [showRegister, setShowRegister] = useState(isRegisterUrl);
+  const [regCode, setRegCode]   = useState("");
   const [regEmail, setRegEmail] = useState("");
   const [regPass, setRegPass]   = useState("");
   const [regErr, setRegErr]     = useState("");
   const [regOk, setRegOk]       = useState(false);
   const [regBusy, setRegBusy]   = useState(false);
-  const [showContact, setShowContact] = useState(false);
-  const [contactForm, setContactForm] = useState({name:"",email:"",company:"",phone:""});
-  const [contactSent, setContactSent] = useState(false);
-  const [contactBusy, setContactBusy] = useState(false);
 
   // PAYMENT
   const [showPayment, setShowPayment]   = useState(false);
+  const [showVirement, setShowVirement] = useState(false);
   const [pendingGen, setPendingGen]     = useState(false);
 
   // CLIENT
@@ -522,7 +417,6 @@ export default function App() {
   const [newCode, setNewCode]       = useState<string|null>(null);
   const [saLoading, setSaLoading]   = useState(false);
   const [payHistory, setPayHistory] = useState<any[]>([]);
-  const [activityLogs, setActivityLogs] = useState<any[]>([]);
 
   const toast = (msg: string, type="ok") => {
     const id = Date.now();
@@ -539,12 +433,11 @@ export default function App() {
         setAdminProfile(profile);
       } else {
         setAdminProfile(null);
-        if (isAdminUrl || isSuperAdmin) setShowLogin(true);
       }
       setAuthChecked(true);
     });
     return u;
-  }, []); // eslint-disable-line
+  }, []);
 
   // Init dates + URL track param
   useEffect(() => {
@@ -584,80 +477,23 @@ export default function App() {
     }
   }, [view, adminUser]);
 
-async function doRegister() {
+  /* ── REGISTER ── */
+  async function doRegister() {
     setRegErr(""); setRegBusy(true);
-    const email = contactForm.email.trim();
-    const name = contactForm.name.trim();
-    if (!email || !regPass.trim() || !name) {
-      setRegErr("⚠️ Nom, email et mot de passe requis.");
-      setRegBusy(false); return;
-    }
+    const valid = await useInviteCode(regCode.trim().toUpperCase());
+    if (!valid) { setRegErr(t("reg_err_code")); setRegBusy(false); return; }
     try {
-      const cred = await createUserWithEmailAndPassword(auth, email, regPass);
+      const cred = await createUserWithEmailAndPassword(auth, regEmail.trim(), regPass);
       await saveAdminProfile(cred.user.email!, {
         email: cred.user.email,
-        name: name,
-        company: contactForm.company || "",
-        phone: contactForm.phone || "",
         trackingCount: 0,
         blocked: false,
         createdAt: new Date().toISOString(),
         pendingPayment: false
       });
-      // Send welcome email to partner
-      try {
-        await emailjs.send(EMAILJS_SERVICE, EMAILJS_PARTNER, {
-          partner_name: name,
-          partner_email: email,
-          partner_password: regPass,
-          login_link: window.location.origin + "/?admin=1",
-          to_email: email,
-        }, EMAILJS_PUBLIC);
-      } catch(e) { console.error("Welcome email error", e); }
-      // Notify super admin
-      try {
-        await emailjs.send(EMAILJS_SERVICE, EMAILJS_TEMPLATE, {
-          client_name: "AutoTrack System",
-          vehicle: "Nouveau partenaire inscrit",
-          city: contactForm.company || "—",
-          status: "Inscription automatique",
-          date: new Date().toLocaleString("fr-FR"),
-          note: "📧 " + email + " | Tel: " + (contactForm.phone||"—"),
-          tracking_id: "NOUVEAU-PARTENAIRE",
-          tracking_link: window.location.origin + "/?superadmin=1",
-          to_email: SUPER_ADMIN,
-        }, EMAILJS_PUBLIC);
-      } catch(e) { console.error("Admin notif error", e); }
       setRegOk(true);
-      toast("✅ Compte créé ! Email envoyé.", "ok");
-    } catch(e: any) {
-      if ((e as any).code === "auth/email-already-in-use") setRegErr("❌ Cet email est déjà utilisé.");
-      else if ((e as any).code === "auth/weak-password") setRegErr("❌ Mot de passe trop court (min. 6 caractères).");
-      else setRegErr(t("reg_err"));
-    }
+    } catch { setRegErr(t("reg_err")); }
     setRegBusy(false);
-  }
-
-  /* ── CONTACT ── */
-  async function sendContact() {
-    if (!contactForm.name || !contactForm.email) { toast("⚠️ Nom et email requis","err"); return; }
-    setContactBusy(true);
-    try {
-      await emailjs.send(EMAILJS_SERVICE, EMAILJS_TEMPLATE, {
-        client_name: contactForm.name,
-        vehicle: contactForm.company || "Non précisé",
-        city: contactForm.phone || "Non précisé",
-        status: "Demande d&apos;accès partenaire AutoTrack",
-        date: new Date().toLocaleString("fr-FR"),
-        note: "Téléphone: " + (contactForm.phone||"—") + " | Entreprise: " + (contactForm.company||"—"),
-        tracking_id: "DEMANDE-ACCES",
-        tracking_link: "https://autotrack.live/?superadmin=1",
-        to_email: "krediitas@gmail.com",
-      }, EMAILJS_PUBLIC);
-      setContactSent(true);
-      toast("✅ Demande envoyée !","ok");
-    } catch { toast("❌ Erreur envoi. Contactez-nous directement.","err"); }
-    setContactBusy(false);
   }
 
   /* ── LOGIN ── */
@@ -667,57 +503,27 @@ async function doRegister() {
       const cred = await signInWithEmailAndPassword(auth, loginEmail, loginPass);
       const profile = await getAdminProfile(cred.user.email!);
       if (profile?.blocked) {
-        await signOut(auth);
-        setLoginErr("❌ Votre compte est bloqué. Contactez l'administrateur.");
-        setLoginBusy(false);
-        return;
+        await signOut(auth); setLoginErr("❌ Votre compte est bloqué."); setLoginBusy(false); return;
       }
-      // Generate 2FA code
+      // Send 2FA code
       const code = String(Math.floor(100000 + Math.random() * 900000));
-      // Send code via EmailJS
       try {
         await emailjs.send(EMAILJS_SERVICE, EMAILJS_TEMPLATE, {
           client_name: profile?.name || cred.user.email,
           vehicle: "Code de vérification AutoTrack",
-          city: code,
-          status: "Double authentification",
+          city: code, status: "Double authentification",
           date: new Date().toLocaleString("fr-FR"),
-          note: "Ce code expire dans 5 minutes. Ne le partagez pas.",
+          note: "Ne partagez pas ce code.",
           tracking_id: "2FA-" + code,
           tracking_link: "autotrack.live/?admin=1",
           to_email: cred.user.email,
         }, EMAILJS_PUBLIC);
-      } catch(e) { console.error("2FA email error", e); }
-      // Store code temporarily
+      } catch(e) { console.error("2FA email error",e); }
       await signOut(auth);
-      setPendingUser({email: loginEmail, pass: loginPass, code, profile, isSA: isSA(cred.user.email)});
-      setShowLogin(false);
-      setShow2FA(true);
-      setTwoFACode("");
-      setTwoFAErr("");
+      setPendingUser({email:loginEmail,pass:loginPass,code,profile,isSA:isSA(cred.user.email)});
+      setShowLogin(false); setShow2FA(true); setTwoFACode(""); setTwoFAErr("");
     } catch { setLoginErr(t("login_err")); }
     setLoginBusy(false);
-  }
-
-  async function verify2FA() {
-    if (!pendingUser) return;
-    setTwoFABusy(true);
-    setTwoFAErr("");
-    if (twoFACode.trim() !== pendingUser.code) {
-      setTwoFAErr("❌ Code incorrect. Vérifiez votre email.");
-      setTwoFABusy(false);
-      return;
-    }
-    try {
-      const cred = await signInWithEmailAndPassword(auth, pendingUser.email, pendingUser.pass);
-      setAdminProfile(pendingUser.profile);
-      setShow2FA(false);
-      setPendingUser(null);
-      setView(pendingUser.isSA ? "superadmin" : "admin");
-      toast("✅ Connexion sécurisée !", "ok");
-      addLog("ok", "Connexion admin réussie (2FA)", pendingUser.email);
-    } catch { setTwoFAErr("❌ Erreur de connexion."); }
-    setTwoFABusy(false);
   }
   async function doLogout() { await signOut(auth); setAdminProfile(null); setView("client"); }
 
@@ -747,15 +553,9 @@ async function doRegister() {
     setTrackId(id); setTrackData(data); setTrackError(false);
     const unsub = onSnapshot(doc(db,"trackings",id), snap => {
       if (snap.exists()) {
-        const newData = snap.data();
-        const oldStatus = trackData?.statusKey;
-        setTrackData(newData);
-        // Send push notification on status change
-        if (oldStatus && oldStatus !== newData.statusKey && Notification.permission === "granted") {
-          sendPushNotification(
-            "🚗 AutoTrack — Mise à jour",
-            "Votre véhicule " + (newData.vehicle||"") + " : " + (newData.statusKey === "st5" ? "Livré ✅" : newData.statusKey === "st2" ? "En transit 🚛" : newData.statusKey === "st3" ? "En douane 🛃" : "Statut mis à jour")
-          );
+        setTrackData(snap.data());
+        if (Notification.permission === "granted") {
+          new Notification("🚗 AutoTrack — Mise à jour", {body: "Statut mis à jour"});
         }
       }
     });
@@ -766,25 +566,32 @@ async function doRegister() {
   async function genTracking() {
     const { name, from, to, veh } = form;
     if (!name||!from||!to||!veh) { toast(t("err_fill"),"err"); return; }
-    const profile = adminProfile;
-    const count   = profile?.trackingCount || 0;
 
     if (!isSA(adminUser?.email)) {
-      // First tracking is always free - never block
+      // Reload fresh profile from Firebase to avoid bypass
+      const freshProfile = await getAdminProfile(adminUser?.email!);
+      const count = freshProfile?.trackingCount || 0;
+
+      // Block if payment pending (not yet confirmed)
+      if (freshProfile?.pendingPayment === true) {
+        toast("⏳ Paiement en attente de confirmation. Contactez-nous sur WhatsApp : +32460211559", "err");
+        return;
+      }
+
+      // 1st tracking free
       if (count === 0) {
         await doGenerate();
         return;
       }
-      // Block if pending payment not confirmed
-      if (profile?.pendingPayment) {
-        toast("⏳ Votre paiement est en attente de confirmation. Contactez-nous sur WhatsApp : +32460211559", "err");
-        return;
-      }
-      // From 2nd tracking onwards - payment required
+
+      // 2nd tracking onwards - require payment
+      await saveAdminProfile(adminUser?.email!, {pendingPayment: true});
+      setAdminProfile((p:any) => ({...p, pendingPayment: true}));
       setShowPayment(true);
       setPendingGen(true);
       return;
     }
+
     await doGenerate();
   }
 
@@ -821,7 +628,6 @@ async function doRegister() {
       ]
     };
     await dbWrite(id, rec);
-    addLog("info", "Nouveau suivi créé : " + id + " — " + veh, adminUser?.email);
     // Increment tracking count
     const newCount = (adminProfile?.trackingCount||0)+1;
     await saveAdminProfile(adminUser?.email!, {trackingCount:newCount});
@@ -868,7 +674,6 @@ async function doRegister() {
       } catch { toast("⚠️ Mise à jour OK mais email non envoyé","err"); }
     }
     toast(t("toast_upd"),"ok");
-    addLog("info", "Mise à jour : " + selectedId + " → " + upd.city + " (" + t(upd.status+"f") + ")", adminUser?.email);
     setUpd(p=>({...p,city:"",note:""}));
     setUpdBusy(false);
   }
@@ -885,156 +690,63 @@ async function doRegister() {
       if(selectedId===id){setSelectedId(null);setGenId(null);}
       await loadHistory(adminUser?.email||undefined);
       toast("🗑️ Supprimé : "+id,"ok");
-      addLog("warn", "Suivi supprimé : " + id, adminUser?.email);
     } catch { toast("❌ Erreur suppression","err"); }
     setShowDeleteConfirm(null);
   }
 
-  /* ── PUSH NOTIFICATIONS ── */
-  async function enableNotifications() {
-    if (!("Notification" in window)) {
-      toast("❌ Votre navigateur ne supporte pas les notifications", "err");
-      return;
+  /* ── 2FA ── */
+  async function verify2FA() {
+    if (!pendingUser) return;
+    setTwoFABusy(true); setTwoFAErr("");
+    if (twoFACode.trim() !== pendingUser.code) {
+      setTwoFAErr("❌ Code incorrect. Vérifiez votre email.");
+      setTwoFABusy(false); return;
     }
-    if (Notification.permission === "granted") {
-      setNotifEnabled(true);
-      toast("🔔 Notifications déjà activées !", "ok");
-      return;
-    }
-    const perm = await Notification.requestPermission();
-    if (perm === "granted") {
-      setNotifEnabled(true);
-      toast("🔔 Notifications activées !", "ok");
-      // Send test notification
-      new Notification("AutoTrack", {
-        body: "✅ Vous serez notifié des mises à jour de votre véhicule !",
-        icon: "https://api.dicebear.com/7.x/initials/svg?seed=AT&backgroundColor=2278e8"
-      });
-    } else {
-      toast("❌ Notifications refusées", "err");
-    }
+    try {
+      const cred = await signInWithEmailAndPassword(auth, pendingUser.email, pendingUser.pass);
+      setAdminProfile(pendingUser.profile);
+      setShow2FA(false); setPendingUser(null);
+      setView(pendingUser.isSA ? "superadmin" : "admin");
+      toast("✅ Connexion sécurisée !", "ok");
+      addLog("ok", "Connexion admin (2FA)", pendingUser.email);
+    } catch { setTwoFAErr("❌ Erreur de connexion."); }
+    setTwoFABusy(false);
   }
 
-  function sendPushNotification(title: string, body: string) {
-    if (Notification.permission === "granted") {
-      new Notification(title, {
-        body,
-        icon: "https://api.dicebear.com/7.x/initials/svg?seed=AT&backgroundColor=2278e8",
-        badge: "https://api.dicebear.com/7.x/initials/svg?seed=AT&backgroundColor=2278e8"
-      });
-    }
+  /* ── PUSH NOTIFICATIONS ── */
+  async function enableNotifications() {
+    if (!("Notification" in window)) { toast("❌ Navigateur non supporté","err"); return; }
+    if (Notification.permission === "granted") { setNotifEnabled(true); toast("🔔 Notifications actives","ok"); return; }
+    const perm = await Notification.requestPermission();
+    if (perm === "granted") {
+      setNotifEnabled(true); toast("🔔 Notifications activées !","ok");
+      new Notification("AutoTrack", {body:"✅ Vous serez notifié des mises à jour !"});
+    } else { toast("❌ Notifications refusées","err"); }
   }
 
   /* ── PDF ── */
   function generatePDF() {
+    if (!trackData) return;
     const d = trackData;
-    if (!d) return;
-    const html = `<!DOCTYPE html>
-<html lang="fr">
-<head>
-<meta charset="UTF-8"/>
-<title>AutoTrack — ${trackId}</title>
-<style>
-  *{margin:0;padding:0;box-sizing:border-box;}
-  body{font-family:Arial,sans-serif;background:#fff;color:#1a2040;padding:32px;}
-  .header{display:flex;justify-content:space-between;align-items:center;border-bottom:3px solid #2278e8;padding-bottom:16px;margin-bottom:24px;}
-  .logo{font-size:24px;font-weight:900;letter-spacing:.2em;color:#1a2040;}
-  .logo span{color:#2278e8;}
-  .tracking-id{font-size:13px;color:#6b7280;letter-spacing:.1em;}
-  .section{margin-bottom:20px;}
-  .section-title{font-size:10px;font-weight:700;letter-spacing:.15em;text-transform:uppercase;color:#6b7280;margin-bottom:10px;padding-bottom:6px;border-bottom:1px solid #e5e7eb;}
-  .row{display:flex;gap:16px;margin-bottom:8px;}
-  .field{flex:1;}
-  .field-label{font-size:9px;color:#9ca3af;text-transform:uppercase;letter-spacing:.1em;margin-bottom:2px;}
-  .field-value{font-size:14px;font-weight:600;color:#1a2040;}
-  .status-badge{display:inline-block;padding:4px 12px;border-radius:20px;background:#dbeafe;color:#1d4ed8;font-size:12px;font-weight:700;margin-bottom:16px;}
-  .route-box{background:#f8faff;border:1px solid #dbeafe;border-radius:10px;padding:14px;margin-bottom:16px;}
-  .route-row{display:flex;align-items:center;gap:12px;}
-  .route-city{flex:1;}
-  .route-label{font-size:9px;color:#9ca3af;text-transform:uppercase;letter-spacing:.1em;}
-  .route-name{font-size:16px;font-weight:700;color:#1a2040;}
-  .route-arrow{font-size:24px;color:#2278e8;}
-  .progress-bar{background:#e5e7eb;border-radius:4px;height:8px;margin:8px 0;}
-  .progress-fill{height:100%;border-radius:4px;background:linear-gradient(90deg,#5db832,#2278e8);}
-  .progress-labels{display:flex;justify-content:space-between;font-size:11px;color:#6b7280;}
-  .timeline{margin-top:10px;}
-  .tl-item{display:flex;gap:10px;margin-bottom:10px;}
-  .tl-dot{width:20px;height:20px;border-radius:50%;background:#2278e8;color:#fff;display:flex;align-items:center;justify-content:center;font-size:9px;flex-shrink:0;margin-top:2px;}
-  .tl-dot.done{background:#5db832;}
-  .tl-dot.pending{background:#e5e7eb;color:#9ca3af;}
-  .tl-content .tl-title{font-size:13px;font-weight:600;}
-  .tl-content .tl-time{font-size:11px;color:#9ca3af;}
-  .info-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;}
-  .info-item{background:#f8faff;border:1px solid #dbeafe;border-radius:8px;padding:10px;}
-  .footer{margin-top:32px;padding-top:16px;border-top:1px solid #e5e7eb;display:flex;justify-content:space-between;align-items:center;font-size:11px;color:#9ca3af;}
-  .footer-logo{font-weight:900;color:#2278e8;letter-spacing:.15em;}
-</style>
-</head>
-<body>
-  <div class="header">
-    <div class="logo">AUTO<span>TRACK</span></div>
-    <div class="tracking-id">N° ${trackId}<br/>Généré le ${new Date().toLocaleDateString('fr-FR')}</div>
-  </div>
-  <div class="section">
-    <div class="section-title">Informations client</div>
-    <div class="row">
-      <div class="field"><div class="field-label">Nom</div><div class="field-value">${d.client}</div></div>
-      <div class="field"><div class="field-label">Email</div><div class="field-value">${d.email||"—"}</div></div>
-      <div class="field"><div class="field-label">Téléphone</div><div class="field-value">${d.phone||"—"}</div></div>
-    </div>
-    <div class="row">
-      <div class="field"><div class="field-label">Véhicule</div><div class="field-value">${d.vehicle}</div></div>
-      <div class="field"><div class="field-label">Couleur</div><div class="field-value">${d.color||"—"}</div></div>
-      <div class="field"><div class="field-label">Entreprise</div><div class="field-value">${d.company||"—"}</div></div>
-    </div>
-  </div>
-  <div class="section">
-    <div class="section-title">Itinéraire</div>
-    <div class="route-box">
-      <div class="route-row">
-        <div class="route-city"><div class="route-label">Départ</div><div class="route-name">${d.fromCity}</div><div style="font-size:11px;color:#6b7280">${d.dep}</div></div>
-        <div class="route-arrow">→</div>
-        <div class="route-city"><div class="route-label">Destination</div><div class="route-name">${d.toCity}</div><div style="font-size:11px;color:#6b7280">Estimé ${d.arr}</div></div>
-      </div>
-    </div>
-    <div class="status-badge">${d.statusKey === "st5" ? "✓ Livré" : d.statusKey === "st2" ? "🚛 En transit" : d.statusKey === "st3" ? "🛃 Douane" : "📦 En cours"}</div>
-    <div class="progress-bar"><div class="progress-fill" style="width:${d.progress||5}%"></div></div>
-    <div class="progress-labels"><span>${d.fromCity}</span><span>${d.progress||5}%</span><span>${d.toCity}</span></div>
-  </div>
-  <div class="section">
-    <div class="section-title">Informations transport</div>
-    <div class="info-grid">
-      <div class="info-item"><div class="field-label">Mode</div><div class="field-value" style="font-size:12px">${d.mode||"—"}</div></div>
-      <div class="info-item"><div class="field-label">Transporteur</div><div class="field-value" style="font-size:12px">${d.carrier||"—"}</div></div>
-      <div class="info-item"><div class="field-label">VIN</div><div class="field-value" style="font-size:12px">${d.vin||"—"}</div></div>
-      <div class="info-item"><div class="field-label">Plaque</div><div class="field-value" style="font-size:12px">${d.plate||"—"}</div></div>
-      <div class="info-item"><div class="field-label">Départ</div><div class="field-value" style="font-size:12px">${d.dep}</div></div>
-      <div class="info-item"><div class="field-label">Arrivée est.</div><div class="field-value" style="font-size:12px">${d.arr}</div></div>
-    </div>
-  </div>
-  <div class="section">
-    <div class="section-title">Historique</div>
-    <div class="timeline">
-      ${(d.timeline||[]).map((e: any) => `
-        <div class="tl-item">
-          <div class="tl-dot ${e.type==="done"?"done":e.type==="pending"?"pending":""}">${e.type==="done"?"✓":e.type==="pending"?"○":"●"}</div>
-          <div class="tl-content"><div class="tl-title">${e.title}</div><div class="tl-time">${e.time}</div></div>
-        </div>`).join("")}
-    </div>
-  </div>
-  <div class="footer">
-    <div class="footer-logo">AUTOTRACK</div>
-    <div>autotrack.live · Suivi de transport mondial</div>
-    <div>© 2026 AutoTrack</div>
-  </div>
-</body>
-</html>`;
+    const html = `<!DOCTYPE html><html lang="fr"><head><meta charset="UTF-8"/><title>AutoTrack — ${trackId}</title><style>*{margin:0;padding:0;box-sizing:border-box;}body{font-family:Arial,sans-serif;padding:32px;color:#1a2040;}.logo{font-size:24px;font-weight:900;letter-spacing:.2em;border-bottom:3px solid #1a6fd4;padding-bottom:12px;margin-bottom:24px;}.logo span{color:#1a6fd4;}.section{margin-bottom:20px;}.title{font-size:10px;font-weight:700;letter-spacing:.15em;text-transform:uppercase;color:#7a8499;border-bottom:1px solid #e5e7eb;padding-bottom:6px;margin-bottom:12px;}.row{display:flex;gap:16px;margin-bottom:8px;}.field{flex:1;}.label{font-size:9px;color:#9ca3af;text-transform:uppercase;letter-spacing:.1em;}.value{font-size:14px;font-weight:600;}.route{background:#f8faff;border:1px solid #dbeafe;border-radius:8px;padding:12px;display:flex;align-items:center;gap:12px;margin-bottom:12px;}.from,.to{flex:1;}.city{font-size:16px;font-weight:700;}.date{font-size:11px;color:#6b7280;}.arrow{font-size:20px;color:#1a6fd4;}.progress-bar{background:#e5e7eb;border-radius:4px;height:8px;margin:8px 0;}.progress-fill{height:100%;border-radius:4px;background:#1a6fd4;width:${d.progress||5}%;}.footer{margin-top:32px;padding-top:16px;border-top:1px solid #e5e7eb;display:flex;justify-content:space-between;font-size:11px;color:#9ca3af;}</style></head><body><div class="logo">AUTO<span>TRACK</span> &nbsp;&nbsp; N° ${trackId}</div><div class="section"><div class="title">Client</div><div class="row"><div class="field"><div class="label">Nom</div><div class="value">${d.client}</div></div><div class="field"><div class="label">Véhicule</div><div class="value">${d.vehicle}</div></div><div class="field"><div class="label">Entreprise</div><div class="value">${d.company||"—"}</div></div></div></div><div class="section"><div class="title">Itinéraire</div><div class="route"><div class="from"><div class="label">Départ</div><div class="city">${d.fromCity}</div><div class="date">${d.dep}</div></div><div class="arrow">→</div><div class="to"><div class="label">Destination</div><div class="city">${d.toCity}</div><div class="date">Estimé ${d.arr}</div></div></div><div class="progress-bar"><div class="progress-fill"></div></div><div style="font-size:12px;color:#6b7280;text-align:right">${d.progress||5}% complété</div></div><div class="section"><div class="title">Informations</div><div class="row"><div class="field"><div class="label">Mode</div><div class="value">${d.mode||"—"}</div></div><div class="field"><div class="label">Transporteur</div><div class="value">${d.carrier||"—"}</div></div><div class="field"><div class="label">VIN</div><div class="value">${d.vin||"—"}</div></div><div class="field"><div class="label">Plaque</div><div class="value">${d.plate||"—"}</div></div></div></div><div class="footer"><span>AUTOTRACK — autotrack.live</span><span>Généré le ${new Date().toLocaleDateString("fr-FR")}</span></div></body></html>`;
     const win = window.open("","_blank");
-    if (win) {
-      win.document.write(html);
-      win.document.close();
-      setTimeout(() => win.print(), 500);
-    }
+    if (win) { win.document.write(html); win.document.close(); setTimeout(()=>win.print(),500); }
+  }
+
+  /* ── LOGS ── */
+  async function addLog(type: string, msg: string, email?: string) {
+    try {
+      await setDoc(doc(db,"logs","log_"+Date.now()), {
+        type, msg, email:email||adminUser?.email||"system",
+        time:new Date().toLocaleString("fr-FR"), timestamp:Date.now()
+      });
+    } catch(e) { console.error("Log error",e); }
+  }
+  async function loadLogs() {
+    try {
+      const snap = await getDocs(collection(db,"logs"));
+      setActivityLogs(snap.docs.map(d=>({id:d.id,...d.data()})).sort((a:any,b:any)=>b.timestamp-a.timestamp).slice(0,50));
+    } catch { setActivityLogs([]); }
   }
 
   /* ── COPY ── */
@@ -1056,7 +768,6 @@ async function doRegister() {
     const a = await getAllAdmins();
     setAdmins(a);
     toast(blocked?"✅ Débloqué":"🔒 Bloqué","ok");
-    addLog(blocked?"ok":"err", (blocked?"Déblocage":"Blocage") + " partenaire : " + email, SUPER_ADMIN);
   }
   async function confirmPayment(email: string) {
     await saveAdminProfile(email,{pendingPayment:false});
@@ -1064,58 +775,6 @@ async function doRegister() {
     setAdmins(a);
     toast("✅ Paiement confirmé pour "+email,"ok");
   }
-  async function deleteAdmin(email: string) {
-    await deleteDoc(doc(db,"admins",email));
-    const a = await getAllAdmins();
-    setAdmins(a);
-    toast("🗑️ Admin supprimé","ok");
-  }
-
-  /* ── ACTIVITY LOGS ── */
-  async function addLog(type: string, msg: string, email?: string) {
-    try {
-      const logEntry = {
-        type, msg,
-        email: email || adminUser?.email || "system",
-        time: new Date().toLocaleString("fr-FR"),
-        timestamp: Date.now()
-      };
-      await setDoc(doc(db, "logs", "log_" + Date.now()), logEntry);
-    } catch(e) { console.error("Log error", e); }
-  }
-
-  async function loadLogs() {
-    try {
-      const snap = await getDocs(collection(db, "logs"));
-      const logs = snap.docs
-        .map(d => ({id:d.id,...d.data()}))
-        .sort((a:any,b:any) => b.timestamp - a.timestamp)
-        .slice(0, 50);
-      setActivityLogs(logs);
-    } catch { setActivityLogs([]); }
-  }
-
-  async function confirmPaymentWithHistory(email: string, name: string) {
-    const payRecord = {
-      email,
-      name,
-      amount: "10€",
-      date: new Date().toLocaleString("fr-FR"),
-      status: "confirmed"
-    };
-    // Save to payment history
-    const histId = "pay_" + Date.now();
-    await setDoc(doc(db, "payments", histId), payRecord);
-    // Update admin profile
-    await saveAdminProfile(email, {pendingPayment: false});
-    const a = await getAllAdmins();
-    setAdmins(a);
-    // Reload payment history
-    const snap = await getDocs(collection(db, "payments"));
-    setPayHistory(snap.docs.map(d => ({id:d.id,...d.data()})).reverse());
-    toast("✅ Paiement confirmé et enregistré", "ok");
-  }
-
   async function loadPayHistory() {
     try {
       const snap = await getDocs(collection(db, "payments"));
@@ -1123,9 +782,27 @@ async function doRegister() {
     } catch { setPayHistory([]); }
   }
 
+  async function confirmPaymentWithHistory(email: string, name: string) {
+    const payRecord = {email, name, amount:"10€", date:new Date().toLocaleString("fr-FR"), status:"confirmed"};
+    const histId = "pay_" + Date.now();
+    await setDoc(doc(db,"payments",histId), payRecord);
+    await saveAdminProfile(email, {pendingPayment:false});
+    const a = await getAllAdmins();
+    setAdmins(a);
+    await loadPayHistory();
+    toast("✅ Paiement confirmé", "ok");
+  }
+
+  async function deleteAdmin(email: string) {
+    await deleteDoc(doc(db,"admins",email));
+    const a = await getAllAdmins();
+    setAdmins(a);
+    toast("🗑️ Admin supprimé","ok");
+  }
+
   /* ── BADGE HELPERS ── */
   const steps = ["st0","st1","st2","st3","st4","st5"];
-  const stepIcons = ["1","2","3","4","5","6"];
+  const stepIcons = ["⏳","📦","🚛","🛃","🏠","✅"];
   const trackLink = genId ? window.location.origin+"/?track="+genId : "";
 
   function sBadgeClass(stk: string) {
@@ -1159,82 +836,38 @@ async function doRegister() {
   return (
     <>
       <style>{css}</style>
-      <div className="at-root" onClick={()=>setShowLang(false)}>
+      <div className={"at-root"+(darkMode?"":" light-mode")} onClick={()=>setShowLang(false)}>
         <div className="bg-grid"/><div className="bg-glow"/>
 
         {/* ── REGISTER MODAL ── */}
         {showRegister && (
           <div className="reg-ov">
             <div className="reg-box">
-              <h2>🚗 Créer mon compte</h2>
-              <p>AutoTrack — Accès partenaire gratuit</p>
-              {regOk ? (
-                <>
-                  <div className="reg-ok">✅ Compte créé !<br/>Vos identifiants ont été envoyés par email.</div>
-                  <button className="btn-blue" style={{width:"100%"}} onClick={()=>{setShowRegister(false);setShowLogin(true);}}>Se connecter →</button>
-                </>
-              ) : (
-                <>
-                  {regErr && <div className="login-err">{regErr}</div>}
-                  <div style={{display:"flex",flexDirection:"column",gap:10,marginBottom:16,textAlign:"left"}}>
-                    <div className="fgroup">
-                      <div className="flabel">Nom complet *</div>
-                      <input className="fi" value={contactForm.name} onChange={e=>setContactForm(p=>({...p,name:e.target.value}))} placeholder="Mohammed Alami"/>
+              <h2>🚗 {t("reg_title")}</h2>
+              <p>AutoTrack — Accès partenaire</p>
+              {regOk
+                ? <><div className="reg-ok">{t("reg_ok")}</div>
+                    <button className="btn-blue" style={{width:"100%"}} onClick={()=>{setShowRegister(false);setShowLogin(true);}}>Se connecter</button></>
+                : <>
+                    {regErr && <div className="login-err">{regErr}</div>}
+                    <div className="fgroup" style={{textAlign:"left",marginBottom:12}}>
+                      <div className="flabel">{t("reg_code")}</div>
+                      <input className="fi" value={regCode} onChange={e=>setRegCode(e.target.value)} placeholder="INV-XXXX-XXX"/>
                     </div>
-                    <div className="fgroup">
-                      <div className="flabel">Entreprise</div>
-                      <input className="fi" value={contactForm.company} onChange={e=>setContactForm(p=>({...p,company:e.target.value}))} placeholder="CarConcept SARL"/>
+                    <div className="fgroup" style={{textAlign:"left",marginBottom:12}}>
+                      <div className="flabel">{t("reg_email")}</div>
+                      <input className="fi" type="email" value={regEmail} onChange={e=>setRegEmail(e.target.value)} placeholder="mon@email.com"/>
                     </div>
-                    <div className="fgroup">
-                      <div className="flabel">Téléphone</div>
-                      <input className="fi" value={contactForm.phone} onChange={e=>setContactForm(p=>({...p,phone:e.target.value}))} placeholder="+33 6 00 00 00 00"/>
-                    </div>
-                    <div className="fgroup">
-                      <div className="flabel">Email *</div>
-                      <input className="fi" type="email" value={contactForm.email} onChange={e=>setContactForm(p=>({...p,email:e.target.value}))} placeholder="contact@monentreprise.com"/>
-                    </div>
-                    <div className="fgroup">
-                      <div className="flabel">Mot de passe * (min. 6 caractères)</div>
+                    <div className="fgroup" style={{textAlign:"left",marginBottom:20}}>
+                      <div className="flabel">{t("reg_pass")}</div>
                       <input className="fi" type="password" value={regPass} onChange={e=>setRegPass(e.target.value)} placeholder="••••••••"/>
                     </div>
-                  </div>
-                  <button className="btn-blue" style={{width:"100%",marginBottom:10}} onClick={doRegister} disabled={regBusy}>
-                    {regBusy?<><span className="spin"/> Création…</>:"🚀 Créer mon compte gratuitement"}
-                  </button>
-                  <p style={{fontSize:11,color:"var(--muted)",marginBottom:10}}>Vos identifiants seront envoyés par email automatiquement.</p>
-                  <button className="nav-btn" style={{width:"100%"}} onClick={()=>setShowRegister(false)}>Annuler</button>
-                </>
-              )}
-            </div>
-          </div>
-        )}
-
-        {/* ── CONTACT MODAL ── */}
-        {showContact && (
-          <div className="contact-ov">
-            <div className="contact-box">
-              <h2>📩 Demande d&apos;accès partenaire</h2>
-              <p>Remplissez ce formulaire. Nous vous enverrons votre code d&apos;invitation et lien d&apos;accès par email sous 24h.</p>
-              {contactSent ? (
-                <>
-                  <div className="contact-ok">✅ Demande envoyée avec succès !<br/>Vous recevrez votre code d&apos;invitation par email sous 24h.</div>
-                  <button className="btn-blue" style={{width:"100%"}} onClick={()=>{setShowContact(false);setContactSent(false);setContactForm({name:"",email:"",company:"",phone:""});}}>Fermer</button>
-                </>
-              ) : (
-                <>
-                  <div className="fg" style={{gridTemplateColumns:"1fr",gap:10,marginBottom:16}}>
-                    <div className="fgroup"><div className="flabel">Nom complet *</div><input className="fi" value={contactForm.name} onChange={e=>setContactForm(p=>({...p,name:e.target.value}))} placeholder="Mohammed Alami"/></div>
-                    <div className="fgroup"><div className="flabel">Entreprise</div><input className="fi" value={contactForm.company} onChange={e=>setContactForm(p=>({...p,company:e.target.value}))} placeholder="CarConcept SARL"/></div>
-                    <div className="fgroup"><div className="flabel">Téléphone</div><input className="fi" value={contactForm.phone} onChange={e=>setContactForm(p=>({...p,phone:e.target.value}))} placeholder="+33 6 00 00 00 00"/></div>
-                    <div className="fgroup"><div className="flabel">Email *</div><input className="fi" type="email" value={contactForm.email} onChange={e=>setContactForm(p=>({...p,email:e.target.value}))} placeholder="contact@monentreprise.com"/></div>
-                    <div className="fgroup"><div className="flabel">Mot de passe * (min. 6 caractères)</div><input className="fi" type="password" value={regPass} onChange={e=>setRegPass(e.target.value)} placeholder="••••••••"/></div>
-                  </div>
-                  <button className="btn-blue" style={{width:"100%",marginBottom:10}} onClick={sendContact} disabled={contactBusy}>
-                    {contactBusy?<><span className="spin"/> Envoi…</>:"📩 Envoyer ma demande"}
-                  </button>
-                  <button className="nav-btn" style={{width:"100%"}} onClick={()=>setShowContact(false)}>Annuler</button>
-                </>
-              )}
+                    <button className="btn-blue" style={{width:"100%",marginBottom:10}} onClick={doRegister} disabled={regBusy}>
+                      {regBusy?<><span className="spin"/> Création…</>:t("reg_btn")}
+                    </button>
+                    <button className="nav-btn" style={{width:"100%"}} onClick={()=>setShowRegister(false)}>Annuler</button>
+                  </>
+              }
             </div>
           </div>
         )}
@@ -1245,17 +878,11 @@ async function doRegister() {
             <div className="twofa-box">
               <div style={{fontSize:40,marginBottom:12}}>🔐</div>
               <h2>Vérification</h2>
-              <p>Un code à 6 chiffres a été envoyé à<br/><strong style={{color:"var(--blue)"}}>{pendingUser?.email}</strong></p>
+              <p>Code à 6 chiffres envoyé à<br/><strong style={{color:"var(--blue)"}}>{pendingUser?.email}</strong></p>
               {twoFAErr && <div className="login-err">{twoFAErr}</div>}
-              <input
-                className="code-input"
-                type="number"
-                maxLength={6}
-                value={twoFACode}
+              <input className="code-input" type="number" maxLength={6} value={twoFACode}
                 onChange={e=>setTwoFACode(e.target.value.slice(0,6))}
-                onKeyDown={e=>e.key==="Enter"&&verify2FA()}
-                placeholder="000000"
-              />
+                onKeyDown={e=>e.key==="Enter"&&verify2FA()} placeholder="000000"/>
               <button className="btn-blue" style={{width:"100%",marginBottom:10}} onClick={verify2FA} disabled={twoFABusy||twoFACode.length!==6}>
                 {twoFABusy?<><span className="spin"/> Vérification…</>:"✅ Vérifier"}
               </button>
@@ -1283,7 +910,7 @@ async function doRegister() {
               <button className="btn-blue" style={{width:"100%",marginBottom:10}} onClick={doLogin} disabled={loginBusy}>
                 {loginBusy?<><span className="spin"/> Connexion…</>:t("login_btn")}
               </button>
-              <button className="nav-btn" style={{width:"100%",marginBottom:8}} onClick={()=>{setShowLogin(false);setShowRegister(true);}}>🆕 Créer un compte partenaire →</button>
+              <button className="nav-btn" style={{width:"100%",marginBottom:8}} onClick={()=>{setShowLogin(false);setShowRegister(true);}}>Créer un compte →</button>
               <button className="nav-btn" style={{width:"100%"}} onClick={()=>setShowLogin(false)}>Annuler</button>
             </div>
           </div>
@@ -1293,36 +920,38 @@ async function doRegister() {
         {showPayment && (
           <div className="pay-ov">
             <div className="pay-box">
-              <div style={{textAlign:"center",marginBottom:20}}>
-                <div style={{fontSize:13,color:"var(--muted)",marginBottom:6}}>Accès suivi supplémentaire</div>
-                <div className="pay-amount">10<span>€</span></div>
-                <div style={{fontSize:12,color:"var(--green)",fontWeight:600,marginBottom:4}}>✨ Premier suivi offert — à partir du 2ème : 10€/suivi</div>
-              </div>
-              <div className="pay-btns">
-                <button className="btn-paypal" onClick={()=>{
-                  window.open("https://paypal.me/JaanusAalmaa/10EUR","_blank");
-                }}>
-                  <span style={{fontSize:20}}>🅿️</span> Payer 10€ via PayPal
-                </button>
-                <div style={{background:"rgba(255,255,255,.04)",border:"1px solid var(--border)",borderRadius:10,padding:"12px 14px",textAlign:"left",marginTop:6}}>
-                  <p style={{fontSize:12,color:"var(--muted)",marginBottom:6}}>📲 Après paiement, contactez-nous avec votre preuve :</p>
-                  <p style={{fontSize:11,color:"var(--muted)",marginTop:4}}>Indiquez votre email de compte. Votre suivi sera activé rapidement.</p>
-                </div>
-                <p style={{fontSize:12,color:"var(--orange)",fontWeight:600,marginTop:4}}>⏳ Votre suivi sera activé après confirmation.</p>
-                <div style={{display:"flex",gap:10,marginTop:4}}>
-                  <button
-                    onClick={()=>window.open("https://wa.me/"+WHATSAPP_NUM+"?text=Bonjour%2C+j%27ai+pay%C3%A9+mon+suivi+AutoTrack+%2810%E2%82%AC%29+via+PayPal.+Mon+email+est+:+"+encodeURIComponent(adminUser?.email||""),"_blank")}
-                    style={{flex:1,display:"flex",alignItems:"center",justifyContent:"center",gap:8,padding:"11px",borderRadius:10,border:"1px solid rgba(37,211,102,.3)",background:"rgba(37,211,102,.08)",color:"#25d366",cursor:"pointer",fontFamily:"'Rajdhani',sans-serif",fontSize:13,fontWeight:700,letterSpacing:".06em"}}>
-                    <span style={{fontSize:18}}>💬</span> WhatsApp
+              <h3>{t("pay_title")}</h3>
+              <div className="pay-amount">10<span>€</span></div>
+              <p>{t("pay_msg")}</p>
+              {!showVirement ? (
+                <div className="pay-btns">
+                  <button className="btn-paypal" onClick={()=>window.open("https://paypal.me/JaanusAalmaa/10EUR","_blank")}>
+                    💳 {t("pay_paypal")} — {PAYPAL_EMAIL}
                   </button>
-                  <button
-                    onClick={()=>window.open("mailto:krediitas@gmail.com?subject=Paiement AutoTrack&body=Bonjour, j'ai payé mon suivi AutoTrack (10€) via PayPal. Mon email est : "+(adminUser?.email||""),"_blank")}
-                    style={{flex:1,display:"flex",alignItems:"center",justifyContent:"center",gap:8,padding:"11px",borderRadius:10,border:"1px solid var(--border)",background:"var(--card)",color:"var(--muted)",cursor:"pointer",fontFamily:"'Rajdhani',sans-serif",fontSize:13,fontWeight:700}}>
-                    <span style={{fontSize:16}}>📧</span> Email
+                  <button className="btn-virement" onClick={()=>setShowVirement(true)}>
+                    🏦 {t("pay_virement")}
                   </button>
+                  <p style={{fontSize:11,color:"var(--muted)"}}>{t("pay_note")} <strong style={{color:"var(--blue)"}}>krediitas@gmail.com</strong></p>
+                  <span className="pay-cancel" onClick={()=>{setShowPayment(false);setPendingGen(false);}}>Annuler</span>
                 </div>
-                <span className="pay-cancel" onClick={()=>{setShowPayment(false);setPendingGen(false);}}>Annuler</span>
-              </div>
+              ) : (
+                <div>
+                  <div className="virement-info">
+                    <p>Bénéficiaire</p>
+                    <strong>{IBAN_NAME}</strong>
+                    <p>IBAN</p>
+                    <strong style={{letterSpacing:".1em",fontFamily:"'Rajdhani',sans-serif",fontSize:15}}>{IBAN}</strong>
+                    <p style={{marginTop:8}}>Montant : <strong>10,00 EUR</strong></p>
+                    <p>Référence : <strong>{adminUser?.email||""}</strong></p>
+                  </div>
+                  <p style={{fontSize:11,color:"var(--muted)",marginTop:10}}>{t("pay_note")} <strong style={{color:"var(--blue)"}}>krediitas@gmail.com</strong></p>
+                  <p style={{fontSize:12,color:"var(--orange)",marginTop:8,fontWeight:600}}>{t("pay_pending")}</p>
+                  <div style={{display:"flex",gap:10,marginTop:14,justifyContent:"center"}}>
+                    <button className="btn-virement" onClick={()=>setShowVirement(false)}>← Retour</button>
+                    <span className="pay-cancel" onClick={()=>{setShowPayment(false);setShowVirement(false);setPendingGen(false);}}>Annuler</span>
+                  </div>
+                </div>
+              )}
             </div>
           </div>
         )}
@@ -1354,8 +983,8 @@ async function doRegister() {
             ) : (
               <button className="nav-btn" onClick={()=>{setShowLogin(true);setLoginErr("");}}>🔐 Admin</button>
             ))}
-            <button className="theme-btn" onClick={()=>setDarkMode(p=>!p)} title="Mode clair/sombre" style={{fontSize:12,fontWeight:700,letterSpacing:".05em"}}>
-              {darkMode ? "LIGHT" : "DARK"}
+            <button className="theme-btn" onClick={()=>setDarkMode(p=>!p)}>
+              {darkMode?"LIGHT":"DARK"}
             </button>
             <div className="lang-wrap" onClick={e=>e.stopPropagation()}>
               <button className="lang-btn" onClick={()=>setShowLang(p=>!p)}>{T[lang]?.flag||"🌐"} {T[lang]?.code||"FR"} ▾</button>
@@ -1363,7 +992,7 @@ async function doRegister() {
                 <div className="lang-drop">
                   {Object.entries(T).map(([l,v])=>(
                     <div key={l} className={"lang-opt"+(lang===l?" active":"")} onClick={()=>{setLangState(l);setShowLang(false);}}>
-                      {v.flag} {l==="fr"?"Français":l==="en"?"English":"Deutsch"}
+                      {v.flag} {l==="fr"?"Français":l==="en"?"English":l==="de"?"Deutsch":l==="hr"?"Hrvatski":l==="it"?"Italiano":l==="bg"?"Български":"Română"}
                     </div>
                   ))}
                 </div>
@@ -1372,83 +1001,19 @@ async function doRegister() {
           </div>
         </header>
 
-        {/* ════ CLIENT SEARCH + LANDING ════ */}
+        {/* ════ CLIENT SEARCH ════ */}
         {view==="client" && !trackData && (
           <div className="z1">
-            <div className="landing">
-              <h1>Suivez votre <span className="ac">véhicule</span><br/>en temps réel</h1>
-              <p className="sub">AutoTrack permet à vos clients de suivre leur véhicule à chaque étape du transport. Simple, professionnel, disponible 24h/24.</p>
-
-              {/* SEARCH BOX */}
-              <div className="track-demo">
-                <h3>📦 Vous avez un numéro de suivi ?</h3>
-                <div className="search-box" style={{maxWidth:520,margin:"0 auto"}}>
-                  <div className="s-row">
-                    <input className="s-in" value={trackInput} onChange={e=>setTrackInput(e.target.value)} onKeyDown={e=>e.key==="Enter"&&doTrack()} placeholder="ATK-2026-FR-00142" maxLength={22}/>
-                    <button className="btn-blue" onClick={doTrack} disabled={loading}>{t("btn_track")}</button>
-                  </div>
-                  <p className="s-hint">{t("hint")}</p>
-                  {trackError && <div className="err-msg">{t("not_found")}</div>}
+            <div className="hero">
+              <h1>{t("h1a")} <span className="ac">{t("h1b")}</span><br/>{t("h1c")}</h1>
+              <p>{t("h1sub")}</p>
+              <div className="search-box">
+                <div className="s-row">
+                  <input className="s-in" value={trackInput} onChange={e=>setTrackInput(e.target.value)} onKeyDown={e=>e.key==="Enter"&&doTrack()} placeholder="ATK-2026-FR-00142" maxLength={22}/>
+                  <button className="btn-blue" onClick={doTrack} disabled={loading}>{t("btn_track")}</button>
                 </div>
-              </div>
-
-              {/* FEATURES */}
-              <div className="features">
-                <div className="feat">
-                  <div className="feat-ico">🚗</div>
-                  <div className="feat-title">Suivi en temps réel</div>
-                  <div className="feat-desc">Vos clients voient la position exacte de leur véhicule à chaque étape du transport, mise à jour instantanément.</div>
-                </div>
-                <div className="feat">
-                  <div className="feat-ico">📧</div>
-                  <div className="feat-title">Notifications email</div>
-                  <div className="feat-desc">À chaque mise à jour, votre client reçoit automatiquement un email avec le statut et la position de son véhicule.</div>
-                </div>
-                <div className="feat">
-                  <div className="feat-ico">📱</div>
-                  <div className="feat-title">QR Code & Mobile</div>
-                  <div className="feat-desc">Générez un QR Code pour chaque suivi. Vos clients scannent et accèdent directement à leur page de suivi.</div>
-                </div>
-                <div className="feat">
-                  <div className="feat-ico">🔐</div>
-                  <div className="feat-title">Accès sécurisé</div>
-                  <div className="feat-desc">Panneau admin protégé par email et mot de passe. Vos clients ne voient que leurs propres informations.</div>
-                </div>
-                <div className="feat">
-                  <div className="feat-ico">🌍</div>
-                  <div className="feat-title">Multilingue</div>
-                  <div className="feat-desc">Interface disponible en français, anglais, allemand, croate, italien, bulgare et roumain.</div>
-                </div>
-                <div className="feat">
-                  <div className="feat-ico">📊</div>
-                  <div className="feat-title">Tableau de bord</div>
-                  <div className="feat-desc">Statistiques complètes, recherche avancée, gestion des statuts et historique de toutes vos livraisons.</div>
-                </div>
-              </div>
-
-              {/* PRICING */}
-              <div className="pricing-card">
-                <h3>💼 Devenir partenaire</h3>
-                <div style={{marginBottom:8}}>
-                  <div className="price-tag">10<span>€</span></div>
-                  <div style={{fontSize:13,color:"var(--muted)"}}>par numéro de suivi généré</div>
-                </div>
-                <div className="price-free">✨ Premier suivi offert gratuitement</div>
-                <ul className="price-features">
-                  <li>Suivi illimité de vos véhicules</li>
-                  <li>Notifications email automatiques</li>
-                  <li>QR Code téléchargeable</li>
-                  <li>Tableau de bord & statistiques</li>
-                  <li>Mises à jour en temps réel</li>
-                  <li>Support multilingue</li>
-                </ul>
-                <button className="btn-cta" onClick={()=>{setShowRegister(true);setRegOk(false);setRegErr("");}}>
-                  🚀 Créer mon compte gratuitement
-                </button>
-              </div>
-
-              <div style={{display:"flex",gap:16,justifyContent:"center",flexWrap:"wrap"}}>
-                <p style={{fontSize:12,color:"var(--muted)"}}>Déjà partenaire ? <span style={{color:"var(--blue)",cursor:"pointer",textDecoration:"underline"}} onClick={()=>{setShowLogin(true);setLoginErr("");}}>Se connecter →</span></p>
+                <p className="s-hint">{t("hint")}</p>
+                {trackError && <div className="err-msg">{t("not_found")}</div>}
               </div>
             </div>
           </div>
@@ -1458,33 +1023,25 @@ async function doRegister() {
         {view==="client" && trackData && (
           <div className="z1">
             <div className="res-wrap">
-              <div style={{display:"flex",gap:8,marginBottom:16,flexWrap:"wrap",alignItems:"center"}}>
-                <div className="back-btn" onClick={()=>{if(unsubTrackRef.current){unsubTrackRef.current();unsubTrackRef.current=null;}setTrackData(null);setTrackError(false);setTrackInput("");}}>← {t("back")}</div>
-                <div style={{flex:1}}/>
+              <div className="back-btn" onClick={()=>{if(unsubTrackRef.current){unsubTrackRef.current();unsubTrackRef.current=null;}setTrackData(null);setTrackError(false);setTrackInput("");}}>← {t("back")}</div>
+              <div style={{display:"flex",gap:8,marginBottom:10,justifyContent:"flex-end"}}>
                 <button className="pdf-btn" onClick={generatePDF}>PDF</button>
                 <button className={"notif-btn"+(notifEnabled?" active":"")} onClick={enableNotifications}>
-                  {notifEnabled?"Notifications ON":"Notifications"}
+                  {notifEnabled?"🔔 ON":"🔔 Notifs"}
                 </button>
               </div>
               <div className="top-card">
-                <div className="res-id">{trackId}</div>
-                <div className="res-client-row">
-                  <div>
-                    <div className="res-name">{trackData.client}</div>
-                    <div className="res-veh">{trackData.vehicle}{trackData.color&&trackData.color!=="—"?" · "+trackData.color:""}</div>
-                    <div className="res-co">{trackData.company}</div>
-                  </div>
-                  <div className="res-eta-box">
-                    <div className="res-eta-lbl">Arrivée estimée</div>
-                    <div className="res-eta">{trackData.arr}</div>
-                  </div>
+                <div>
+                  <div className="res-id">{trackId}</div>
+                  <div className="res-route"><b>{trackData.from}</b> → <b>{trackData.to}</b></div>
+                  <span className={sBadgeClass(trackData.statusKey)}><span className="sdot"/>{t(trackData.statusKey+"f")}</span>
                 </div>
-                <div className="res-route-row">
-                  <span className="res-route-from">{trackData.fromCity}</span>
-                  <div className="res-route-arrow"></div>
-                  <span className="res-route-to">{trackData.toCity}</span>
+                <div className="res-right">
+                  <div className="res-name">{trackData.client}</div>
+                  <div className="res-veh">{trackData.vehicle}{trackData.color&&trackData.color!=="—"?" — "+trackData.color:""}</div>
+                  <div className="res-eta">{t("eta_pre")} {trackData.arr}</div>
+                  <div className="res-co">{trackData.company}</div>
                 </div>
-                <span className={sBadgeClass(trackData.statusKey)}><span className="sdot"/>{t(trackData.statusKey+"f")}</span>
               </div>
               {(trackData.statusKey==="st6"||trackData.statusKey==="st7") && (
                 <div className="susp-banner">
@@ -1495,16 +1052,8 @@ async function doRegister() {
               {trackData.statusKey!=="st6" && trackData.statusKey!=="st7" && (
                 <div className="prog-card">
                   <div className="ctitle">{t("prog")}</div>
-                  <div className="pbar-wrap">
-                    <div className="pbar"><div className="pfill" style={{width:(trackData.progress||0)+"%"}}/></div>
-                  </div>
-                  <div className="plabels">
-                    <span className="plbl-city">{trackData.fromCity}</span>
-                    <span className="plbl-city">{trackData.toCity}</span>
-                  </div>
-                  <div style={{textAlign:"right",marginTop:4,marginBottom:12}}>
-                    <span className="ppct">{trackData.progress||0}% complété</span>
-                  </div>
+                  <div className="pbar"><div className="pfill" style={{width:(trackData.progress||0)+"%"}}/></div>
+                  <div className="plabels"><span>{trackData.fromCity}</span><span className="ppct">{trackData.progress||0}%</span><span>{trackData.toCity}</span></div>
                   <div className="steps-row">
                     {steps.map((s,i)=>{
                       const ci=steps.indexOf(trackData.statusKey);
@@ -1540,16 +1089,7 @@ async function doRegister() {
               </div>
               <div className="card">
                 <div className="ctitle">{t("info")}</div>
-                <div className="ig">
-                  {(trackData.info||[]).map((item:any,i:number)=>{
-                    return (
-                      <div key={i} className="ii">
-                        <div className="il">{infoLkMap(item.lk)}</div>
-                        <div className="iv">{item.val}</div>
-                      </div>
-                    );
-                  })}
-                </div>
+                <div className="ig">{(trackData.info||[]).map((item:any,i:number)=>(<div key={i} className="ii"><div className="il">{infoLkMap(item.lk)}</div><div className="iv">{item.val}</div></div>))}</div>
               </div>
             </div>
           </div>
@@ -1709,7 +1249,7 @@ async function doRegister() {
           return (
             <div className="z1">
               <div className="stats-page">
-                <div className="adm-hdr"><div className="op-chip" style={{marginBottom:12}}>📊 Stats</div><h2>Tableau de bord</h2><p style={{color:"var(--muted)",fontSize:14,marginBottom:28}}>Vue d&apos;ensemble de votre activité</p></div>
+                <div className="adm-hdr"><div className="op-chip" style={{marginBottom:12}}>📊 Stats</div><h2>Tableau de bord</h2><p style={{color:"var(--muted)",fontSize:14,marginBottom:28}}>Vue d'ensemble de votre activité</p></div>
                 <div className="kpi-row">
                   {[{num:total,lbl:"Total",col:"var(--blue)"},{num:delivered,lbl:"Livrés — "+rate+"%",col:"var(--green)"},{num:inTransit,lbl:"En transit",col:"var(--blue)"},{num:suspended+delayed,lbl:"Suspendus/Retardés",col:"var(--orange)"}].map(s=>(
                     <div key={s.lbl} className="kpi"><div className="kpi-num" style={{color:s.col}}>{s.num}</div><div className="kpi-lbl">{s.lbl}</div></div>
@@ -1812,62 +1352,54 @@ async function doRegister() {
               </div>
             </div>
 
-              {/* PAYMENT HISTORY */}
               <div className="pay-hist-card">
                 <div className="ctitle">💰 Historique des paiements
                   <button className="ref-btn" onClick={loadPayHistory}>↻</button>
                 </div>
                 {payHistory.length === 0
                   ? <p style={{color:"var(--muted)",fontSize:13,padding:"10px 0"}}>Aucun paiement enregistré.</p>
-                  : <table className="pay-hist-table">
-                      <thead><tr>
-                        <th>Date</th><th>Partenaire</th><th>Email</th><th>Montant</th><th>Statut</th>
-                      </tr></thead>
-                      <tbody>
-                        {payHistory.map((p,i) => (
-                          <tr key={i}>
-                            <td style={{fontSize:11,color:"var(--muted)"}}>{p.date}</td>
-                            <td style={{fontWeight:600}}>{p.name||"—"}</td>
-                            <td style={{fontSize:11,color:"var(--blue)"}}>{p.email}</td>
-                            <td><span style={{color:"var(--green)",fontWeight:700}}>{p.amount}</span></td>
-                            <td><span className="pay-badge-ok">✅ Confirmé</span></td>
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
+                  : <>
+                      <table className="pay-hist-table">
+                        <thead><tr><th>Date</th><th>Partenaire</th><th>Montant</th><th>Statut</th></tr></thead>
+                        <tbody>
+                          {payHistory.map((p,i) => (
+                            <tr key={i}>
+                              <td style={{fontSize:11,color:"var(--muted)"}}>{p.date}</td>
+                              <td><div style={{fontWeight:600}}>{p.name||"—"}</div><div style={{fontSize:11,color:"var(--blue)"}}>{p.email}</div></td>
+                              <td><span style={{color:"var(--green)",fontWeight:700}}>{p.amount}</span></td>
+                              <td><span className="pay-badge-ok">✅ Confirmé</span></td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                      <div style={{marginTop:14,paddingTop:10,borderTop:"1px solid var(--border)",display:"flex",justifyContent:"space-between"}}>
+                        <span style={{fontSize:13,color:"var(--muted)"}}>Total reçu</span>
+                        <span style={{fontFamily:"'Rajdhani',sans-serif",fontSize:20,fontWeight:700,color:"var(--green)"}}>{payHistory.length * 10}€</span>
+                      </div>
+                    </>
                 }
-                {payHistory.length > 0 && (
-                  <div style={{marginTop:14,padding:"10px 0",borderTop:"1px solid var(--border)",display:"flex",justifyContent:"space-between",alignItems:"center"}}>
-                    <span style={{fontSize:13,color:"var(--muted)"}}>Total reçu</span>
-                    <span style={{fontFamily:"'Rajdhani',sans-serif",fontSize:20,fontWeight:700,color:"var(--green)"}}>{payHistory.length * 10}€</span>
-                  </div>
-                )}
               </div>
-
-              {/* ACTIVITY LOGS */}
+            </div>
               <div className="logs-card">
                 <div className="ctitle">📋 Logs d&apos;activité
                   <button className="ref-btn" onClick={loadLogs}>↻</button>
                 </div>
-                {activityLogs.length === 0
-                  ? <p style={{color:"var(--muted)",fontSize:13,padding:"10px 0"}}>Aucune activité enregistrée.</p>
-                  : activityLogs.map((log:any, i:number) => {
-                      const icoClass = log.type==="ok"?"log-ico-ok":log.type==="err"?"log-ico-err":log.type==="warn"?"log-ico-warn":"log-ico-info";
-                      const ico = log.type==="ok"?"✅":log.type==="err"?"🔒":log.type==="warn"?"⚠️":"📍";
-                      return (
-                        <div key={i} className="log-item">
-                          <div className={"log-ico "+icoClass}>{ico}</div>
-                          <div className="log-text">
-                            <div className="log-msg">{log.msg}</div>
-                            <div className="log-email">{log.email}</div>
-                            <div className="log-time">{log.time}</div>
-                          </div>
-                        </div>
-                      );
-                    })
+                {activityLogs.length===0
+                  ?<p style={{color:"var(--muted)",fontSize:13,padding:"10px 0"}}>Aucune activité.</p>
+                  :activityLogs.map((log:any,i:number)=>{
+                    const icoClass=log.type==="ok"?"log-ico-ok":log.type==="err"?"log-ico-err":log.type==="warn"?"log-ico-warn":"log-ico-info";
+                    const ico=log.type==="ok"?"✅":log.type==="err"?"🔒":log.type==="warn"?"⚠️":"📍";
+                    return (
+                      <div key={i} className="log-item">
+                        <div className={"log-ico "+icoClass}>{ico}</div>
+                        <div><div className="log-msg">{log.msg}</div><div className="log-sub">{log.email} · {log.time}</div></div>
+                      </div>
+                    );
+                  })
                 }
               </div>
             </div>
+          </div>
         )}
 
         {/* NOT LOGGED */}
