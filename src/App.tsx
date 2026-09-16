@@ -306,6 +306,7 @@ export default function App() {
   const [selectedId, setSelectedId] = useState<string|null>(null);
   const [upd, setUpd] = useState({ city:"", date:"", time:"", status:"st0", note:"", newArr:"" });
   const [genBusy, setGenBusy] = useState(false);
+  const [showPayment, setShowPayment] = useState(false);
   const [updBusy, setUpdBusy] = useState(false);
 
   // MARQUES / ENTREPRISES (dynamique — l'admin peut en ajouter d'autres que AutoDeliv/AutoReach+)
