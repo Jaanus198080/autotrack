@@ -507,17 +507,24 @@ export default function App() {
     const { name, from, to, veh } = form;
     if (!name||!from||!to||!veh) { toast(t("err_fill"),"err"); return; }
     if (!isSA(adminUser?.email)) {
-      // Use local adminProfile first, then verify with Firebase
-      const count = adminProfile?.trackingCount || 0;
-      const isPending = adminProfile?.pendingPayment === true;
+      const freshProfile = await getAdminProfile(adminUser?.email!);
+      const count = freshProfile?.trackingCount || 0;
+      const credits = freshProfile?.trackingCredits || 0;
+      const isPending = freshProfile?.pendingPayment === true;
       // Block if payment pending
       if (isPending) {
-        toast("⏳ Paiement en attente de confirmation. Contactez-nous sur WhatsApp : +32460211559", "err");
+        toast("⏳ Paiement en attente de confirmation. WhatsApp : +"+WHATSAPP_NUM, "err");
         return;
       }
       // 1st tracking free
       if (count === 0) { await doGenerate(); return; }
-      // 2nd+ tracking - show payment modal
+      // Has credits - use one
+      if (credits > 0) {
+        await saveAdminProfile(adminUser?.email!, {trackingCredits: credits - 1});
+        setAdminProfile((p:any) => ({...p, trackingCredits: credits - 1}));
+        await doGenerate(); return;
+      }
+      // No credits - show payment modal
       setShowPayment(true); setPendingGen(true); return;
     }
     await doGenerate();
@@ -665,14 +672,17 @@ export default function App() {
       setPayHistory(snap.docs.map(d=>({id:d.id,...d.data()})).reverse());
     } catch { setPayHistory([]); }
   }
-  async function confirmPaymentWithHistory(email: string, name: string) {
-    // Run Firebase writes in parallel for speed
+  async function confirmPaymentWithHistory(email: string, name: string, pack?: number) {
+    const adminData = await getAdminProfile(email);
+    const currentCredits = adminData?.trackingCredits || 0;
+    const packSize = pack || adminData?.pendingPack || 5;
+    const amounts: Record<number,string> = {5:"45€", 10:"80€", 20:"140€"};
+    const amount = amounts[packSize] || "45€";
     await Promise.all([
-      setDoc(doc(db,"payments","pay_"+Date.now()), {email,name,amount:"10€",date:new Date().toLocaleString("fr-FR"),status:"confirmed"}),
-      saveAdminProfile(email, {pendingPayment:false})
+      setDoc(doc(db,"payments","pay_"+Date.now()), {email,name,amount,pack:packSize,date:new Date().toLocaleString("fr-FR"),status:"confirmed"}),
+      saveAdminProfile(email, {pendingPayment:false, pendingPack:0, trackingCredits: currentCredits + packSize})
     ]);
-    toast("✅ Paiement confirmé pour "+email,"ok");
-    // Reload data in background
+    toast("✅ Pack "+packSize+" suivis activé pour "+email,"ok");
     getAllAdmins().then(a => setAdmins(a));
     loadPayHistory();
   }
@@ -838,14 +848,58 @@ export default function App() {
               <div className="pay-amount">10<span>€</span></div>
               <p>{t("pay_msg")}</p>
               {!showVirement ? (
+                <div style={{marginBottom:12,textAlign:"center"}}>
+                  <div style={{fontSize:13,color:"var(--muted)",marginBottom:4}}>Choisissez votre pack de suivis</div>
+                  <div style={{fontSize:11,color:"var(--green)",fontWeight:600}}>✨ 1er suivi offert — rechargez quand vous voulez</div>
+                </div>
                 <div className="pay-btns">
-                  <button className="btn-paypal" onClick={async ()=>{
-                    await saveAdminProfile(adminUser?.email!, {pendingPayment: true});
+                  {/* PACK 5 */}
+                  <button className="btn-paypal" style={{background:"linear-gradient(135deg,#1a6fd4,#0d4fa0)"}} onClick={async ()=>{
+                    await saveAdminProfile(adminUser?.email!, {pendingPayment: true, pendingPack: 5});
                     setAdminProfile((p:any) => ({...p, pendingPayment: true}));
-                    window.open("https://paypal.me/JaanusAalmaa/10EUR","_blank");
+                    window.open("https://paypal.me/JaanusAalmaa/45EUR","_blank");
                   }}>
-                    💳 {t("pay_paypal")} — {PAYPAL_EMAIL}
+                    <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",width:"100%"}}>
+                      <div style={{textAlign:"left"}}>
+                        <div style={{fontSize:15,fontWeight:700}}>Pack 5 suivis</div>
+                        <div style={{fontSize:11,opacity:.8}}>9€ / suivi</div>
+                      </div>
+                      <div style={{fontSize:22,fontWeight:900}}>45€</div>
+                    </div>
                   </button>
+                  {/* PACK 10 */}
+                  <button className="btn-paypal" style={{background:"linear-gradient(135deg,#e85d04,#c44d00)"}} onClick={async ()=>{
+                    await saveAdminProfile(adminUser?.email!, {pendingPayment: true, pendingPack: 10});
+                    setAdminProfile((p:any) => ({...p, pendingPayment: true}));
+                    window.open("https://paypal.me/JaanusAalmaa/80EUR","_blank");
+                  }}>
+                    <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",width:"100%"}}>
+                      <div style={{textAlign:"left"}}>
+                        <div style={{fontSize:15,fontWeight:700}}>Pack 10 suivis</div>
+                        <div style={{fontSize:11,opacity:.8}}>8€ / suivi — 🔥 Populaire</div>
+                      </div>
+                      <div style={{fontSize:22,fontWeight:900}}>80€</div>
+                    </div>
+                  </button>
+                  {/* PACK 20 */}
+                  <button className="btn-paypal" style={{background:"linear-gradient(135deg,#5db832,#3a7a1e)"}} onClick={async ()=>{
+                    await saveAdminProfile(adminUser?.email!, {pendingPayment: true, pendingPack: 20});
+                    setAdminProfile((p:any) => ({...p, pendingPayment: true}));
+                    window.open("https://paypal.me/JaanusAalmaa/140EUR","_blank");
+                  }}>
+                    <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",width:"100%"}}>
+                      <div style={{textAlign:"left"}}>
+                        <div style={{fontSize:15,fontWeight:700}}>Pack 20 suivis</div>
+                        <div style={{fontSize:11,opacity:.8}}>7€ / suivi — Meilleur prix</div>
+                      </div>
+                      <div style={{fontSize:22,fontWeight:900}}>140€</div>
+                    </div>
+                  </button>
+                  <div style={{background:"rgba(255,255,255,.04)",border:"1px solid var(--border)",borderRadius:10,padding:"12px 14px",fontSize:12,color:"var(--muted)"}}>
+                    📲 Après paiement, contactez-nous :<br/>
+                    <strong style={{color:"var(--blue)"}}>WhatsApp : +{WHATSAPP_NUM}</strong><br/>
+                    <span style={{fontSize:11}}>Indiquez votre email. Vos suivis seront activés rapidement.</span>
+                  </div>
                   <button className="btn-virement" onClick={()=>setShowVirement(true)}>
                     🏦 {t("pay_virement")}
                   </button>
