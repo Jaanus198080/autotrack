@@ -322,6 +322,21 @@ export default function App() {
   const [showPayment, setShowPayment] = useState(false);
   const [updBusy, setUpdBusy] = useState(false);
   const [darkMode, setDarkMode] = useState(true);
+  const [notifEnabled, setNotifEnabled] = useState(false);
+  const unsubTrackRef = useRef<(()=>void)|null>(null);
+  const [showRegister, setShowRegister] = useState(false);
+  const [regEmail, setRegEmail]   = useState("");
+  const [regPass, setRegPass]     = useState("");
+  const [regErr, setRegErr]       = useState("");
+  const [regOk, setRegOk]         = useState(false);
+  const [regBusy, setRegBusy]     = useState(false);
+  const [show2FA, setShow2FA]     = useState(false);
+  const [twoFACode, setTwoFACode] = useState("");
+  const [twoFABusy, setTwoFABusy] = useState(false);
+  const [twoFAErr, setTwoFAErr]   = useState("");
+  const [pendingUser, setPendingUser] = useState<any>(null);
+  const [admins, setAdmins]       = useState<any[]>([]);
+  const [saLoading, setSaLoading] = useState(false);
 
   // MARQUES / ENTREPRISES (dynamique — l'admin peut en ajouter d'autres que AutoDeliv/AutoReach+)
   const [companies, setCompanies] = useState<string[]>(() => {
