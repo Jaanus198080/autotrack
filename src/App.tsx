@@ -434,6 +434,24 @@ export default function App() {
   async function genTracking() {
     const { name, from, to, veh } = form;
     if (!name || !from || !to || !veh) { toast(t("err_fill"), "err"); return; }
+    if (adminUser?.email !== SUPER_ADMIN) {
+      try {
+        const snap = await getDoc(doc(db, "admins", adminUser?.email!));
+        const profile = snap.exists() ? snap.data() : null;
+        const count = profile?.trackingCount || 0;
+        if (profile?.pendingPayment === true) {
+          toast("⏳ Paiement en attente. WhatsApp : +" + WHATSAPP_NUM, "err");
+          return;
+        }
+        if (count >= 1 && (profile?.trackingCredits || 0) === 0) {
+          setShowPayment(true);
+          return;
+        }
+        if (count >= 1 && (profile?.trackingCredits || 0) > 0) {
+          await setDoc(doc(db,"admins",adminUser?.email!), {trackingCredits: (profile?.trackingCredits||0) - 1}, {merge:true});
+        }
+      } catch(e) { console.error(e); }
+    }
     setGenBusy(true);
     const words = from.split(/[,\s]+/).filter((w: string) => /^[A-Za-zÀ-ÿ]{2,}$/.test(w));
     const cc = (words[words.length - 1] || "XX").substring(0, 2).toUpperCase();
@@ -591,6 +609,45 @@ export default function App() {
           <div className="loader-ov">
             <div className="loader-spin" />
             <p style={{color:"var(--muted)",fontSize:14}}>{t("loading")}</p>
+          </div>
+        )}
+
+        {/* ── PAYMENT MODAL ── */}
+        {showPayment && (
+          <div className="pay-ov">
+            <div className="pay-box">
+              <h3>Choisissez votre pack</h3>
+              <p style={{fontSize:12,color:"var(--green)",marginBottom:16,fontWeight:600}}>✨ 1er suivi offert — rechargez quand vous voulez</p>
+              <button className="pack-btn" style={{background:"linear-gradient(135deg,#1a6fd4,#0d4fa0)"}} onClick={async ()=>{
+                await setDoc(doc(db,"admins",adminUser?.email||""), {pendingPayment:true,pendingPack:5}, {merge:true});
+                window.open("https://paypal.me/JaanusAalmaa/45EUR","_blank");
+                setShowPayment(false);
+                toast("✅ Après paiement, contactez-nous sur WhatsApp","ok");
+              }}>
+                <div className="pack-btn-left"><div className="pack-name">Pack 5 suivis</div><div className="pack-sub">9€ / suivi</div></div>
+                <div className="pack-price">45€</div>
+              </button>
+              <button className="pack-btn" style={{background:"linear-gradient(135deg,#e85d04,#c44d00)"}} onClick={async ()=>{
+                await setDoc(doc(db,"admins",adminUser?.email||""), {pendingPayment:true,pendingPack:10}, {merge:true});
+                window.open("https://paypal.me/JaanusAalmaa/80EUR","_blank");
+                setShowPayment(false);
+                toast("✅ Après paiement, contactez-nous sur WhatsApp","ok");
+              }}>
+                <div className="pack-btn-left"><div className="pack-name">Pack 10 suivis</div><div className="pack-sub">8€ / suivi — 🔥 Populaire</div></div>
+                <div className="pack-price">80€</div>
+              </button>
+              <button className="pack-btn" style={{background:"linear-gradient(135deg,#5db832,#3a7a1e)"}} onClick={async ()=>{
+                await setDoc(doc(db,"admins",adminUser?.email||""), {pendingPayment:true,pendingPack:20}, {merge:true});
+                window.open("https://paypal.me/JaanusAalmaa/140EUR","_blank");
+                setShowPayment(false);
+                toast("✅ Après paiement, contactez-nous sur WhatsApp","ok");
+              }}>
+                <div className="pack-btn-left"><div className="pack-name">Pack 20 suivis</div><div className="pack-sub">7€ / suivi — Meilleur prix</div></div>
+                <div className="pack-price">140€</div>
+              </button>
+              <p className="pay-note">Après paiement, envoyez votre preuve sur WhatsApp :<br/><strong style={{color:"var(--blue)"}}>+{WHATSAPP_NUM}</strong><br/>Vos crédits seront activés rapidement.</p>
+              <span className="pay-cancel" onClick={()=>setShowPayment(false)}>Annuler</span>
+            </div>
           </div>
         )}
 
