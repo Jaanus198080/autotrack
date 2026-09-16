@@ -509,14 +509,19 @@ export default function App() {
     if (!isSA(adminUser?.email)) {
       const freshProfile = await getAdminProfile(adminUser?.email!);
       const count = freshProfile?.trackingCount || 0;
+      // Block if payment pending and not yet confirmed
       if (freshProfile?.pendingPayment === true) {
         toast("⏳ Paiement en attente de confirmation. WhatsApp : +32460211559", "err");
         return;
       }
+      // 1st tracking free
       if (count === 0) { await doGenerate(); return; }
-      await saveAdminProfile(adminUser?.email!, {pendingPayment: true});
-      setAdminProfile((p:any) => ({...p, pendingPayment: true}));
-      setShowPayment(true); setPendingGen(true); return;
+      // 2nd+ tracking - show payment modal
+      if (count >= 1) {
+        await saveAdminProfile(adminUser?.email!, {pendingPayment: true});
+        setAdminProfile((p:any) => ({...p, pendingPayment: true}));
+        setShowPayment(true); setPendingGen(true); return;
+      }
     }
     await doGenerate();
   }
