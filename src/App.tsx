@@ -1,29 +1,19 @@
-// src/App.tsx — VERSION MULTI-ADMIN FINALE
-import { useState, useEffect, useCallback, useRef } from "react";
+// src/App.tsx
+import { useState, useEffect, useCallback } from "react";
 import {
-  doc, getDoc, setDoc, collection, getDocs,
-  onSnapshot, deleteDoc, query, where
+  doc, getDoc, setDoc, collection, getDocs
 } from "firebase/firestore";
 import {
-  signInWithEmailAndPassword, signOut, onAuthStateChanged,
-  createUserWithEmailAndPassword, User
+  signInWithEmailAndPassword, signOut, onAuthStateChanged, User
 } from "firebase/auth";
 import { db, auth } from "./firebase";
-import emailjs from "@emailjs/browser";
-import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from "recharts";
 
-const EMAILJS_SERVICE  = "service_tbg6vp7";
-const EMAILJS_TEMPLATE = "template_petii59";
-const EMAILJS_PUBLIC   = "sycumEw72eiYqMsyK";
-const SUPER_ADMIN      = "krediitas@gmail.com";
-const PAYPAL_EMAIL     = "autoreachgmbh@gmail.com";
-const WHATSAPP_NUM     = "32460211559";
-const MAKE_WEBHOOK     = "https://hook.eu1.make.com/9r5uy7wh3pkuy6b3uufiayd8ywylwimw";
-const EMAILJS_PARTNER  = "template_l91lawt";
+const SUPER_ADMIN  = "krediitas@gmail.com";
+const WHATSAPP_NUM = "32460211559";
 
-/* ══════════════════════════════════════════════
-   TRANSLATIONS (fr/en/de/hr/it/ro/bg)
-══════════════════════════════════════════════ */
+/* ═══════════════════════════════════════════
+   TRANSLATIONS
+═══════════════════════════════════════════ */
 const T: Record<string, Record<string, string>> = {
   fr: { flag:"🇫🇷", code:"FR", h1a:"Suivez votre", h1b:"véhicule", h1c:"en temps réel", h1sub:"Entrez votre numéro de suivi pour voir l'état de votre transport", btn_track:"SUIVRE →", hint:"Numéro reçu par email à la confirmation de commande", not_found:"❌ Numéro introuvable. Vérifiez et réessayez.", loading:"Chargement…", back:"Nouvelle recherche", prog:"Progression du transport", itin:"Itinéraire", tl:"Historique des événements", info:"Informations transport", eta_pre:"⏱ Arrivée estimée :", lbl_dep:"Départ", lbl_step:"Étape", lbl_pos:"Position actuelle", lbl_dest:"Destination", lbl_mt:"Mode transport", lbl_carr:"Transporteur", lbl_dd:"Date départ", lbl_eta:"Arrivée est.", lbl_vin:"VIN", lbl_pl:"Plaque", st0:"En attente", st1:"Chargé", st2:"En transit", st3:"Douane", st4:"Livraison", st5:"Livré", st0f:"En attente de chargement", st1f:"Véhicule chargé", st2f:"En transit", st3f:"Passage en douane", st4f:"Livraison en cours", st5f:"Livré ✓", st6:"Retardé", st7:"Annulé", st6f:"Livraison retardée", st7f:"Livraison annulée", adm_title:"Créer un suivi de transport", adm_sub:"Remplissez les informations pour générer un numéro de suivi", s_cli:"Informations Client", s_veh:"Véhicule", s_rou:"Itinéraire", l_name:"Nom complet", l_email:"Email", l_phone:"Téléphone", l_co:"Entreprise", l_veh:"Marque & Modèle", l_col:"Couleur", l_vin:"Numéro VIN", l_plate:"Immatriculation", l_from:"Adresse de départ (chargement)", l_to:"Adresse de livraison", l_dep:"Date de départ", l_arr:"Arrivée estimée", l_mode:"Mode de transport", l_carrier:"Transporteur", m1:"Camion porte-voiture", m2:"Transport maritime (RoRo)", m3:"Transport aérien cargo", m4:"Transport combiné", btn_gen:"🚗 GÉNÉRER LE NUMÉRO DE SUIVI", gen_ok:"✅ Numéro de suivi créé avec succès", btn_copy:"Copier le numéro", lbl_link:"🔗 Lien à envoyer au client :", link_note:"Le client verra uniquement ses informations — sans accès admin.", upd_h:"📍 Mettre à jour la position du transporteur", u_city:"Ville / Localisation actuelle", u_date:"Date de l'événement", u_time:"Heure", u_status:"Statut", u_note:"Note / Détail", btn_upd:"📡 ENVOYER LA MISE À JOUR", hist_h:"📦 Suivis actifs", th1:"N° Suivi", th2:"Client", th3:"Véhicule", th4:"Trajet", th5:"Statut", th6:"Entreprise", ft_tag:"Import Auto · Livraison mondiale · Votre confiance, notre mission", ft_r:"Tous droits réservés.", toast_gen:"✅ Suivi créé :", toast_cop:"📋 Copié !", toast_upd:"📡 Mise à jour envoyée !", err_fill:"⚠️ Champs obligatoires manquants", err_city:"⚠️ Entrez la ville actuelle", err_nosel:"⚠️ Aucun suivi sélectionné", sel:"Suivi sélectionné :", login_title:"Accès Administrateur", login_email:"Email", login_pass:"Mot de passe", login_btn:"SE CONNECTER", login_err:"Email ou mot de passe incorrect.", logout:"Déconnexion", confirm_cancel:"Confirmez-vous l'annulation de cette livraison ? Le client en sera informé." },
   en: { flag:"🇬🇧", code:"EN", h1a:"Track your", h1b:"vehicle", h1c:"in real time", h1sub:"Enter your tracking number to check your transport status", btn_track:"TRACK →", hint:"Tracking number received by email upon order confirmation", not_found:"❌ Number not found. Please check and try again.", loading:"Loading…", back:"New search", prog:"Transport progress", itin:"Route", tl:"Event history", info:"Transport information", eta_pre:"⏱ Estimated arrival:", lbl_dep:"Departure", lbl_step:"Stop", lbl_pos:"Current position", lbl_dest:"Destination", lbl_mt:"Transport mode", lbl_carr:"Carrier", lbl_dd:"Departure", lbl_eta:"Est. arrival", lbl_vin:"VIN", lbl_pl:"Plate", st0:"Waiting", st1:"Loaded", st2:"In transit", st3:"Customs", st4:"Delivery", st5:"Delivered", st0f:"Awaiting loading", st1f:"Vehicle loaded", st2f:"In transit", st3f:"Customs clearance", st4f:"Out for delivery", st5f:"Delivered ✓", st6:"Delayed", st7:"Cancelled", st6f:"Delivery delayed", st7f:"Delivery cancelled", adm_title:"Create a transport tracking", adm_sub:"Fill in the information to generate a tracking number", s_cli:"Client Information", s_veh:"Vehicle", s_rou:"Route", l_name:"Full name", l_email:"Email", l_phone:"Phone", l_co:"Company", l_veh:"Make & Model", l_col:"Color", l_vin:"VIN number", l_plate:"License plate", l_from:"Pickup address (loading)", l_to:"Delivery address", l_dep:"Departure date", l_arr:"Estimated arrival", l_mode:"Transport mode", l_carrier:"Carrier", m1:"Car transporter truck", m2:"Maritime transport (RoRo)", m3:"Air cargo", m4:"Combined transport", btn_gen:"🚗 GENERATE TRACKING NUMBER", gen_ok:"✅ Tracking number created", btn_copy:"Copy number", lbl_link:"🔗 Link to send to client:", link_note:"The client will only see their transport info — no admin access.", upd_h:"📍 Update carrier position", u_city:"City / Current location", u_date:"Event date", u_time:"Time", u_status:"Status", u_note:"Note / Detail", btn_upd:"📡 SEND UPDATE", hist_h:"📦 Active shipments", th1:"Tracking #", th2:"Client", th3:"Vehicle", th4:"Route", th5:"Status", th6:"Company", ft_tag:"Car Import · Global Delivery · Your Trust, Our Mission", ft_r:"All rights reserved.", toast_gen:"✅ Tracking created:", toast_cop:"📋 Copied!", toast_upd:"📡 Update sent!", err_fill:"⚠️ Required fields missing", err_city:"⚠️ Please enter current city", err_nosel:"⚠️ No tracking selected", sel:"Tracking selected:", login_title:"Admin Access", login_email:"Email", login_pass:"Password", login_btn:"SIGN IN", login_err:"Incorrect email or password.", logout:"Sign out", confirm_cancel:"Confirm cancellation of this delivery? The client will be notified." },
@@ -34,9 +24,9 @@ const T: Record<string, Record<string, string>> = {
   ro: { flag:"🇷🇴", code:"RO", h1a:"Urmăriți-vă", h1b:"vehiculul", h1c:"în timp real", h1sub:"Introduceți numărul de urmărire", btn_track:"URMĂRIRE →", hint:"Numărul a fost trimis prin email", not_found:"❌ Numărul nu a fost găsit.", loading:"Se încarcă…", back:"Căutare nouă", prog:"Progresul", itin:"Itinerar", tl:"Istoricul", info:"Informații", eta_pre:"⏱ Sosire:", lbl_dep:"Plecare", lbl_step:"Oprire", lbl_pos:"Poziție", lbl_dest:"Destinație", lbl_mt:"Transport", lbl_carr:"Transportator", lbl_dd:"Plecare", lbl_eta:"Sosire", lbl_vin:"VIN", lbl_pl:"Înmatriculare", st0:"Așteptare", st1:"Încărcat", st2:"În tranzit", st3:"Vamă", st4:"Livrare", st5:"Livrat", st0f:"În așteptare încărcare", st1f:"Vehicul încărcat", st2f:"În tranzit", st3f:"Vămuire", st4f:"Livrare în curs", st5f:"Livrat ✓", st6:"Întârziat", st7:"Anulat", st6f:"Livrare întârziată", st7f:"Livrare anulată", adm_title:"Creare urmărire", adm_sub:"Completați informațiile", s_cli:"Client", s_veh:"Vehicul", s_rou:"Itinerar", l_name:"Nume complet", l_email:"Email", l_phone:"Telefon", l_co:"Companie", l_veh:"Marcă și Model", l_col:"Culoare", l_vin:"VIN", l_plate:"Înmatriculare", l_from:"Adresă plecare", l_to:"Adresă livrare", l_dep:"Data plecare", l_arr:"Sosire estimată", l_mode:"Transport", l_carrier:"Transportator", m1:"Camion", m2:"Maritim (RoRo)", m3:"Aerian cargo", m4:"Combinat", btn_gen:"🚗 GENEREAZĂ NUMĂRUL", gen_ok:"✅ Numărul a fost creat", btn_copy:"Copiați", lbl_link:"🔗 Link client:", link_note:"Clientul vede doar informațiile sale.", upd_h:"📍 Actualizați poziția", u_city:"Orașul", u_date:"Data", u_time:"Ora", u_status:"Status", u_note:"Notă", btn_upd:"📡 TRIMITE", hist_h:"📦 Expedieri active", th1:"Nr.", th2:"Client", th3:"Vehicul", th4:"Traseu", th5:"Status", th6:"Companie", ft_tag:"Import Auto · Livrare globală · Încrederea dvs.", ft_r:"Toate drepturile rezervate.", toast_gen:"✅ Creat:", toast_cop:"📋 Copiat!", toast_upd:"📡 Actualizat!", err_fill:"⚠️ Câmpuri lipsesc", err_city:"⚠️ Introduceți orașul", err_nosel:"⚠️ Nicio urmărire", sel:"Selectat:", login_title:"Acces Administrator", login_email:"Email", login_pass:"Parolă", login_btn:"CONECTARE", login_err:"Email sau parolă incorectă.", logout:"Deconectare", confirm_cancel:"Confirmați anularea acestei livrări? Clientul va fi notificat." }
 };
 
-/* ══════════════════════════════════════════════
+/* ═══════════════════════════════════════════
    STYLES
-══════════════════════════════════════════════ */
+═══════════════════════════════════════════ */
 const css = `
   @import url('https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;600;700&family=Exo+2:wght@300;400;500;600;700&display=swap');
   *{margin:0;padding:0;box-sizing:border-box;}
@@ -215,6 +205,17 @@ const css = `
   .login-box .fgroup{text-align:left;margin-bottom:12px;}
   .login-err{background:rgba(232,93,4,.1);border:1px solid rgba(232,93,4,.3);border-radius:8px;padding:9px 13px;font-size:12px;color:var(--orange);margin-bottom:13px;}
 
+  .pay-ov{position:fixed;inset:0;background:rgba(8,12,24,.95);z-index:400;display:flex;align-items:center;justify-content:center;padding:20px;}
+  .pay-box{background:rgba(15,20,35,.98);border:1px solid var(--border);border-radius:20px;padding:28px;max-width:420px;width:100%;text-align:center;}
+  .pay-box h3{font-family:'Rajdhani',sans-serif;font-size:20px;font-weight:700;margin-bottom:16px;color:#fff;}
+  .pack-btn{width:100%;display:flex;justify-content:space-between;align-items:center;padding:14px 18px;border-radius:12px;border:none;color:#fff;cursor:pointer;margin-bottom:10px;transition:transform .2s;}
+  .pack-btn:hover{transform:translateY(-2px);}
+  .pack-btn-left{text-align:left;}
+  .pack-name{font-family:'Rajdhani',sans-serif;font-size:16px;font-weight:700;}
+  .pack-sub{font-size:11px;opacity:.8;}
+  .pack-price{font-family:'Rajdhani',sans-serif;font-size:24px;font-weight:900;}
+  .pay-note{font-size:12px;color:var(--muted);margin:12px 0;line-height:1.6;}
+  .pay-cancel{font-size:12px;color:var(--muted);cursor:pointer;text-decoration:underline;display:block;margin-top:12px;}
   @media(max-width:640px){
     .g2,.ig,.fg,.upd-g3,.upd-g2{grid-template-columns:1fr;}
     .fg .full,.sdivider,.btn-gen{grid-column:1;}
@@ -230,726 +231,403 @@ const css = `
   }
 `;
 
-/* ══════════════════════════════════════════════
-   DB HELPERS
-══════════════════════════════════════════════ */
-async function dbRead(adminEmail?: string): Promise<Record<string,any>> {
+/* ═══════════════════════════════════════════
+   FIREBASE DB HELPERS
+═══════════════════════════════════════════ */
+async function dbRead(): Promise<Record<string, any>> {
   try {
     const col = collection(db, "trackings");
-    const snap = adminEmail && adminEmail !== SUPER_ADMIN
-      ? await getDocs(query(col, where("adminEmail","==",adminEmail)))
-      : await getDocs(col);
-    const r: Record<string,any> = {};
-    snap.forEach(d => { r[d.id] = d.data(); });
-    return r;
-  } catch { return {}; }
-}
-async function dbWrite(id: string, data: any) { await setDoc(doc(db, "trackings", id), data); }
-async function dbReadOne(id: string): Promise<any|null> {
-  try { const s = await getDoc(doc(db,"trackings",id)); return s.exists()?s.data():null; } catch { return null; }
-}
-async function getAdminProfile(email: string): Promise<any|null> {
-  try { const s = await getDoc(doc(db,"admins",email)); return s.exists()?s.data():null; } catch { return null; }
-}
-async function saveAdminProfile(email: string, data: any) {
-  await setDoc(doc(db,"admins",email), data, {merge:true});
-}
-async function getAllAdmins(): Promise<any[]> {
-  try {
-    const snap = await getDocs(collection(db,"admins"));
-    return snap.docs.map(d => ({id:d.id,...d.data()}));
-  } catch { return []; }
-}
-async function getInviteCodes(): Promise<any[]> {
-  try {
-    const snap = await getDocs(collection(db,"inviteCodes"));
-    return snap.docs.map(d => ({id:d.id,...d.data()}));
-  } catch { return []; }
-}
-async function createInviteCode(): Promise<string> {
-  const code = "INV-" + Date.now().toString(36).toUpperCase() + "-" + Math.random().toString(36).substring(2,5).toUpperCase();
-  await setDoc(doc(db,"inviteCodes",code), {used:false, createdAt: new Date().toISOString()});
-  return code;
+    const snap = await getDocs(col);
+    const result: Record<string, any> = {};
+    snap.forEach(d => { result[d.id] = d.data(); });
+    return result;
+  } catch (e) {
+    console.error("dbRead error", e);
+    return {};
+  }
 }
 
-/* ══════════════════════════════════════════════
+async function dbWrite(id: string, data: any): Promise<void> {
+  await setDoc(doc(db, "trackings", id), data);
+}
+
+async function dbReadOne(id: string): Promise<any | null> {
+  try {
+    const snap = await getDoc(doc(db, "trackings", id));
+    return snap.exists() ? snap.data() : null;
+  } catch {
+    return null;
+  }
+}
+
+/* ═══════════════════════════════════════════
    HELPERS
-══════════════════════════════════════════════ */
-function fmt(d: string) { if (!d) return "—"; try { return new Date(d).toLocaleDateString("fr-FR"); } catch { return d; } }
-function nowStr() { return new Date().toLocaleString("fr-FR",{day:"2-digit",month:"2-digit",year:"numeric",hour:"2-digit",minute:"2-digit"}); }
+═══════════════════════════════════════════ */
+function fmt(d: string) {
+  if (!d) return "—";
+  try { return new Date(d).toLocaleDateString("fr-FR"); } catch { return d; }
+}
+function nowStr() {
+  return new Date().toLocaleString("fr-FR", { day:"2-digit", month:"2-digit", year:"numeric", hour:"2-digit", minute:"2-digit" });
+}
 
-/* ══════════════════════════════════════════════
-   APP
-══════════════════════════════════════════════ */
+/* ═══════════════════════════════════════════
+   MAIN APP
+═══════════════════════════════════════════ */
 export default function App() {
   const [lang, setLangState] = useState("fr");
-  const [darkMode, setDarkMode] = useState(true);
-  const [notifEnabled, setNotifEnabled] = useState(false);
-  const [payHistory, setPayHistory] = useState<any[]>([]);
-  const [activityLogs, setActivityLogs] = useState<any[]>([]);
   const t = (k: string) => T[lang]?.[k] ?? T.fr[k] ?? k;
-  const params = new URLSearchParams(window.location.search);
-  const isAdminUrl    = params.get("admin") === "1";
-  const isSuperAdmin  = params.get("superadmin") === "1";
-  const isRegisterUrl = params.get("register") === "1";
 
-  const [view, setView] = useState<"client"|"admin"|"stats"|"superadmin">(
-    isSuperAdmin ? "superadmin" : isAdminUrl ? "admin" : "client"
-  );
+  const isAdminUrl = new URLSearchParams(window.location.search).get("admin") === "1";
+  const [view, setView] = useState<"client"|"admin">(isAdminUrl ? "admin" : "client");
   const [showLang, setShowLang] = useState(false);
-  const [toasts, setToasts]     = useState<{id:number;msg:string;type:string}[]>([]);
-  const [loading, setLoading]   = useState(false);
+  const [toasts, setToasts] = useState<{id:number;msg:string;type:string}[]>([]);
+  const [loading, setLoading] = useState(false);
 
   // AUTH
-  const [adminUser, setAdminUser]   = useState<User|null>(null);
-  const [adminProfile, setAdminProfile] = useState<any|null>(null);
+  const [adminUser, setAdminUser] = useState<User|null>(null);
   const [authChecked, setAuthChecked] = useState(false);
-  const [showLogin, setShowLogin]   = useState(false);
+  const [showLogin, setShowLogin] = useState(false);
   const [loginEmail, setLoginEmail] = useState("");
-  const [loginPass, setLoginPass]   = useState("");
-  const [loginErr, setLoginErr]     = useState("");
-  const [loginBusy, setLoginBusy]   = useState(false);
-  const [show2FA, setShow2FA]       = useState(false);
-  const [twoFACode, setTwoFACode]   = useState("");
-  const [twoFABusy, setTwoFABusy]   = useState(false);
-  const [twoFAErr, setTwoFAErr]     = useState("");
-  const [pendingUser, setPendingUser] = useState<any>(null);
-
-  // REGISTER
-  const [showRegister, setShowRegister] = useState(isRegisterUrl);
-  const [regEmail, setRegEmail] = useState("");
-  const [regPass, setRegPass]   = useState("");
-  const [regErr, setRegErr]     = useState("");
-  const [regOk, setRegOk]       = useState(false);
-  const [regBusy, setRegBusy]   = useState(false);
-
-  // PAYMENT
-  const [showPayment, setShowPayment]   = useState(false);
-  const [showVirement, setShowVirement] = useState(false);
-  const [pendingGen, setPendingGen]     = useState(false);
+  const [loginPass, setLoginPass] = useState("");
+  const [loginErr, setLoginErr] = useState("");
+  const [loginBusy, setLoginBusy] = useState(false);
 
   // CLIENT
   const [trackInput, setTrackInput] = useState("");
   const [trackError, setTrackError] = useState(false);
-  const [trackData, setTrackData]   = useState<any>(null);
-  const [trackId, setTrackId]       = useState("");
-  const unsubTrackRef = useRef<(()=>void)|null>(null);
+  const [trackData, setTrackData] = useState<any>(null);
+  const [trackId, setTrackId] = useState("");
 
-  // ADMIN FORM
-  const [form, setForm] = useState({name:"",email:"",phone:"",co:"CarConcept",veh:"",col:"",vin:"",plate:"",from:"",to:"",dep:"",arr:"",mode:"Camion porte-voiture",carrier:""});
-  const [customCo, setCustomCo] = useState("");
-  const [genId, setGenId]         = useState<string|null>(null);
-  const [history, setHistory]     = useState<[string,any][]>([]);
+  // ADMIN
+  const [form, setForm] = useState({ name:"", email:"", phone:"", co:"AutoDeliv", veh:"", col:"", vin:"", plate:"", from:"", to:"", dep:"", arr:"", mode:"Camion porte-voiture", carrier:"" });
+  const [genId, setGenId] = useState<string|null>(null);
+  const [history, setHistory] = useState<[string,any][]>([]);
   const [selectedId, setSelectedId] = useState<string|null>(null);
-  const [upd, setUpd] = useState({city:"",date:"",time:"",status:"st0",note:""});
-  const [genBusy, setGenBusy]   = useState(false);
-  const [updBusy, setUpdBusy]   = useState(false);
-  const [search, setSearch]     = useState("");
-  const [filterStatus, setFilterStatus] = useState("all");
-  const [showDeleteConfirm, setShowDeleteConfirm] = useState<string|null>(null);
+  const [upd, setUpd] = useState({ city:"", date:"", time:"", status:"st0", note:"", newArr:"" });
+  const [genBusy, setGenBusy] = useState(false);
+  const [updBusy, setUpdBusy] = useState(false);
 
-  // SUPER ADMIN
-  const [admins, setAdmins]         = useState<any[]>([]);
-  const [inviteCodes, setInviteCodes] = useState<any[]>([]);
-  const [newCode, setNewCode]       = useState<string|null>(null);
-  const [saLoading, setSaLoading]   = useState(false);
+  // MARQUES / ENTREPRISES (dynamique — l'admin peut en ajouter d'autres que AutoDeliv/AutoReach+)
+  const [companies, setCompanies] = useState<string[]>(() => {
+    try {
+      const saved = localStorage.getItem("autotrack_companies");
+      return saved ? JSON.parse(saved) : ["AutoDeliv", "AutoReach+"];
+    } catch { return ["AutoDeliv", "AutoReach+"]; }
+  });
+  const [addingCo, setAddingCo] = useState(false);
+  const [newCoName, setNewCoName] = useState("");
+
+  function persistCompanies(list: string[]) {
+    setCompanies(list);
+    try { localStorage.setItem("autotrack_companies", JSON.stringify(list)); } catch {}
+  }
+
+  function confirmAddCompany() {
+    const name = newCoName.trim();
+    if (!name) { setAddingCo(false); return; }
+    if (!companies.includes(name)) persistCompanies([...companies, name]);
+    setForm(p => ({ ...p, co: name }));
+    setNewCoName("");
+    setAddingCo(false);
+  }
+
+  // Couleur stable et distincte par nom de marque (plutôt qu'un mapping figé bleu/orange)
+  const coColors = ["#1a6fd4", "#e85d04", "#5a9e2f", "#a05ad4", "#d4a843", "#2fb6a8"];
+  function coColor(name: string) {
+    let h = 0;
+    for (let i = 0; i < name.length; i++) h = (h * 31 + name.charCodeAt(i)) >>> 0;
+    return coColors[h % coColors.length];
+  }
 
   const toast = (msg: string, type="ok") => {
     const id = Date.now();
-    setToasts(p => [...p,{id,msg,type}]);
-    setTimeout(() => setToasts(p => p.filter(t=>t.id!==id)), 3500);
+    setToasts(p => [...p, { id, msg, type }]);
+    setTimeout(() => setToasts(p => p.filter(t => t.id !== id)), 3500);
   };
 
   // Auth listener
   useEffect(() => {
-    const u = onAuthStateChanged(auth, async user => {
+    const unsub = onAuthStateChanged(auth, user => {
       setAdminUser(user);
-      if (user) {
-        const profile = await getAdminProfile(user.email!);
-        setAdminProfile(profile);
-      } else {
-        setAdminProfile(null);
-      }
       setAuthChecked(true);
     });
-    return u;
+    return unsub;
   }, []);
 
-  // Init dates + URL track param
+  // Init dates + URL param
   useEffect(() => {
     const today = new Date().toISOString().split("T")[0];
-    const next  = new Date(Date.now()+14*86400000).toISOString().split("T")[0];
-    const now   = new Date();
-    const hhmm  = String(now.getHours()).padStart(2,"0")+":"+String(now.getMinutes()).padStart(2,"0");
-    setForm(p=>({...p,dep:today,arr:next}));
-    setUpd(p=>({...p,date:today,time:hhmm}));
+    const next = new Date(Date.now() + 14 * 86400000).toISOString().split("T")[0];
+    const now = new Date();
+    const hhmm = `${String(now.getHours()).padStart(2,"0")}:${String(now.getMinutes()).padStart(2,"0")}`;
+    setForm(p => ({ ...p, dep: today, arr: next }));
+    setUpd(p => ({ ...p, date: today, time: hhmm }));
+    const params = new URLSearchParams(window.location.search);
     const tid = params.get("track");
     if (tid) { setTrackInput(tid); doTrackById(tid); }
   }, []); // eslint-disable-line
 
-  const isSA = (email?: string|null) => (email||"") === SUPER_ADMIN;
-
-  const loadHistory = useCallback(async (email?: string) => {
-    const e = email || adminUser?.email || undefined;
-    const db2 = await dbRead(e && !isSA(e) ? e : undefined);
+  const loadHistory = useCallback(async () => {
+    const db2 = await dbRead();
     setHistory(Object.entries(db2).reverse());
-  }, [adminUser]);
+  }, []);
 
-  useEffect(() => {
-    if ((view==="admin"||view==="stats") && adminUser) loadHistory(adminUser.email||undefined);
-  }, [view, adminUser, loadHistory]);
+  useEffect(() => { if (view === "admin" && adminUser) loadHistory(); }, [view, adminUser, loadHistory]);
 
-  // Super admin load
-  useEffect(() => {
-    if (view==="superadmin" && adminUser && isSA(adminUser.email)) {
-      setSaLoading(true);
-      Promise.all([getAllAdmins(), getInviteCodes()]).then(([a,c]) => {
-        setAdmins(a);
-        setInviteCodes(c);
-        setSaLoading(false);
-      });
-      loadPayHistory();
-      loadLogs();
-    }
-  }, [view, adminUser]);
-
-  /* ── REGISTER ── */
-  async function doRegister() {
-    setRegErr(""); setRegBusy(true);
-    const email = regEmail.trim();
-    if (!email || !regPass.trim()) { setRegErr("⚠️ Email et mot de passe requis."); setRegBusy(false); return; }
-    try {
-      const cred = await createUserWithEmailAndPassword(auth, email, regPass);
-      await saveAdminProfile(cred.user.email!, {
-        email: cred.user.email, trackingCount: 0,
-        blocked: false, createdAt: new Date().toISOString(), pendingPayment: false
-      });
-      try {
-        await emailjs.send(EMAILJS_SERVICE, EMAILJS_PARTNER, {
-          partner_name: email, partner_email: email, partner_password: regPass,
-          login_link: window.location.origin + "/?admin=1", to_email: email,
-        }, EMAILJS_PUBLIC);
-      } catch(e) { console.error("Welcome email error", e); }
-      try {
-        await emailjs.send(EMAILJS_SERVICE, EMAILJS_TEMPLATE, {
-          client_name: "AutoTrack", vehicle: "Nouveau partenaire", city: "—",
-          status: "Inscription auto", date: new Date().toLocaleString("fr-FR"),
-          note: "📧 " + email, tracking_id: "NOUVEAU-PARTENAIRE",
-          tracking_link: window.location.origin + "/?superadmin=1", to_email: SUPER_ADMIN,
-        }, EMAILJS_PUBLIC);
-      } catch(e) { console.error("Admin notif error", e); }
-      setRegOk(true); toast("✅ Compte créé ! Email envoyé.", "ok");
-    } catch(e: any) {
-      if ((e as any).code === "auth/email-already-in-use") setRegErr("❌ Email déjà utilisé.");
-      else if ((e as any).code === "auth/weak-password") setRegErr("❌ Mot de passe trop court (min. 6).");
-      else setRegErr(t("reg_err"));
-    }
-    setRegBusy(false);
-  }
-
-  
   /* ── LOGIN ── */
   async function doLogin() {
-    setLoginErr(""); setLoginBusy(true);
+    setLoginErr("");
+    setLoginBusy(true);
     try {
-      const cred = await signInWithEmailAndPassword(auth, loginEmail, loginPass);
-      const profile = await getAdminProfile(cred.user.email!);
-      if (profile?.blocked) {
-        await signOut(auth); setLoginErr("❌ Votre compte est bloqué."); setLoginBusy(false); return;
-      }
-      const code = String(Math.floor(100000 + Math.random() * 900000));
-      try {
-        await emailjs.send(EMAILJS_SERVICE, EMAILJS_TEMPLATE, {
-          client_name: cred.user.email, vehicle: "Code 2FA AutoTrack",
-          city: code, status: "Vérification", date: new Date().toLocaleString("fr-FR"),
-          note: "Code valable 5 minutes.", tracking_id: "2FA-"+code,
-          tracking_link: "autotrack.live/?admin=1", to_email: cred.user.email,
-        }, EMAILJS_PUBLIC);
-      } catch(e) { console.error("2FA error",e); }
-      await signOut(auth);
-      setPendingUser({email:loginEmail,pass:loginPass,code,profile,isSA:isSA(cred.user.email)});
-      setShowLogin(false); setShow2FA(true); setTwoFACode(""); setTwoFAErr("");
-    } catch { setLoginErr(t("login_err")); }
+      await signInWithEmailAndPassword(auth, loginEmail, loginPass);
+      setShowLogin(false);
+      setView("admin");
+    } catch {
+      setLoginErr(t("login_err"));
+    }
     setLoginBusy(false);
   }
-  async function doLogout() { await signOut(auth); setAdminProfile(null); setView("client"); }
+
+  async function doLogout() {
+    await signOut(auth);
+    setView("client");
+  }
 
   /* ── TRACK ── */
   async function doTrack() {
-    const raw = trackInput.trim().toUpperCase().replace(/\s/g,"");
+    const raw = trackInput.trim().toUpperCase().replace(/\s/g, "");
     if (!raw) return;
-    setTrackError(false); setLoading(true);
+    setTrackError(false);
+    setLoading(true);
     await doTrackById(raw);
     setLoading(false);
   }
+
   async function doTrackById(raw: string) {
     setLoading(true);
-    if (unsubTrackRef.current) { unsubTrackRef.current(); unsubTrackRef.current=null; }
-    let data = await dbReadOne(raw);
-    let id   = raw;
-    if (!data) {
-      const all = await dbRead();
-      const found = Object.keys(all).find(k =>
-        k.replace(/-/g,"")===raw.replace(/-/g,"") ||
-        k.replace(/-/g,"").endsWith(raw.replace(/-/g,"").slice(-5))
-      );
-      if (found) { id=found; data=all[found]; }
-    }
+    // Normalise le format (espaces/tirets) puis tente une lecture EXACTE d'un seul document.
+    // Aucune lecture de la collection entière ici : un client ne doit jamais pouvoir
+    // récupérer les données d'autres clients en cherchant "à peu près".
+    const clean = raw.replace(/\s/g, "").toUpperCase();
+    const normalized = clean.includes("-") ? clean : clean.replace(/^(ATK)(\d{4})([A-Z]{2})([A-Z0-9]+)$/, "$1-$2-$3-$4");
+    let data = await dbReadOne(normalized);
+    let id = normalized;
+    if (!data && normalized !== clean) { data = await dbReadOne(clean); id = clean; }
     setLoading(false);
     if (!data) { setTrackError(true); setTrackData(null); return; }
-    setTrackId(id); setTrackData(data); setTrackError(false);
-    const unsub = onSnapshot(doc(db,"trackings",id), snap => { if(snap.exists()) setTrackData(snap.data()); });
-    unsubTrackRef.current = unsub;
+    setTrackId(id);
+    setTrackData(data);
+    setTrackError(false);
   }
 
   /* ── GENERATE ── */
-  async function genTracking() {
-    const { name, from, to, veh } = form;
-    if (!name||!from||!to||!veh) { toast(t("err_fill"),"err"); return; }
-    if (!isSA(adminUser?.email)) {
-      const freshProfile = await getAdminProfile(adminUser?.email!);
-      const count = freshProfile?.trackingCount || 0;
-      const credits = freshProfile?.trackingCredits || 0;
-      const isPending = freshProfile?.pendingPayment === true;
-      // Block if payment pending
-      if (isPending) {
-        toast("⏳ Paiement en attente de confirmation. WhatsApp : +"+WHATSAPP_NUM, "err");
-        return;
-      }
-      // 1st tracking free
-      if (count === 0) { await doGenerate(); return; }
-      // Has credits - use one
-      if (credits > 0) {
-        await saveAdminProfile(adminUser?.email!, {trackingCredits: credits - 1});
-        setAdminProfile((p:any) => ({...p, trackingCredits: credits - 1}));
-        await doGenerate(); return;
-      }
-      // No credits - show payment modal
-      setShowPayment(true); setPendingGen(true); return;
-    }
-    await doGenerate();
+  // Génère un suffixe aléatoire cryptographiquement sûr (8 caractères alphanumériques,
+  // beaucoup moins prévisible/devinable que 5 chiffres tirés avec Math.random)
+  function secureSuffix(len = 8) {
+    const chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789"; // sans 0/O/1/I pour éviter la confusion visuelle
+    const arr = new Uint32Array(len);
+    crypto.getRandomValues(arr);
+    return Array.from(arr, n => chars[n % chars.length]).join("");
   }
 
-  async function doGenerate() {
-    setGenBusy(true);
+  async function genTracking() {
     const { name, from, to, veh } = form;
-    const words = from.split(/[,\s]+/).filter((w:string)=>/^[A-Za-zÀ-ÿ]{2,}$/.test(w));
-    const cc  = (words[words.length-1]||"XX").substring(0,2).toUpperCase();
-    const yr  = new Date().getFullYear();
-    const num = String(Math.floor(Math.random()*90000)+10000);
-    const id  = "ATK-"+yr+"-"+cc+"-"+num;
+    if (!name || !from || !to || !veh) { toast(t("err_fill"), "err"); return; }
+    setGenBusy(true);
+    const words = from.split(/[,\s]+/).filter((w: string) => /^[A-Za-zÀ-ÿ]{2,}$/.test(w));
+    const cc = (words[words.length - 1] || "XX").substring(0, 2).toUpperCase();
+    const yr = new Date().getFullYear();
+
+    // Vérifie l'unicité (collision extrêmement improbable, mais on s'assure de ne jamais écraser un suivi existant)
+    let id = "";
+    for (let attempt = 0; attempt < 5; attempt++) {
+      const candidate = `ATK-${yr}-${cc}-${secureSuffix()}`;
+      const exists = await dbReadOne(candidate);
+      if (!exists) { id = candidate; break; }
+    }
+    if (!id) { toast("❌ Erreur de génération, réessayez", "err"); setGenBusy(false); return; }
+
     const dep = fmt(form.dep), arr = fmt(form.arr);
-    const company = form.co==="Autre"?(customCo||"Autre"):form.co;
     const rec = {
-      client:name, email:form.email, phone:form.phone,
-      vehicle:veh, color:form.col||"—", vin:form.vin||"—", plate:form.plate||"—",
-      from, to, fromCity:from.split(",")[0].trim(), toCity:to.split(",")[0].trim(),
-      dep, arr, mode:form.mode, carrier:form.carrier||"—",
-      company, adminEmail: adminUser?.email||"",
-      progress:5, statusKey:"st0",
-      route:[
-        {city:from.split(",")[0].trim(),lk:"lbl_dep",type:"origin",time:dep,note:null},
-        {city:to.split(",")[0].trim(),lk:"lbl_dest",type:"dest",time:"Estimé "+arr,note:null}
+      client: name, email: form.email, phone: form.phone,
+      vehicle: veh, color: form.col || "—", vin: form.vin || "—", plate: form.plate || "—",
+      from, to, fromCity: from.split(",")[0].trim(), toCity: to.split(",")[0].trim(),
+      dep, arr, mode: form.mode, carrier: form.carrier || "—",
+      company: form.co, progress: 5, statusKey: "st0",
+      route: [
+        { city: from.split(",")[0].trim(), lk:"lbl_dep", type:"origin", time: dep, note: null },
+        { city: to.split(",")[0].trim(), lk:"lbl_dest", type:"dest", time: `Estimé ${arr}`, note: null }
       ],
-      timeline:[
-        {icon:"●",type:"active",title:"Prise en charge prévue — "+from.split(",")[0].trim(),time:dep},
-        {icon:"○",type:"pending",title:"Transport en cours",time:"—"},
-        {icon:"○",type:"pending",title:"Livraison — "+to.split(",")[0].trim(),time:"Estimé "+arr}
+      timeline: [
+        { icon:"●", type:"active", title:`Prise en charge prévue — ${from.split(",")[0].trim()}`, time: dep },
+        { icon:"○", type:"pending", title:"Transport en cours", time:"—" },
+        { icon:"○", type:"pending", title:`Livraison — ${to.split(",")[0].trim()}`, time:`Estimé ${arr}` }
       ],
-      info:[
-        {lk:"lbl_mt",val:form.mode},{lk:"lbl_carr",val:form.carrier||"—"},
-        {lk:"lbl_dd",val:dep},{lk:"lbl_eta",val:arr},
-        {lk:"lbl_vin",val:form.vin||"—"},{lk:"lbl_pl",val:form.plate||"—"}
+      info: [
+        { lk:"lbl_mt", val: form.mode }, { lk:"lbl_carr", val: form.carrier || "—" },
+        { lk:"lbl_dd", val: dep }, { lk:"lbl_eta", val: arr },
+        { lk:"lbl_vin", val: form.vin || "—" }, { lk:"lbl_pl", val: form.plate || "—" }
       ]
     };
     await dbWrite(id, rec);
-    // Increment tracking count
-    const newCount = (adminProfile?.trackingCount||0)+1;
-    await saveAdminProfile(adminUser?.email!, {trackingCount:newCount});
-    setAdminProfile((p:any) => ({...p, trackingCount:newCount}));
-    setGenId(id); setSelectedId(id);
-    await loadHistory(adminUser?.email||undefined);
-    toast(t("toast_gen")+" "+id,"ok");
-    setShowPayment(false); setPendingGen(false);
+    setGenId(id);
+    setSelectedId(id);
+    await loadHistory();
+    toast(t("toast_gen") + " " + id, "ok");
     setGenBusy(false);
   }
 
   /* ── PUSH UPDATE ── */
   async function pushUpdate() {
-    if (!selectedId) { toast(t("err_nosel"),"err"); return; }
-    if (!upd.city)   { toast(t("err_city"),"err"); return; }
+    if (!selectedId) { toast(t("err_nosel"), "err"); return; }
+    if (!upd.city) { toast(t("err_city"), "err"); return; }
+    if (upd.status === "st7" && !window.confirm(t("confirm_cancel"))) return;
     setUpdBusy(true);
-    let dt="";
-    if (upd.date) { try { dt=new Date(upd.date).toLocaleDateString("fr-FR"); } catch { dt=upd.date; } if(upd.time) dt+=" — "+upd.time; } else dt=nowStr();
+    let dt = "";
+    if (upd.date) { try { dt = new Date(upd.date).toLocaleDateString("fr-FR"); } catch { dt = upd.date; } if (upd.time) dt += " — " + upd.time; }
+    else dt = nowStr();
     const data = await dbReadOne(selectedId);
-    if (!data) { toast("❌ Introuvable","err"); setUpdBusy(false); return; }
+    if (!data) { toast("❌ Introuvable", "err"); setUpdBusy(false); return; }
     data.statusKey = upd.status;
-    const pm: Record<string,number> = {st0:5,st1:15,st2:50,st3:75,st4:90,st5:100,st6:data.progress||50,st7:data.progress||85};
-    data.progress = pm[upd.status]??data.progress;
-    data.route.forEach((r:any)=>{ if(r.type==="current") r.type="step"; });
-    const di = data.route.findIndex((r:any)=>r.type==="dest");
-    data.route.splice(di,0,{city:upd.city,lk:"lbl_pos",type:"current",time:dt,note:upd.note||null});
-    data.timeline.unshift({icon:"●",type:"active",title:t(upd.status)+" — "+upd.city+(upd.note?" · "+upd.note:""),time:dt});
-    let first=true;
-    data.timeline = data.timeline.map((e:any)=>{
-      if(e.type==="active"){if(first){first=false;return e;}return{...e,type:"done",icon:"✓"};}
+    const pm: Record<string,number> = { st0:5, st1:15, st2:50, st3:75, st4:90, st5:100 };
+    data.progress = pm[upd.status] || data.progress;
+    data.route.forEach((r: any) => { if (r.type === "current") r.type = "step"; });
+    const di = data.route.findIndex((r: any) => r.type === "dest");
+    data.route.splice(di, 0, { city: upd.city, lk:"lbl_pos", type:"current", time: dt, note: upd.note || null });
+    data.timeline.unshift({ icon: upd.status==="st7"?"✕":upd.status==="st6"?"⏱":"●", type:"active", title:`${t(upd.status)} — ${upd.city}${upd.note ? " · " + upd.note : ""}`, time: dt });
+
+    // Mise à jour de la date d'arrivée estimée (en cas de retard ou d'avance)
+    if (upd.newArr) {
+      const newArrFmt = fmt(upd.newArr);
+      if (!data.originalArr) data.originalArr = data.arr; // garde la première estimation
+      if (newArrFmt !== data.arr) {
+        data.timeline.unshift({ icon:"⏱", type:"active", title:`Nouvelle date d'arrivée estimée : ${newArrFmt}${data.originalArr && data.originalArr !== newArrFmt ? ` (initialement prévu le ${data.originalArr})` : ""}`, time: dt });
+        data.arr = newArrFmt;
+        // Met aussi à jour la destination dans l'itinéraire
+        const dest = data.route.find((r: any) => r.type === "dest");
+        if (dest) dest.time = `Estimé ${newArrFmt}`;
+        const etaInfo = data.info?.find((i: any) => i.lk === "lbl_eta");
+        if (etaInfo) etaInfo.val = newArrFmt;
+      }
+    }
+
+    let first = true;
+    data.timeline = data.timeline.map((e: any) => {
+      if (e.type === "active") { if (first) { first = false; return e; } return { ...e, type:"done", icon:"✓" }; }
       return e;
     });
     await dbWrite(selectedId, data);
-    await loadHistory(adminUser?.email||undefined);
-    if (data.email&&data.email!=="—"&&data.email.includes("@")) {
-      try {
-        await emailjs.send(EMAILJS_SERVICE,EMAILJS_TEMPLATE,{
-          client_name:data.client,vehicle:data.vehicle,city:upd.city,
-          status:t(upd.status+"f"),date:dt,note:upd.note?"📝 "+upd.note:"",
-          tracking_id:selectedId,tracking_link:window.location.origin+"/?track="+selectedId,
-          to_email:data.email
-        },EMAILJS_PUBLIC);
-        toast("📧 Email envoyé à "+data.email,"ok");
-      } catch { toast("⚠️ Mise à jour OK mais email non envoyé","err"); }
-    }
-    toast(t("toast_upd"),"ok");
-    setUpd(p=>({...p,city:"",note:""}));
+    await loadHistory();
+    toast(t("toast_upd"), "ok");
+    setUpd(p => ({ ...p, city:"", note:"", newArr:"" }));
     setUpdBusy(false);
   }
 
-  /* ── SELECT / DELETE ── */
+  /* ── SELECT TRACKING ── */
   async function selectTracking(id: string) {
-    setGenId(id); setSelectedId(id);
-    toast(t("sel")+" "+id,"info");
-    document.querySelector(".gen-card")?.scrollIntoView({behavior:"smooth"});
-  }
-  async function deleteTracking(id: string) {
-    try {
-      await deleteDoc(doc(db,"trackings",id));
-      if(selectedId===id){setSelectedId(null);setGenId(null);}
-      await loadHistory(adminUser?.email||undefined);
-      toast("🗑️ Supprimé : "+id,"ok");
-    } catch { toast("❌ Erreur suppression","err"); }
-    setShowDeleteConfirm(null);
-  }
-
-  /* ── 2FA VERIFY ── */
-  async function verify2FA() {
-    if (!pendingUser) return;
-    setTwoFABusy(true); setTwoFAErr("");
-    if (twoFACode.trim() !== pendingUser.code) {
-      setTwoFAErr("❌ Code incorrect. Vérifiez votre email.");
-      setTwoFABusy(false); return;
-    }
-    try {
-      await signInWithEmailAndPassword(auth, pendingUser.email, pendingUser.pass);
-      setAdminProfile(pendingUser.profile);
-      setShow2FA(false); setPendingUser(null);
-      setView(pendingUser.isSA ? "superadmin" : "admin");
-      toast("✅ Connexion sécurisée !", "ok");
-    } catch { setTwoFAErr("❌ Erreur de connexion."); }
-    setTwoFABusy(false);
-  }
-
-  /* ── PUSH NOTIFICATIONS ── */
-  async function enableNotifications() {
-    if (!("Notification" in window)) { toast("❌ Non supporté","err"); return; }
-    if (Notification.permission === "granted") { setNotifEnabled(true); return; }
-    const perm = await Notification.requestPermission();
-    if (perm === "granted") { setNotifEnabled(true); toast("🔔 Notifications activées !","ok"); }
-    else { toast("❌ Notifications refusées","err"); }
-  }
-
-  /* ── PDF ── */
-  function generatePDF() {
-    if (!trackData) return;
-    const d = trackData;
-    const html = `<!DOCTYPE html><html><head><meta charset="UTF-8"/><title>AutoTrack — ${trackId}</title><style>body{font-family:Arial,sans-serif;padding:32px;color:#1a2040;}.logo{font-size:22px;font-weight:900;letter-spacing:.2em;border-bottom:3px solid #1a6fd4;padding-bottom:12px;margin-bottom:24px;}.logo span{color:#1a6fd4;}.section{margin-bottom:18px;}.stitle{font-size:10px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:#7a8499;border-bottom:1px solid #e5e7eb;padding-bottom:5px;margin-bottom:10px;}.row{display:flex;gap:14px;}.field{flex:1;}.label{font-size:9px;color:#9ca3af;text-transform:uppercase;}.value{font-size:13px;font-weight:600;}.footer{margin-top:28px;padding-top:12px;border-top:1px solid #e5e7eb;font-size:11px;color:#9ca3af;display:flex;justify-content:space-between;}</style></head><body><div class="logo">AUTO<span>TRACK</span> — ${trackId}</div><div class="section"><div class="stitle">Client</div><div class="row"><div class="field"><div class="label">Nom</div><div class="value">${d.client}</div></div><div class="field"><div class="label">Véhicule</div><div class="value">${d.vehicle}</div></div><div class="field"><div class="label">Entreprise</div><div class="value">${d.company||"—"}</div></div></div></div><div class="section"><div class="stitle">Itinéraire</div><div class="row"><div class="field"><div class="label">Départ</div><div class="value">${d.fromCity}</div><div style="font-size:11px;color:#6b7280">${d.dep}</div></div><div class="field" style="text-align:center;padding-top:12px;font-size:20px;color:#1a6fd4">→</div><div class="field"><div class="label">Destination</div><div class="value">${d.toCity}</div><div style="font-size:11px;color:#6b7280">Estimé ${d.arr}</div></div></div></div><div class="section"><div class="stitle">Transport</div><div class="row"><div class="field"><div class="label">Mode</div><div class="value">${d.mode||"—"}</div></div><div class="field"><div class="label">Transporteur</div><div class="value">${d.carrier||"—"}</div></div><div class="field"><div class="label">VIN</div><div class="value">${d.vin||"—"}</div></div><div class="field"><div class="label">Plaque</div><div class="value">${d.plate||"—"}</div></div></div></div><div class="footer"><span>AUTOTRACK · autotrack.live</span><span>Généré le ${new Date().toLocaleDateString("fr-FR")}</span></div></body></html>`;
-    const win = window.open("","_blank");
-    if (win) { win.document.write(html); win.document.close(); setTimeout(()=>win.print(),500); }
-  }
-
-  /* ── LOGS ── */
-  async function loadPayHistory() {
-    try {
-      const snap = await getDocs(collection(db,"payments"));
-      setPayHistory(snap.docs.map(d=>({id:d.id,...d.data()})).reverse());
-    } catch { setPayHistory([]); }
-  }
-  async function confirmPaymentWithHistory(email: string, name: string, pack?: number) {
-    const adminData = await getAdminProfile(email);
-    const currentCredits = adminData?.trackingCredits || 0;
-    const packSize = pack || adminData?.pendingPack || 5;
-    const amounts: Record<number,string> = {5:"45€", 10:"80€", 20:"140€"};
-    const amount = amounts[packSize] || "45€";
-    await Promise.all([
-      setDoc(doc(db,"payments","pay_"+Date.now()), {email,name,amount,pack:packSize,date:new Date().toLocaleString("fr-FR"),status:"confirmed"}),
-      saveAdminProfile(email, {pendingPayment:false, pendingPack:0, trackingCredits: currentCredits + packSize})
-    ]);
-    toast("✅ Pack "+packSize+" suivis activé pour "+email,"ok");
-    getAllAdmins().then(a => setAdmins(a));
-    loadPayHistory();
-  }
-  async function loadLogs() {
-    try {
-      const snap = await getDocs(collection(db,"logs"));
-      setActivityLogs(snap.docs.map(d=>({id:d.id,...d.data()})).sort((a:any,b:any)=>b.timestamp-a.timestamp).slice(0,50));
-    } catch { setActivityLogs([]); }
+    setGenId(id);
+    setSelectedId(id);
+    toast(t("sel") + " " + id, "info");
+    document.querySelector(".gen-card")?.scrollIntoView({ behavior:"smooth" });
   }
 
   /* ── COPY ── */
   function copyNum() {
     const el = document.getElementById("gen-num-display");
-    navigator.clipboard.writeText(el?.textContent||"").then(()=>toast(t("toast_cop"),"ok"));
+    navigator.clipboard.writeText(el?.textContent || "").then(() => toast(t("toast_cop"), "ok"));
   }
-
-  /* ── SUPER ADMIN ACTIONS ── */
-  async function genInviteCode() {
-    const code = await createInviteCode();
-    setNewCode(code);
-    const codes = await getInviteCodes();
-    setInviteCodes(codes);
-    toast("✅ Code généré : "+code,"ok");
-  }
-  async function toggleBlock(email: string, blocked: boolean) {
-    await saveAdminProfile(email,{blocked:!blocked});
-    const a = await getAllAdmins();
-    setAdmins(a);
-    toast(blocked?"✅ Débloqué":"🔒 Bloqué","ok");
-  }
-  async function confirmPayment(email: string) {
-    await saveAdminProfile(email,{pendingPayment:false});
-    const a = await getAllAdmins();
-    setAdmins(a);
-    toast("✅ Paiement confirmé pour "+email,"ok");
-  }
-  async function deleteAdmin(email: string) {
-    await deleteDoc(doc(db,"admins",email));
-    const a = await getAllAdmins();
-    setAdmins(a);
-    toast("🗑️ Admin supprimé","ok");
-  }
-
-  /* ── BADGE HELPERS ── */
-  const steps = ["st0","st1","st2","st3","st4","st5"];
-  const stepIcons = ["⏳","📦","🚛","🛃","🏠","✅"];
-  const trackLink = genId ? window.location.origin+"/?track="+genId : "";
 
   function sBadgeClass(stk: string) {
-    if(stk==="st5") return "sbadge s-done";
-    if(stk==="st6"||stk==="st7") return "sbadge s-susp";
-    if(stk==="st3") return "sbadge s-customs";
-    if(stk==="st0") return "sbadge s-wait";
+    if (stk === "st5") return "sbadge s-done";
+    if (stk === "st3") return "sbadge s-customs";
+    if (stk === "st0") return "sbadge s-wait";
+    if (stk === "st6") return "sbadge s-delayed";
+    if (stk === "st7") return "sbadge s-cancelled";
     return "sbadge s-transit";
   }
-  function statusColor(stk: string) {
-    if(stk==="st5") return "var(--green)";
-    if(stk==="st6") return "var(--red)";
-    if(stk==="st7") return "var(--orange)";
-    if(stk==="st3") return "var(--orange)";
-    return "var(--blue)";
-  }
-  const lkMap = (lk:string) => ({lbl_dep:t("lbl_dep"),lbl_step:t("lbl_step"),lbl_pos:t("lbl_pos"),lbl_dest:t("lbl_dest")} as Record<string,string>)[lk]||lk;
-  const infoLkMap = (lk:string) => ({lbl_mt:t("lbl_mt"),lbl_carr:t("lbl_carr"),lbl_dd:t("lbl_dd"),lbl_eta:t("lbl_eta"),lbl_vin:t("lbl_vin"),lbl_pl:t("lbl_pl")} as Record<string,string>)[lk]||lk;
 
-  const filteredHistory = (()=>{
-    const q = search.toLowerCase().trim();
-    if(!q && filterStatus==="all") return history;
-    return history.filter(([id,d])=>{
-      const searchable=[id,d.client,d.vehicle,d.email,d.fromCity,d.toCity,d.from,d.to,d.plate,d.vin,d.carrier,d.company].map(v=>(v||"").toLowerCase()).join(" ");
-      return (!q||searchable.includes(q)) && (filterStatus==="all"||d.statusKey===filterStatus);
-    });
-  })();
+  const lkMap = (lk: string) => ({ lbl_dep: t("lbl_dep"), lbl_step: t("lbl_step"), lbl_pos: t("lbl_pos"), lbl_dest: t("lbl_dest") } as Record<string,string>)[lk] || lk;
+  const infoLkMap = (lk: string) => ({ lbl_mt: t("lbl_mt"), lbl_carr: t("lbl_carr"), lbl_dd: t("lbl_dd"), lbl_eta: t("lbl_eta"), lbl_vin: t("lbl_vin"), lbl_pl: t("lbl_pl") } as Record<string,string>)[lk] || lk;
 
-  if (!authChecked) return <div className="loader-ov"><div className="loader-spin"/></div>;
+  const steps = ["st0","st1","st2","st3","st4","st5","st6","st7"];
+  const stepIcons = ["⏳","📦","🚛","🛃","🏠","✅"];
+  const trackLink = genId ? `${window.location.origin}${window.location.pathname}?track=${genId}` : "";
+
+  if (!authChecked) return <div className="loader-ov"><div className="loader-spin" /></div>;
 
   return (
     <>
       <style>{css}</style>
-      <div className={"at-root"+(darkMode?"":" light-mode")} onClick={()=>setShowLang(false)}>
-        <div className="bg-grid"/><div className="bg-glow"/>
+      <div className="at-root" onClick={() => setShowLang(false)}>
+        <div className="bg-grid" /><div className="bg-glow" />
 
-        {/* ── REGISTER MODAL ── */}
-        {showRegister && (
-          <div className="reg-ov">
-            <div className="reg-box">
-              <h2>🚗 {t("reg_title")}</h2>
-              <p>AutoTrack — Accès partenaire</p>
-              {regOk ? (
-                <>
-                  <div className="reg-ok">{t("reg_ok")}</div>
-                  <button className="btn-blue" style={{width:"100%"}} onClick={()=>{setShowRegister(false);setShowLogin(true);}}>Se connecter →</button>
-                </>
-              ) : (
-                <>
-                  {regErr && <div className="login-err">{regErr}</div>}
-                  <div className="fgroup" style={{textAlign:"left",marginBottom:12}}>
-                    <div className="flabel">{t("reg_email")}</div>
-                    <input className="fi" type="email" value={regEmail} onChange={e=>setRegEmail(e.target.value)} placeholder="mon@email.com"/>
-                  </div>
-                  <div className="fgroup" style={{textAlign:"left",marginBottom:20}}>
-                    <div className="flabel">{t("reg_pass")}</div>
-                    <input className="fi" type="password" value={regPass} onChange={e=>setRegPass(e.target.value)} placeholder="••••••••"/>
-                  </div>
-                  <button className="btn-blue" style={{width:"100%",marginBottom:10}} onClick={doRegister} disabled={regBusy}>
-                    {regBusy?<><span className="spin"/> Création…</>:"🚀 Créer mon compte gratuitement"}
-                  </button>
-                  <p style={{fontSize:11,color:"var(--muted)",marginBottom:10}}>Vos identifiants seront envoyés par email.</p>
-                  <button className="nav-btn" style={{width:"100%"}} onClick={()=>setShowRegister(false)}>Annuler</button>
-                </>
-              )}
-            </div>
-          </div>
-        )}
-
-        {/* ── 2FA MODAL ── */}
-        {show2FA && (
-          <div className="login-ov">
-            <div className="login-box" style={{textAlign:"center"}}>
-              <div style={{fontSize:36,marginBottom:10}}>🔐</div>
-              <h2 style={{fontFamily:"'Rajdhani',sans-serif",fontSize:22,fontWeight:700,marginBottom:6}}>Vérification</h2>
-              <p style={{fontSize:13,color:"var(--muted)",marginBottom:18,lineHeight:1.6}}>Code à 6 chiffres envoyé à<br/><strong style={{color:"var(--blue)"}}>{pendingUser?.email}</strong></p>
-              {twoFAErr && <div className="login-err">{twoFAErr}</div>}
-              <input style={{fontFamily:"'Rajdhani',sans-serif",fontSize:26,fontWeight:700,letterSpacing:".4em",textAlign:"center",background:"rgba(255,255,255,.06)",border:"2px solid rgba(26,111,212,.3)",borderRadius:10,padding:12,color:"var(--text)",width:"100%",outline:"none",marginBottom:14}} type="tel" maxLength={6} value={twoFACode} onChange={e=>setTwoFACode(e.target.value.replace(/\D/g,"").slice(0,6))} onKeyDown={e=>e.key==="Enter"&&verify2FA()} placeholder="000000"/>
-              <button className="btn-blue" style={{width:"100%",marginBottom:10}} onClick={verify2FA} disabled={twoFABusy||twoFACode.length!==6}>
-                {twoFABusy?<><span className="spin"/> Vérification…</>:"✅ Vérifier le code"}
-              </button>
-              <p style={{fontSize:11,color:"var(--muted)",marginBottom:10}}>Vérifiez vos spams si vous ne recevez pas le code.</p>
-              <button className="nav-btn" style={{width:"100%"}} onClick={()=>{setShow2FA(false);setShowLogin(true);}}>← Retour</button>
-            </div>
-          </div>
-        )}
-
-        {/* ── LOGIN MODAL ── */}
+        {/* LOGIN OVERLAY */}
         {showLogin && (
           <div className="login-ov">
             <div className="login-box">
-              <h2>🔐 {t("login_title")}</h2>
-              <p>AutoTrack — Espace admin</p>
+              <div className="op-chip" style={{marginBottom:14,display:"inline-flex"}}>🔐 Admin</div>
+              <h2>{t("login_title")}</h2>
+              <p>AutoTrack — Accès sécurisé</p>
               {loginErr && <div className="login-err">{loginErr}</div>}
-              <div className="fgroup" style={{textAlign:"left",marginBottom:12}}>
+              <div className="fgroup">
                 <div className="flabel">{t("login_email")}</div>
-                <input className="fi" type="email" value={loginEmail} onChange={e=>setLoginEmail(e.target.value)} onKeyDown={e=>e.key==="Enter"&&doLogin()} placeholder="admin@email.com"/>
+                <input className="fi" type="email" value={loginEmail} onChange={e => setLoginEmail(e.target.value)} onKeyDown={e => e.key==="Enter" && doLogin()} placeholder="admin@email.com" />
               </div>
-              <div className="fgroup" style={{textAlign:"left",marginBottom:20}}>
+              <div className="fgroup" style={{marginBottom:20}}>
                 <div className="flabel">{t("login_pass")}</div>
-                <input className="fi" type="password" value={loginPass} onChange={e=>setLoginPass(e.target.value)} onKeyDown={e=>e.key==="Enter"&&doLogin()} placeholder="••••••••"/>
+                <input className="fi" type="password" value={loginPass} onChange={e => setLoginPass(e.target.value)} onKeyDown={e => e.key==="Enter" && doLogin()} placeholder="••••••••" />
               </div>
               <button className="btn-blue" style={{width:"100%",marginBottom:10}} onClick={doLogin} disabled={loginBusy}>
-                {loginBusy?<><span className="spin"/> Connexion…</>:t("login_btn")}
+                {loginBusy ? <><span className="spin" /> Connexion…</> : t("login_btn")}
               </button>
-              <button className="nav-btn" style={{width:"100%",marginBottom:8}} onClick={()=>{setShowLogin(false);setShowRegister(true);}}>Créer un compte →</button>
-              <button className="nav-btn" style={{width:"100%"}} onClick={()=>setShowLogin(false)}>Annuler</button>
+              <button className="nav-btn" style={{width:"100%"}} onClick={() => setShowLogin(false)}>Annuler</button>
             </div>
           </div>
         )}
 
-        {/* ── PAYMENT MODAL ── */}
-        {showPayment && (
-          <div className="pay-ov">
-            <div className="pay-box">
-              <h3>{t("pay_title")}</h3>
-              <div className="pay-amount">10<span>€</span></div>
-              <p>{t("pay_msg")}</p>
-              {!showVirement ? (
-                <div style={{marginBottom:12,textAlign:"center"}}>
-                  <div style={{fontSize:13,color:"var(--muted)",marginBottom:4}}>Choisissez votre pack de suivis</div>
-                  <div style={{fontSize:11,color:"var(--green)",fontWeight:600}}>✨ 1er suivi offert — rechargez quand vous voulez</div>
-                </div>
-                <div className="pay-btns">
-                  {/* PACK 5 */}
-                  <button className="btn-paypal" style={{background:"linear-gradient(135deg,#1a6fd4,#0d4fa0)"}} onClick={async ()=>{
-                    await saveAdminProfile(adminUser?.email!, {pendingPayment: true, pendingPack: 5});
-                    setAdminProfile((p:any) => ({...p, pendingPayment: true}));
-                    window.open("https://paypal.me/JaanusAalmaa/45EUR","_blank");
-                  }}>
-                    <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",width:"100%"}}>
-                      <div style={{textAlign:"left"}}>
-                        <div style={{fontSize:15,fontWeight:700}}>Pack 5 suivis</div>
-                        <div style={{fontSize:11,opacity:.8}}>9€ / suivi</div>
-                      </div>
-                      <div style={{fontSize:22,fontWeight:900}}>45€</div>
-                    </div>
-                  </button>
-                  {/* PACK 10 */}
-                  <button className="btn-paypal" style={{background:"linear-gradient(135deg,#e85d04,#c44d00)"}} onClick={async ()=>{
-                    await saveAdminProfile(adminUser?.email!, {pendingPayment: true, pendingPack: 10});
-                    setAdminProfile((p:any) => ({...p, pendingPayment: true}));
-                    window.open("https://paypal.me/JaanusAalmaa/80EUR","_blank");
-                  }}>
-                    <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",width:"100%"}}>
-                      <div style={{textAlign:"left"}}>
-                        <div style={{fontSize:15,fontWeight:700}}>Pack 10 suivis</div>
-                        <div style={{fontSize:11,opacity:.8}}>8€ / suivi — 🔥 Populaire</div>
-                      </div>
-                      <div style={{fontSize:22,fontWeight:900}}>80€</div>
-                    </div>
-                  </button>
-                  {/* PACK 20 */}
-                  <button className="btn-paypal" style={{background:"linear-gradient(135deg,#5db832,#3a7a1e)"}} onClick={async ()=>{
-                    await saveAdminProfile(adminUser?.email!, {pendingPayment: true, pendingPack: 20});
-                    setAdminProfile((p:any) => ({...p, pendingPayment: true}));
-                    window.open("https://paypal.me/JaanusAalmaa/140EUR","_blank");
-                  }}>
-                    <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",width:"100%"}}>
-                      <div style={{textAlign:"left"}}>
-                        <div style={{fontSize:15,fontWeight:700}}>Pack 20 suivis</div>
-                        <div style={{fontSize:11,opacity:.8}}>7€ / suivi — Meilleur prix</div>
-                      </div>
-                      <div style={{fontSize:22,fontWeight:900}}>140€</div>
-                    </div>
-                  </button>
-                  <div style={{background:"rgba(255,255,255,.04)",border:"1px solid var(--border)",borderRadius:10,padding:"12px 14px",fontSize:12,color:"var(--muted)"}}>
-                    📲 Après paiement, contactez-nous :<br/>
-                    <strong style={{color:"var(--blue)"}}>WhatsApp : +{WHATSAPP_NUM}</strong><br/>
-                    <span style={{fontSize:11}}>Indiquez votre email. Vos suivis seront activés rapidement.</span>
-                  </div>
-                  <button className="btn-virement" onClick={()=>setShowVirement(true)}>
-                    🏦 {t("pay_virement")}
-                  </button>
-                  <p style={{fontSize:11,color:"var(--muted)"}}>{t("pay_note")} <strong style={{color:"var(--blue)"}}>krediitas@gmail.com</strong></p>
-                  <span className="pay-cancel" onClick={()=>{setShowPayment(false);setPendingGen(false);}}>Annuler</span>
-                </div>
-              ) : (
-                <div>
-
-                  <p style={{fontSize:11,color:"var(--muted)",marginTop:10}}>{t("pay_note")} <strong style={{color:"var(--blue)"}}>krediitas@gmail.com</strong></p>
-                  <p style={{fontSize:12,color:"var(--orange)",marginTop:8,fontWeight:600}}>{t("pay_pending")}</p>
-                  <div style={{display:"flex",gap:10,marginTop:14,justifyContent:"center"}}>
-                    <button className="btn-virement" onClick={()=>setShowVirement(false)}>← Retour</button>
-                    <span className="pay-cancel" onClick={()=>{setShowPayment(false);setShowVirement(false);setPendingGen(false);}}>Annuler</span>
-                  </div>
-                </div>
-              )}
-            </div>
+        {/* LOADER */}
+        {loading && (
+          <div className="loader-ov">
+            <div className="loader-spin" />
+            <p style={{color:"var(--muted)",fontSize:14}}>{t("loading")}</p>
           </div>
         )}
 
-        {/* ── LOADER ── */}
-        {loading && <div className="loader-ov"><div className="loader-spin"/><p style={{color:"var(--muted)",fontSize:14}}>{t("loading")}</p></div>}
-
-        {/* ── HEADER ── */}
+        {/* HEADER */}
         <header className="hdr">
+          <div className="hdr-badges">
+            {companies.map((c, i) => (
+              <span key={c}>
+                {i > 0 && <span style={{color:"var(--muted)",margin:"0 4px"}}>×</span>}
+                <span className="bdg" style={{color:coColor(c),borderColor:coColor(c),background:coColor(c)+"14"}}>{c}</span>
+              </span>
+            ))}
+          </div>
           <div className="hdr-brand">
             <div className="hdr-title">AUTO<span>TRACK</span></div>
+            <div className="hdr-sub">powered by {companies.join(" & ")}</div>
           </div>
           <div className="hdr-right">
-            {(isAdminUrl||isSuperAdmin) && (adminUser ? (
-              <>
-                <button className={"nav-btn"+(view==="client"?" active":"")} onClick={()=>setView("client")}>Suivi</button>
-                {!isSA(adminUser.email) && <button className={"nav-btn"+(view==="admin"?" active":"")} onClick={()=>setView("admin")}>⚙️ Admin</button>}
-                {!isSA(adminUser.email) && <button className={"nav-btn"+(view==="stats"?" active":"")} onClick={()=>{setView("stats");loadHistory(adminUser.email||undefined);}}>📊 Stats</button>}
-                {isSA(adminUser.email) && <button className={"nav-btn"+(view==="superadmin"?" active":"")} onClick={()=>setView("superadmin")}>👑 Super Admin</button>}
-                <button className="nav-btn" onClick={doLogout}>🚪</button>
-              </>
-            ) : (
-              <button className="nav-btn" onClick={()=>{setShowLogin(true);setLoginErr("");}}>🔐 Admin</button>
-            ))}
-            <button style={{background:"none",border:"1px solid var(--border)",borderRadius:6,padding:"5px 9px",cursor:"pointer",fontSize:11,fontWeight:700,color:"var(--muted)"}} onClick={()=>setDarkMode((p:boolean)=>!p)}>
-              {darkMode?"LIGHT":"DARK"}
-            </button>
-            <div className="lang-wrap" onClick={e=>e.stopPropagation()}>
-              <button className="lang-btn" onClick={()=>setShowLang(p=>!p)}>{T[lang]?.flag||"🌐"} {T[lang]?.code||"FR"} ▾</button>
+            {isAdminUrl && (
+              adminUser ? (
+                <>
+                  <button className={`nav-btn${view==="client"?" active":""}`} onClick={() => setView("client")}>Suivi</button>
+                  <button className={`nav-btn${view==="admin"?" active":""}`} onClick={() => setView("admin")}>⚙️ Admin</button>
+                  <button className="nav-btn" onClick={doLogout} title={t("logout")}>🚪</button>
+                </>
+              ) : (
+                <button className="nav-btn" onClick={() => { setShowLogin(true); setLoginErr(""); }}>🔐 Admin</button>
+              )
+            )}
+            <div className="lang-wrap" onClick={e => e.stopPropagation()}>
+              <button className="lang-btn" onClick={() => setShowLang(p => !p)}>
+                {T[lang].flag} {T[lang].code} ▾
+              </button>
               {showLang && (
                 <div className="lang-drop">
-                  {Object.entries(T).map(([l,v])=>(
-                    <div key={l} className={"lang-opt"+(lang===l?" active":"")} onClick={()=>{setLangState(l);setShowLang(false);}}>
+                  {Object.entries(T).map(([l, v]) => (
+                    <div key={l} className={`lang-opt${lang===l?" active":""}`} onClick={() => { setLangState(l); setShowLang(false); }}>
                       {v.flag} {l==="fr"?"Français":l==="en"?"English":l==="de"?"Deutsch":l==="hr"?"Hrvatski":l==="it"?"Italiano":l==="bg"?"Български":"Română"}
                     </div>
                   ))}
@@ -959,15 +637,15 @@ export default function App() {
           </div>
         </header>
 
-        {/* ════ CLIENT SEARCH ════ */}
-        {view==="client" && !trackData && (
+        {/* ════ CLIENT VIEW ════ */}
+        {view === "client" && !trackData && (
           <div className="z1">
             <div className="hero">
               <h1>{t("h1a")} <span className="ac">{t("h1b")}</span><br/>{t("h1c")}</h1>
               <p>{t("h1sub")}</p>
               <div className="search-box">
                 <div className="s-row">
-                  <input className="s-in" value={trackInput} onChange={e=>setTrackInput(e.target.value)} onKeyDown={e=>e.key==="Enter"&&doTrack()} placeholder="ATK-2026-FR-00142" maxLength={22}/>
+                  <input className="s-in" value={trackInput} onChange={e => setTrackInput(e.target.value)} onKeyDown={e => e.key==="Enter" && doTrack()} placeholder="ATK-2026-FR-00142" maxLength={22} />
                   <button className="btn-blue" onClick={doTrack} disabled={loading}>{t("btn_track")}</button>
                 </div>
                 <p className="s-hint">{t("hint")}</p>
@@ -977,147 +655,229 @@ export default function App() {
           </div>
         )}
 
-        {/* ════ CLIENT RESULT ════ */}
-        {view==="client" && trackData && (
+        {/* ════ TRACKING RESULT ════ */}
+        {view === "client" && trackData && (
           <div className="z1">
             <div className="res-wrap">
-              <div className="back-btn" onClick={()=>{if(unsubTrackRef.current){unsubTrackRef.current();unsubTrackRef.current=null;}setTrackData(null);setTrackError(false);setTrackInput("");}}>← {t("back")}</div>
+              <div className="back-btn" onClick={() => { setTrackData(null); setTrackError(false); setTrackInput(""); }}>← {t("back")}</div>
               <div className="top-card">
                 <div>
                   <div className="res-id">{trackId}</div>
-                  <div className="res-route"><b>{trackData.from}</b> → <b>{trackData.to}</b></div>
-                  <span className={sBadgeClass(trackData.statusKey)}><span className="sdot"/>{t(trackData.statusKey+"f")}</span>
+                  <div className="res-route" dangerouslySetInnerHTML={{ __html: `<b>${trackData.from}</b> → <b>${trackData.to}</b>` }} />
+                  <span className={sBadgeClass(trackData.statusKey)}>
+                    <span className="sdot" />{t(trackData.statusKey + "f")}
+                  </span>
                 </div>
                 <div className="res-right">
                   <div className="res-name">{trackData.client}</div>
                   <div className="res-veh">{trackData.vehicle}{trackData.color&&trackData.color!=="—"?" — "+trackData.color:""}</div>
-                  <div className="res-eta">{t("eta_pre")} {trackData.arr}</div>
+                  <div className="res-eta">
+                    {t("eta_pre")} {trackData.arr}
+                    {trackData.originalArr && trackData.originalArr !== trackData.arr && (
+                      <span style={{display:"block",fontSize:11,color:"var(--orange)",fontWeight:600,marginTop:2}}>
+                        ⏱ Date mise à jour — initialement prévu le {trackData.originalArr}
+                      </span>
+                    )}
+                  </div>
                   <div className="res-co">{trackData.company}</div>
                 </div>
               </div>
-              {(trackData.statusKey==="st6"||trackData.statusKey==="st7") && (
-                <div className="susp-banner">
-                  <p>{trackData.statusKey==="st6"?t("susp_msg"):"⏰ Votre livraison est temporairement retardée. Nous mettons tout en œuvre pour vous livrer dans les meilleurs délais."}</p>
-                  <button className="susp-contact-btn" onClick={()=>window.open("mailto:"+PAYPAL_EMAIL)}>📧 {t("susp_contact")}</button>
+              <div className="prog-card">
+                <div className="ctitle">{t("prog")}</div>
+                <div className="pbar"><div className="pfill" style={{width: (trackData.progress||0)+"%"}} /></div>
+                <div className="plabels">
+                  <span>{trackData.fromCity}</span>
+                  <span className="ppct">{trackData.progress||0}%</span>
+                  <span>{trackData.toCity}</span>
                 </div>
-              )}
-              {trackData.statusKey!=="st6" && trackData.statusKey!=="st7" && (
-                <div className="prog-card">
-                  <div className="ctitle">{t("prog")}</div>
-                  <div className="pbar"><div className="pfill" style={{width:(trackData.progress||0)+"%"}}/></div>
-                  <div className="plabels"><span>{trackData.fromCity}</span><span className="ppct">{trackData.progress||0}%</span><span>{trackData.toCity}</span></div>
-                  <div className="steps-row">
-                    {steps.map((s,i)=>{
-                      const ci=steps.indexOf(trackData.statusKey);
-                      const state=i<ci?"sd-done":i===ci?"sd-active":"sd-pend";
-                      const lc=i<ci?"sl-done":i===ci?"sl-active":"";
-                      return (
-                        <div key={s} className="step-item">
-                          <div className={"step-dot "+state}>{stepIcons[i]}</div>
-                          <div className={"step-lbl "+lc}>{t(s)}</div>
-                        </div>
-                      );
-                    })}
-                  </div>
+                <div className="steps-row">
+                  {steps.map((s, i) => {
+                    const ci = steps.indexOf(trackData.statusKey);
+                    const state = i < ci ? "sd-done" : i === ci ? "sd-active" : "sd-pend";
+                    const lc = i < ci ? "sl-done" : i === ci ? "sl-active" : "";
+                    return (
+                      <div key={s} className="step-item">
+                        <div className={`step-dot ${state}`}>{stepIcons[i]}</div>
+                        <div className={`step-lbl ${lc}`}>{t(s)}</div>
+                      </div>
+                    );
+                  })}
                 </div>
-              )}
+              </div>
               <div className="g2">
                 <div className="card">
                   <div className="ctitle">{t("itin")}</div>
-                  {(trackData.route||[]).map((p:any,i:number)=>{
-                    const cls=p.type==="origin"?"pi-o":p.type==="current"?"pi-c":p.type==="dest"?"pi-d":"pi-s";
-                    const ico=p.type==="origin"?"🚀":p.type==="current"?"📍":p.type==="dest"?"🏁":"●";
-                    return (<div key={i} className="rp"><div className={"pi "+cls}>{ico}</div><div><div className="plabel">{lkMap(p.lk)}</div><div className="pcity">{p.city}</div><div className="ptime">{p.time}</div>{p.note&&<div className="pnote">{p.note}</div>}</div></div>);
+                  {(trackData.route||[]).map((p: any, i: number) => {
+                    const cls = p.type==="origin"?"pi-o":p.type==="current"?"pi-c":p.type==="dest"?"pi-d":"pi-s";
+                    const ico = p.type==="origin"?"🚀":p.type==="current"?"📍":p.type==="dest"?"🏁":"●";
+                    return (
+                      <div key={i} className="rp">
+                        <div className={`pi ${cls}`}>{ico}</div>
+                        <div>
+                          <div className="plabel">{lkMap(p.lk)}</div>
+                          <div className="pcity">{p.city}</div>
+                          <div className="ptime">{p.time}</div>
+                          {p.note && <div className="pnote">{p.note}</div>}
+                        </div>
+                      </div>
+                    );
                   })}
                 </div>
                 <div className="card">
                   <div className="ctitle">{t("tl")}</div>
-                  {(trackData.timeline||[]).map((e:any,i:number)=>{
-                    const cls=e.type==="done"?"td":e.type==="active"?"ta":"tp";
-                    const col=e.type==="active"?"var(--orange)":e.type==="done"?"var(--text)":"var(--muted)";
-                    return (<div key={i} className="tli"><div className={"tld "+cls}>{e.icon}</div><div className="tlc"><div className="tlt" style={{color:col}}>{e.title}</div><div className="tltime">{e.time}</div></div></div>);
+                  {(trackData.timeline||[]).map((e: any, i: number) => {
+                    const cls = e.type==="done"?"td":e.type==="active"?"ta":"tp";
+                    const col = e.type==="active"?"var(--orange)":e.type==="done"?"var(--text)":"var(--muted)";
+                    return (
+                      <div key={i} className="tli">
+                        <div className={`tld ${cls}`}>{e.icon}</div>
+                        <div className="tlc">
+                          <div className="tlt" style={{color:col}}>{e.title}</div>
+                          <div className="tltime">{e.time}</div>
+                        </div>
+                      </div>
+                    );
                   })}
                 </div>
               </div>
               <div className="card">
                 <div className="ctitle">{t("info")}</div>
-                <div className="ig">{(trackData.info||[]).map((item:any,i:number)=>(<div key={i} className="ii"><div className="il">{infoLkMap(item.lk)}</div><div className="iv">{item.val}</div></div>))}</div>
+                <div className="ig">
+                  {(trackData.info||[]).map((item: any, i: number) => (
+                    <div key={i} className="ii">
+                      <div className="il">{infoLkMap(item.lk)}</div>
+                      <div className="iv">{item.val}</div>
+                    </div>
+                  ))}
+                </div>
               </div>
             </div>
           </div>
         )}
 
-        {/* ════ ADMIN ════ */}
-        {view==="admin" && adminUser && !isSA(adminUser.email) && (
+        {/* ════ ADMIN VIEW (protected) ════ */}
+        {view === "admin" && adminUser && (
           <div className="z1">
             <div className="adm-wrap">
               <div className="adm-hdr">
-                <div className="op-chip" style={{marginBottom:12}}>⚙️ Admin — {adminUser.email}</div>
+                <div className="op-chip" style={{marginBottom:12}}>🔐 {t("adm_title").split(" ")[0]}</div>
                 <h2>{t("adm_title")}</h2>
-                <p>{t("adm_sub")} · Suivis créés : <strong style={{color:"var(--blue)"}}>{adminProfile?.trackingCount||0}</strong> {(adminProfile?.trackingCount||0)===0?"(1er gratuit)":"(10€/suivi)"}</p>
+                <p>{t("adm_sub")}</p>
               </div>
               <div className="card">
                 <div className="fg">
                   <div className="sdivider">{t("s_cli")}</div>
-                  {([["l_name","name","Mohammed Alami"],["l_email","email","client@email.com"],["l_phone","phone","+33 6 00 00 00 00"]] as [string,string,string][]).map(([lk,k,ph])=>(
-                    <div key={k} className="fgroup"><div className="flabel">{t(lk)}</div><input className="fi" value={(form as any)[k]} onChange={e=>setForm(p=>({...p,[k]:e.target.value}))} placeholder={ph}/></div>
+                  {([["l_name","name","Mohammed Alami"],["l_email","email","client@email.com"],["l_phone","phone","+33 6 00 00 00 00"]] as [string,string,string][]).map(([lk,k,ph]) => (
+                    <div key={k} className="fgroup">
+                      <div className="flabel">{t(lk)}</div>
+                      <input className="fi" value={(form as any)[k]} onChange={e => setForm(p=>({...p,[k]:e.target.value}))} placeholder={ph} />
+                    </div>
                   ))}
                   <div className="fgroup">
                     <div className="flabel">{t("l_co")}</div>
-                    <select className="fs" value={form.co} onChange={e=>setForm(p=>({...p,co:e.target.value}))}>
-                      <option value="CarConcept">CarConcept</option>
-                      <option value="AutoReach+">AutoReach+</option>
-                      <option value="Autre">Autre (saisir)</option>
-                    </select>
-                    {form.co==="Autre" && <input className="fi" style={{marginTop:6}} value={customCo} onChange={e=>setCustomCo(e.target.value)} placeholder="Nom de l'entreprise…"/>}
+                    {!addingCo ? (
+                      <div style={{display:"flex",gap:8}}>
+                        <select className="fs" value={form.co} onChange={e => {
+                          if (e.target.value === "__new__") { setAddingCo(true); return; }
+                          setForm(p=>({...p,co:e.target.value}));
+                        }}>
+                          {companies.map(c => <option key={c} value={c}>{c}</option>)}
+                          <option value="__new__">+ Ajouter une nouvelle marque…</option>
+                        </select>
+                      </div>
+                    ) : (
+                      <div style={{display:"flex",gap:8}}>
+                        <input className="fi" autoFocus value={newCoName} onChange={e => setNewCoName(e.target.value)} onKeyDown={e => e.key==="Enter" && confirmAddCompany()} placeholder="Nom de la nouvelle marque" />
+                        <button className="nav-btn" onClick={confirmAddCompany}>✓</button>
+                        <button className="nav-btn" onClick={() => { setAddingCo(false); setNewCoName(""); }}>✕</button>
+                      </div>
+                    )}
                   </div>
                   <div className="sdivider">{t("s_veh")}</div>
-                  {([["l_veh","veh","BMW X5 2021"],["l_col","col","Blanc"],["l_vin","vin","WBA3A5G5XDNX00001"],["l_plate","plate","AB-123-CD"]] as [string,string,string][]).map(([lk,k,ph])=>(
-                    <div key={k} className="fgroup"><div className="flabel">{t(lk)}</div><input className="fi" value={(form as any)[k]} onChange={e=>setForm(p=>({...p,[k]:e.target.value}))} placeholder={ph}/></div>
+                  {([["l_veh","veh","BMW X5 2021"],["l_col","col","Blanc perle"],["l_vin","vin","WBA3A5G5XDNX00001"],["l_plate","plate","AB-123-CD"]] as [string,string,string][]).map(([lk,k,ph]) => (
+                    <div key={k} className="fgroup">
+                      <div className="flabel">{t(lk)}</div>
+                      <input className="fi" value={(form as any)[k]} onChange={e => setForm(p=>({...p,[k]:e.target.value}))} placeholder={ph} />
+                    </div>
                   ))}
                   <div className="sdivider">{t("s_rou")}</div>
-                  <div className="fgroup full"><div className="flabel">{t("l_from")}</div><input className="fi" value={form.from} onChange={e=>setForm(p=>({...p,from:e.target.value}))} placeholder="15 Rue de la Paix, Paris, France"/></div>
-                  <div className="fgroup full"><div className="flabel">{t("l_to")}</div><input className="fi" value={form.to} onChange={e=>setForm(p=>({...p,to:e.target.value}))} placeholder="12 Bd Mohammed V, Casablanca, Maroc"/></div>
-                  <div className="fgroup"><div className="flabel">{t("l_dep")}</div><input className="fi" type="date" value={form.dep} onChange={e=>setForm(p=>({...p,dep:e.target.value}))}/></div>
-                  <div className="fgroup"><div className="flabel">{t("l_arr")}</div><input className="fi" type="date" value={form.arr} onChange={e=>setForm(p=>({...p,arr:e.target.value}))}/></div>
-                  <div className="fgroup"><div className="flabel">{t("l_mode")}</div>
-                    <select className="fs" value={form.mode} onChange={e=>setForm(p=>({...p,mode:e.target.value}))}>
-                      {["m1","m2","m3","m4"].map(k=><option key={k}>{t(k)}</option>)}
+                  <div className="fgroup full">
+                    <div className="flabel">{t("l_from")}</div>
+                    <input className="fi" value={form.from} onChange={e => setForm(p=>({...p,from:e.target.value}))} placeholder="15 Rue de la Paix, Paris, France" />
+                  </div>
+                  <div className="fgroup full">
+                    <div className="flabel">{t("l_to")}</div>
+                    <input className="fi" value={form.to} onChange={e => setForm(p=>({...p,to:e.target.value}))} placeholder="12 Bd Mohammed V, Casablanca, Maroc" />
+                  </div>
+                  <div className="fgroup">
+                    <div className="flabel">{t("l_dep")}</div>
+                    <input className="fi" type="date" value={form.dep} onChange={e => setForm(p=>({...p,dep:e.target.value}))} />
+                  </div>
+                  <div className="fgroup">
+                    <div className="flabel">{t("l_arr")}</div>
+                    <input className="fi" type="date" value={form.arr} onChange={e => setForm(p=>({...p,arr:e.target.value}))} />
+                  </div>
+                  <div className="fgroup">
+                    <div className="flabel">{t("l_mode")}</div>
+                    <select className="fs" value={form.mode} onChange={e => setForm(p=>({...p,mode:e.target.value}))}>
+                      {["m1","m2","m3","m4"].map(k => <option key={k}>{t(k)}</option>)}
                     </select>
                   </div>
-                  <div className="fgroup"><div className="flabel">{t("l_carrier")}</div><input className="fi" value={form.carrier} onChange={e=>setForm(p=>({...p,carrier:e.target.value}))} placeholder="Express Trans Europe"/></div>
+                  <div className="fgroup">
+                    <div className="flabel">{t("l_carrier")}</div>
+                    <input className="fi" value={form.carrier} onChange={e => setForm(p=>({...p,carrier:e.target.value}))} placeholder="Express Trans Europe" />
+                  </div>
                   <button className="btn-gen" onClick={genTracking} disabled={genBusy}>
-                    {genBusy?<><span className="spin"/> Génération…</>:t("btn_gen")}
+                    {genBusy ? <><span className="spin" /> Génération…</> : t("btn_gen")}
                   </button>
                 </div>
 
                 {genId && (
                   <div className="gen-card">
                     <div className="gen-lbl">{t("gen_ok")}</div>
-                    <div className="gen-num" id="gen-num-display"><span>ATK</span>{genId.substring(3)}</div>
+                    <div className="gen-num" id="gen-num-display">
+                      <span>ATK</span>{genId.substring(3)}
+                    </div>
                     <div className="copy-btn" onClick={copyNum}>📋 {t("btn_copy")}</div>
-                    <div className="link-box">{t("lbl_link")}<br/><a href={trackLink} target="_blank" rel="noreferrer">{trackLink}</a></div>
+                    <div className="link-box">
+                      {t("lbl_link")}<br/>
+                      <a href={trackLink} target="_blank" rel="noreferrer">{trackLink}</a>
+                    </div>
                     <p className="link-note">{t("link_note")}</p>
-                    <div className="qr-lbl">📱 QR Code</div>
-                    <div className="qr-wrap"><img src={"https://api.qrserver.com/v1/create-qr-code/?size=160x160&data="+encodeURIComponent(trackLink)+"&bgcolor=060a14&color=4a9eff&qzone=2"} alt="QR" width={160} height={160}/></div>
-                    <a className="qr-dl" href={"https://api.qrserver.com/v1/create-qr-code/?size=400x400&data="+encodeURIComponent(trackLink)+"&bgcolor=ffffff&color=2278e8&qzone=2"} download={"QR-"+genId+".png"} target="_blank" rel="noreferrer">⬇️ Télécharger le QR Code</a>
                     <div className="upd-section">
                       <div className="upd-h">{t("upd_h")}</div>
                       <div className="upd-g3">
-                        <div className="fgroup"><div className="flabel">{t("u_city")}</div><input className="fi" value={upd.city} onChange={e=>setUpd(p=>({...p,city:e.target.value}))} placeholder="Lyon, France"/></div>
-                        <div className="fgroup"><div className="flabel">{t("u_date")}</div><input className="fi" type="date" value={upd.date} onChange={e=>setUpd(p=>({...p,date:e.target.value}))}/></div>
-                        <div className="fgroup"><div className="flabel">{t("u_time")}</div><input className="fi" type="time" value={upd.time} onChange={e=>setUpd(p=>({...p,time:e.target.value}))}/></div>
+                        <div className="fgroup">
+                          <div className="flabel">{t("u_city")}</div>
+                          <input className="fi" value={upd.city} onChange={e=>setUpd(p=>({...p,city:e.target.value}))} placeholder="Lyon, France" />
+                        </div>
+                        <div className="fgroup">
+                          <div className="flabel">{t("u_date")}</div>
+                          <input className="fi" type="date" value={upd.date} onChange={e=>setUpd(p=>({...p,date:e.target.value}))} />
+                        </div>
+                        <div className="fgroup">
+                          <div className="flabel">{t("u_time")}</div>
+                          <input className="fi" type="time" value={upd.time} onChange={e=>setUpd(p=>({...p,time:e.target.value}))} />
+                        </div>
                       </div>
                       <div className="upd-g2">
-                        <div className="fgroup"><div className="flabel">{t("u_status")}</div>
+                        <div className="fgroup">
+                          <div className="flabel">{t("u_status")}</div>
                           <select className="fs" value={upd.status} onChange={e=>setUpd(p=>({...p,status:e.target.value}))}>
-                            {["st0","st1","st2","st3","st4","st5","st6","st7"].map(s=><option key={s} value={s}>{t(s+"f")}</option>)}
+                            {steps.map(s => <option key={s} value={s}>{t(s+"f")}</option>)}
                           </select>
                         </div>
-                        <div className="fgroup"><div className="flabel">{t("u_note")}</div><input className="fi" value={upd.note} onChange={e=>setUpd(p=>({...p,note:e.target.value}))} placeholder="Contrôle douanier en cours…"/></div>
+                        <div className="fgroup">
+                          <div className="flabel">{t("u_note")}</div>
+                          <input className="fi" value={upd.note} onChange={e => setUpd(p=>({...p,note:e.target.value}))} placeholder="Contrôle douanier en cours…" />
+                        </div>
+                      </div>
+                      <div className="fgroup" style={{marginBottom:13}}>
+                        <div className="flabel" style={{color:"var(--orange)"}}>🕓 Nouvelle date d'arrivée estimée (en cas de retard)</div>
+                        <input className="fi" type="date" value={upd.newArr} onChange={e => setUpd(p=>({...p,newArr:e.target.value}))} />
                       </div>
                       <button className="btn-upd" onClick={pushUpdate} disabled={updBusy}>
-                        {updBusy?<><span className="spin"/> Envoi…</>:t("btn_upd")}
+                        {updBusy ? <><span className="spin" /> Envoi…</> : t("btn_upd")}
                       </button>
                     </div>
                   </div>
@@ -1125,41 +885,30 @@ export default function App() {
               </div>
 
               <div className="hist">
-                <h3>{t("hist_h")} <span style={{fontSize:12,color:"var(--muted)",fontWeight:400}}>({history.length})</span>
-                  <button className="ref-btn" onClick={()=>loadHistory(adminUser.email||undefined)}>↻</button>
+                <h3>
+                  {t("hist_h")}
+                  <button className="ref-btn" onClick={loadHistory}>↻</button>
                 </h3>
-                <div className="kpi-row">
-                  {[
-                    {lbl:"Total",num:history.length,col:"var(--blue)"},
-                    {lbl:"En transit",num:history.filter(([,d])=>d.statusKey==="st2").length,col:"var(--blue)"},
-                    {lbl:"Douane",num:history.filter(([,d])=>d.statusKey==="st3").length,col:"var(--orange)"},
-                    {lbl:"Livrés",num:history.filter(([,d])=>d.statusKey==="st5").length,col:"var(--green)"},
-                  ].map(s=>(<div key={s.lbl} className="kpi"><div className="kpi-num" style={{color:s.col}}>{s.num}</div><div className="kpi-lbl">{s.lbl}</div></div>))}
-                </div>
-                <div className="hist-toolbar">
-                  <input className="search-in" placeholder="🔍 Rechercher…" value={search} onChange={e=>setSearch(e.target.value)}/>
-                  <select className="filter-sel" value={filterStatus} onChange={e=>setFilterStatus(e.target.value)}>
-                    <option value="all">Tous</option>
-                    {["st0","st1","st2","st3","st4","st5","st6","st7"].map(s=><option key={s} value={s}>{t(s+"f")}</option>)}
-                  </select>
-                </div>
                 <div className="card" style={{overflowX:"auto"}}>
                   <table className="htable">
-                    <thead><tr>{["th1","th2","th3","th4","th5","th6"].map(k=><th key={k}>{t(k)}</th>)}<th>Actions</th></tr></thead>
+                    <thead><tr>
+                      {["th1","th2","th3","th4","th5","th6"].map(k=><th key={k}>{t(k)}</th>)}
+                    </tr></thead>
                     <tbody>
-                      {filteredHistory.length===0&&<tr><td colSpan={7} style={{textAlign:"center",color:"var(--muted)",padding:20}}>Aucun résultat.</td></tr>}
-                      {filteredHistory.map(([id,d])=>{
-                        const co=d.company||"—";
-                        const stc=statusColor(d.statusKey||"st0");
+                      {history.length === 0 && (
+                        <tr><td colSpan={6} style={{textAlign:"center",color:"var(--muted)",padding:20}}>Aucun suivi créé.</td></tr>
+                      )}
+                      {history.map(([id, d]) => {
+                        const co = d.company || "—";
+                        const stc = d.statusKey==="st5"?"var(--green)":d.statusKey==="st7"?"var(--red)":(d.statusKey==="st3"||d.statusKey==="st6")?"var(--orange)":"var(--blue)";
                         return (
-                          <tr key={id} style={{background:selectedId===id?"rgba(34,120,232,.07)":"transparent"}}>
-                            <td><span className="tid" onClick={()=>selectTracking(id)}>{id}</span></td>
-                            <td><div>{d.client}</div><div style={{fontSize:10,color:"var(--muted)"}}>{d.email||""}</div></td>
+                          <tr key={id}>
+                            <td><span className="tid" onClick={() => selectTracking(id)}>{id}</span></td>
+                            <td>{d.client}</td>
                             <td>{d.vehicle}</td>
                             <td>{d.fromCity} → {d.toCity}</td>
-                            <td><span className="dstatus"><span className="dot" style={{background:stc}}/>{t((d.statusKey||"st0")+"f")}</span></td>
-                            <td><span style={{color:co==="CarConcept"?"var(--blue)":co==="AutoReach+"?"var(--orange)":"var(--muted)"}}>{co}</span></td>
-                            <td><div style={{display:"flex",gap:5}}><button className="ref-btn" onClick={()=>selectTracking(id)}>✏️</button><button className="del-btn" onClick={()=>setShowDeleteConfirm(id)}>🗑️</button></div></td>
+                            <td><span className="dstatus"><span className="dot" style={{background:stc}} />{t((d.statusKey||"st0")+"f")}</span></td>
+                            <td><span style={{color:coColor(co)}}>{co}</span></td>
                           </tr>
                         );
                       })}
@@ -1171,174 +920,34 @@ export default function App() {
           </div>
         )}
 
-        {/* ════ STATS ════ */}
-        {view==="stats" && adminUser && !isSA(adminUser.email) && (()=>{
-          const total=history.length;
-          const delivered=history.filter(([,d])=>d.statusKey==="st5").length;
-          const inTransit=history.filter(([,d])=>d.statusKey==="st2").length;
-          const suspended=history.filter(([,d])=>d.statusKey==="st6").length;
-          const delayed=history.filter(([,d])=>d.statusKey==="st7").length;
-          const rate=total?Math.round((delivered/total)*100):0;
-          const monthly: Record<string,number>={};
-          history.forEach(([,d])=>{if(d.dep){const p=d.dep.split("/");if(p.length>=2){const k=p[1]+"/"+(p[2]||"2026");monthly[k]=(monthly[k]||0)+1;}}});
-          const monthData=Object.entries(monthly).slice(-6).map(([m,v])=>({mois:m,livraisons:v}));
-          const statusData=[
-            {name:"En attente",value:history.filter(([,d])=>d.statusKey==="st0").length,color:"#7a8499"},
-            {name:"En transit",value:inTransit,color:"#2278e8"},
-            {name:"Douane",value:history.filter(([,d])=>d.statusKey==="st3").length,color:"#f06120"},
-            {name:"Livrés",value:delivered,color:"#5db832"},
-            {name:"Suspendus",value:suspended,color:"#e02020"},
-            {name:"Retardés",value:delayed,color:"#f5a623"},
-          ].filter(s=>s.value>0);
-          const destCount: Record<string,number>={};
-          history.forEach(([,d])=>{if(d.toCity)destCount[d.toCity]=(destCount[d.toCity]||0)+1;});
-          const topDest=Object.entries(destCount).sort((a,b)=>b[1]-a[1]).slice(0,5);
-          const maxDest=topDest[0]?.[1]||1;
-          const vehCount: Record<string,number>={};
-          history.forEach(([,d])=>{if(d.vehicle){const b=d.vehicle.split(" ")[0];vehCount[b]=(vehCount[b]||0)+1;}});
-          const topVeh=Object.entries(vehCount).sort((a,b)=>b[1]-a[1]).slice(0,5);
-          const maxVeh=topVeh[0]?.[1]||1;
-          return (
-            <div className="z1">
-              <div className="stats-page">
-                <div className="adm-hdr"><div className="op-chip" style={{marginBottom:12}}>📊 Stats</div><h2>Tableau de bord</h2><p style={{color:"var(--muted)",fontSize:14,marginBottom:28}}>Vue d'ensemble de votre activité</p></div>
-                <div className="kpi-row">
-                  {[{num:total,lbl:"Total",col:"var(--blue)"},{num:delivered,lbl:"Livrés — "+rate+"%",col:"var(--green)"},{num:inTransit,lbl:"En transit",col:"var(--blue)"},{num:suspended+delayed,lbl:"Suspendus/Retardés",col:"var(--orange)"}].map(s=>(
-                    <div key={s.lbl} className="kpi"><div className="kpi-num" style={{color:s.col}}>{s.num}</div><div className="kpi-lbl">{s.lbl}</div></div>
-                  ))}
-                </div>
-                <div className="charts-g2">
-                  <div className="chart-card">
-                    <div className="chart-title">Livraisons par mois</div>
-                    {monthData.length===0?<p style={{color:"var(--muted)",fontSize:13,textAlign:"center",padding:"20px 0"}}>Pas encore de données</p>
-                      :<ResponsiveContainer width="100%" height={200}><BarChart data={monthData}><XAxis dataKey="mois" tick={{fill:"#7a8499",fontSize:11}}/><YAxis tick={{fill:"#7a8499",fontSize:11}} allowDecimals={false}/><Tooltip contentStyle={{background:"#0a0e1a",border:"1px solid #2278e8",borderRadius:8,color:"#fff"}}/><Bar dataKey="livraisons" fill="#2278e8" radius={[4,4,0,0]}/></BarChart></ResponsiveContainer>}
-                  </div>
-                  <div className="chart-card">
-                    <div className="chart-title">Répartition par statut</div>
-                    {statusData.length===0?<p style={{color:"var(--muted)",fontSize:13,textAlign:"center",padding:"20px 0"}}>Pas encore de données</p>
-                      :<ResponsiveContainer width="100%" height={200}><PieChart><Pie data={statusData} dataKey="value" nameKey="name" cx="50%" cy="50%" outerRadius={70} label={({name,percent})=>name+" "+Math.round(percent*100)+"%"}>{statusData.map((e,i)=><Cell key={i} fill={e.color}/>)}</Pie><Tooltip contentStyle={{background:"#0a0e1a",border:"1px solid #2278e8",borderRadius:8,color:"#fff"}}/></PieChart></ResponsiveContainer>}
-                  </div>
-                </div>
-                <div className="charts-g2">
-                  <div className="chart-card">
-                    <div className="chart-title">Top destinations</div>
-                    {topDest.length===0?<p style={{color:"var(--muted)",fontSize:13}}>Pas encore de données</p>
-                      :<div className="top-list">{topDest.map(([city,count],i)=>(<div key={city} className="top-item"><span className="top-rank">#{i+1}</span><span className="top-name">{city}</span><div className="top-bar-wrap"><div className="top-bar" style={{width:Math.round((count/maxDest)*100)+"%"}}/></div><span className="top-count">{count}</span></div>))}</div>}
-                  </div>
-                  <div className="chart-card">
-                    <div className="chart-title">Top marques</div>
-                    {topVeh.length===0?<p style={{color:"var(--muted)",fontSize:13}}>Pas encore de données</p>
-                      :<div className="top-list">{topVeh.map(([brand,count],i)=>(<div key={brand} className="top-item"><span className="top-rank">#{i+1}</span><span className="top-name">{brand}</span><div className="top-bar-wrap"><div className="top-bar" style={{width:Math.round((count/maxVeh)*100)+"%"}}/></div><span className="top-count">{count}</span></div>))}</div>}
-                  </div>
-                </div>
-              </div>
-            </div>
-          );
-        })()}
-
-        {/* ════ SUPER ADMIN ════ */}
-        {view==="superadmin" && adminUser && isSA(adminUser.email) && (
-          <div className="z1">
-            <div className="sa-wrap">
-              <div className="adm-hdr">
-                <div className="op-chip" style={{marginBottom:12}}>👑 Super Admin</div>
-                <h2>Gestion des partenaires</h2>
-                <p style={{color:"var(--muted)",fontSize:14}}>Vous êtes connecté en tant que Super Administrateur</p>
-              </div>
-
-              {/* INVITE CODE GENERATOR */}
-              <div className="card" style={{marginBottom:20}}>
-                <div className="ctitle">🔑 Codes d'invitation</div>
-                <div className="inv-row">
-                  <button className="btn-blue" onClick={genInviteCode}>+ Générer un code</button>
-                  {newCode && <div className="inv-code">{newCode}</div>}
-                  {newCode && <button className="ref-btn" onClick={()=>{navigator.clipboard.writeText(newCode);toast("📋 Code copié !","ok");}}>📋 Copier</button>}
-                </div>
-                <p style={{fontSize:12,color:"var(--muted)"}}>Partagez ce code avec le futur partenaire. Il l'utilisera sur <strong style={{color:"var(--blue)"}}>autotrack.live/?register=1</strong></p>
-                {inviteCodes.length>0 && (
-                  <div style={{marginTop:14}}>
-                    <div style={{fontSize:11,color:"var(--muted)",marginBottom:8}}>Codes générés :</div>
-                    <div style={{display:"flex",flexWrap:"wrap",gap:8}}>
-                      {inviteCodes.map(c=>(
-                        <span key={c.id} style={{fontFamily:"'Rajdhani',sans-serif",fontSize:13,letterSpacing:".1em",padding:"4px 10px",borderRadius:6,background:c.used?"rgba(93,184,50,.08)":"rgba(34,120,232,.08)",border:"1px solid",borderColor:c.used?"rgba(93,184,50,.3)":"rgba(34,120,232,.3)",color:c.used?"var(--green)":"var(--blue)"}}>
-                          {c.id} {c.used?"✓":""}
-                        </span>
-                      ))}
-                    </div>
-                  </div>
-                )}
-              </div>
-
-              {/* ADMINS TABLE */}
-              <div className="card" style={{overflowX:"auto"}}>
-                <div className="ctitle">👥 Partenaires ({admins.filter(a=>a.id!==SUPER_ADMIN).length})</div>
-                {saLoading?<p style={{color:"var(--muted)",padding:20,textAlign:"center"}}>Chargement…</p>:(
-                  <table className="sa-table">
-                    <thead><tr><th>Email</th><th>Suivis</th><th>Paiement</th><th>Statut</th><th>Actions</th></tr></thead>
-                    <tbody>
-                      {admins.filter(a=>a.id!==SUPER_ADMIN).length===0&&<tr><td colSpan={5} style={{textAlign:"center",color:"var(--muted)",padding:20}}>Aucun partenaire.</td></tr>}
-                      {admins.filter(a=>a.id!==SUPER_ADMIN).map(a=>(
-                        <tr key={a.id}>
-                          <td>{a.email}</td>
-                          <td><span style={{color:"var(--blue)",fontWeight:700}}>{a.trackingCount||0}</span></td>
-                          <td>
-                            {a.pendingPayment
-                              ?<button className="btn-confirm-pay" onClick={()=>confirmPaymentWithHistory(a.id, a.name||a.email)}>✅ Confirmer paiement</button>
-                              :<span style={{color:"var(--green)",fontSize:12}}>✓ À jour</span>
-                            }
-                          </td>
-                          <td><span style={{color:a.blocked?"var(--red)":"var(--green)",fontSize:12,fontWeight:700}}>{a.blocked?"🔒 Bloqué":"✅ Actif"}</span></td>
-                          <td>
-                            <div style={{display:"flex",gap:6,flexWrap:"wrap"}}>
-                              <button className={a.blocked?"btn-unblock":"btn-block"} onClick={()=>toggleBlock(a.id,a.blocked)}>
-                                {a.blocked?"🔓 Débloquer":"🔒 Bloquer"}
-                              </button>
-                              <button className="del-btn" onClick={()=>deleteAdmin(a.id)}>🗑️</button>
-                            </div>
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                )}
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* NOT LOGGED */}
-        {(view==="admin"||view==="stats"||view==="superadmin") && !adminUser && (
+        {/* ════ ADMIN NOT LOGGED ════ */}
+        {view === "admin" && !adminUser && (
           <div className="z1" style={{display:"flex",alignItems:"center",justifyContent:"center",padding:"80px 20px"}}>
             <div style={{textAlign:"center"}}>
-              <p style={{color:"var(--muted)",marginBottom:16}}>Vous devez être connecté.</p>
-              <button className="btn-blue" onClick={()=>{setShowLogin(true);setLoginErr("");}}>🔐 Se connecter</button>
+              <p style={{color:"var(--muted)",marginBottom:16}}>Vous devez être connecté pour accéder à l'administration.</p>
+              <button className="btn-blue" onClick={() => { setShowLogin(true); setLoginErr(""); }}>🔐 Se connecter</button>
             </div>
           </div>
         )}
 
-        {/* CONFIRM DELETE */}
-        {showDeleteConfirm && (
-          <div className="confirm-ov">
-            <div className="confirm-box">
-              <h4>⚠️ Supprimer ?</h4>
-              <p>{showDeleteConfirm}</p>
-              <p style={{fontSize:11,marginTop:-8}}>Action irréversible.</p>
-              <div className="confirm-btns">
-                <button className="btn-cancel" onClick={()=>setShowDeleteConfirm(null)}>Annuler</button>
-                <button className="btn-del-confirm" onClick={()=>deleteTracking(showDeleteConfirm)}>Supprimer</button>
-              </div>
-            </div>
-          </div>
-        )}
-
+        {/* FOOTER */}
         <footer>
-          <div className="fl"><span style={{color:"var(--blue)"}}>AUTOTRACK</span></div>
+          <div className="fl">
+            {companies.map((c, i) => (
+              <span key={c} style={{display:"flex",alignItems:"center",gap:11}}>
+                {i > 0 && <span style={{color:"var(--border)"}}>|</span>}
+                <span style={{color:coColor(c)}}>{c}</span>
+              </span>
+            ))}
+          </div>
           <p>{t("ft_tag")}</p>
           <p>© 2026 AUTOTRACK — {t("ft_r")}</p>
         </footer>
 
         <div className="toast-wrap">
-          {toasts.map(tk=><div key={tk.id} className={"toast t-"+tk.type}>{tk.msg}</div>)}
+          {toasts.map(tk => (
+            <div key={tk.id} className={`toast t-${tk.type}`}>{tk.msg}</div>
+          ))}
         </div>
       </div>
     </>
