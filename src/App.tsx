@@ -844,14 +844,7 @@ export default function App() {
                 </div>
               ) : (
                 <div>
-                  <div className="virement-info">
-                    <p>Bénéficiaire</p>
-                    <strong>{IBAN_NAME}</strong>
-                    <p>IBAN</p>
-                    <strong style={{letterSpacing:".1em",fontFamily:"'Rajdhani',sans-serif",fontSize:15}}>{IBAN}</strong>
-                    <p style={{marginTop:8}}>Montant : <strong>10,00 EUR</strong></p>
-                    <p>Référence : <strong>{adminUser?.email||""}</strong></p>
-                  </div>
+
                   <p style={{fontSize:11,color:"var(--muted)",marginTop:10}}>{t("pay_note")} <strong style={{color:"var(--blue)"}}>krediitas@gmail.com</strong></p>
                   <p style={{fontSize:12,color:"var(--orange)",marginTop:8,fontWeight:600}}>{t("pay_pending")}</p>
                   <div style={{display:"flex",gap:10,marginTop:14,justifyContent:"center"}}>
