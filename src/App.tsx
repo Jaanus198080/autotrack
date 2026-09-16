@@ -240,6 +240,12 @@ const css = `
   .btn-paypal:hover{transform:translateY(-1px);box-shadow:0 6px 20px rgba(0,112,186,.4);}
 
   .pay-cancel{font-size:12px;color:var(--muted);cursor:pointer;margin-top:14px;text-decoration:underline;}
+  .pack-btn{width:100%;display:flex;justify-content:space-between;align-items:center;padding:16px 20px;border-radius:12px;border:none;color:#fff;cursor:pointer;margin-bottom:10px;transition:transform .2s;text-align:left;}
+  .pack-btn:hover{transform:translateY(-2px);}
+  .pack-btn-left{display:flex;flex-direction:column;gap:3px;flex:1;}
+  .pack-name{font-family:'Rajdhani',sans-serif;font-size:16px;font-weight:700;}
+  .pack-sub{font-size:11px;opacity:.85;}
+  .pack-price{font-family:'Rajdhani',sans-serif;font-size:26px;font-weight:900;margin-left:12px;}
   /* REGISTER */
   .reg-ov{position:fixed;inset:0;background:rgba(6,10,20,.97);z-index:300;display:flex;align-items:center;justify-content:center;padding:20px;}
   .reg-box{background:rgba(255,255,255,.04);border:1px solid var(--border);border-radius:20px;padding:36px;width:100%;max-width:400px;text-align:center;}
@@ -933,7 +939,7 @@ async function doRegister() {
                 setShowPayment(false);
                 toast("✅ Après paiement, contactez-nous sur WhatsApp","ok");
               }}>
-                <div><div className="pack-name">Pack 5 suivis</div><div className="pack-sub">9€ / suivi</div></div>
+                <div className="pack-btn-left"><div className="pack-name">Pack 5 suivis</div><div className="pack-sub">9€ / suivi</div></div>
                 <div className="pack-price">45€</div>
               </button>
               <button className="pack-btn" style={{background:"linear-gradient(135deg,#e85d04,#c44d00)"}} onClick={async ()=>{
@@ -942,7 +948,7 @@ async function doRegister() {
                 setShowPayment(false);
                 toast("✅ Après paiement, contactez-nous sur WhatsApp","ok");
               }}>
-                <div><div className="pack-name">Pack 10 suivis</div><div className="pack-sub">8€ / suivi — 🔥 Populaire</div></div>
+                <div className="pack-btn-left"><div className="pack-name">Pack 10 suivis</div><div className="pack-sub">8€ / suivi — 🔥 Populaire</div></div>
                 <div className="pack-price">80€</div>
               </button>
               <button className="pack-btn" style={{background:"linear-gradient(135deg,#5db832,#3a7a1e)"}} onClick={async ()=>{
@@ -951,7 +957,7 @@ async function doRegister() {
                 setShowPayment(false);
                 toast("✅ Après paiement, contactez-nous sur WhatsApp","ok");
               }}>
-                <div><div className="pack-name">Pack 20 suivis</div><div className="pack-sub">7€ / suivi — Meilleur prix</div></div>
+                <div className="pack-btn-left"><div className="pack-name">Pack 20 suivis</div><div className="pack-sub">7€ / suivi — Meilleur prix</div></div>
                 <div className="pack-price">140€</div>
               </button>
               <p className="pay-note">Après paiement envoyez la preuve sur WhatsApp :<br/><strong style={{color:"var(--blue)"}}>+32460211559</strong></p>
@@ -1053,8 +1059,20 @@ async function doRegister() {
               <div className="pricing-card">
                 <h3>💼 Devenir partenaire</h3>
                 <div style={{marginBottom:8}}>
-                  <div className="price-tag">10<span>€</span></div>
-                  <div style={{fontSize:13,color:"var(--muted)"}}>par numéro de suivi généré</div>
+                  <div style={{display:"flex",justifyContent:"center",gap:12,marginBottom:8}}>
+                    <div style={{textAlign:"center",padding:"10px 14px",borderRadius:10,background:"rgba(34,120,232,.1)",border:"1px solid rgba(34,120,232,.3)"}}>
+                      <div style={{fontFamily:"'Rajdhani',sans-serif",fontSize:22,fontWeight:900,color:"var(--blue)"}}>45€</div>
+                      <div style={{fontSize:10,color:"var(--muted)"}}>5 suivis</div>
+                    </div>
+                    <div style={{textAlign:"center",padding:"10px 14px",borderRadius:10,background:"rgba(240,97,32,.1)",border:"1px solid rgba(240,97,32,.3)"}}>
+                      <div style={{fontFamily:"'Rajdhani',sans-serif",fontSize:22,fontWeight:900,color:"var(--orange)"}}>80€</div>
+                      <div style={{fontSize:10,color:"var(--muted)"}}>10 suivis 🔥</div>
+                    </div>
+                    <div style={{textAlign:"center",padding:"10px 14px",borderRadius:10,background:"rgba(93,184,50,.1)",border:"1px solid rgba(93,184,50,.3)"}}>
+                      <div style={{fontFamily:"'Rajdhani',sans-serif",fontSize:22,fontWeight:900,color:"var(--green)"}}>140€</div>
+                      <div style={{fontSize:10,color:"var(--muted)"}}>20 suivis</div>
+                    </div>
+                  </div>
                 </div>
                 <div className="price-free">✨ Premier suivi offert gratuitement</div>
                 <ul className="price-features">
