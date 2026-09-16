@@ -1172,7 +1172,7 @@ async function doRegister() {
               <div className="adm-hdr">
                 <div className="op-chip" style={{marginBottom:12}}>⚙️ Admin — {adminUser.email}</div>
                 <h2>{t("adm_title")}</h2>
-                <p>{t("adm_sub")} · Suivis créés : <strong style={{color:"var(--blue)"}}>{adminProfile?.trackingCount||0}</strong> {(adminProfile?.trackingCount||0)===0?"(1er gratuit)":"(10€/suivi)"}</p>
+                <p>{t("adm_sub")} · Suivis créés : <strong style={{color:"var(--blue)"}}>{adminProfile?.trackingCount||0}</strong> · Crédits : <strong style={{color:"var(--green)"}}>{adminProfile?.trackingCredits||0}</strong> {(adminProfile?.trackingCount||0)===0?"(1er gratuit)":""}</p>
               </div>
               <div className="card">
                 <div className="fg">
