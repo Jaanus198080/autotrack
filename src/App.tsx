@@ -518,8 +518,6 @@ export default function App() {
       if (count === 0) { await doGenerate(); return; }
       // 2nd+ tracking - show payment modal
       if (count >= 1) {
-        await saveAdminProfile(adminUser?.email!, {pendingPayment: true});
-        setAdminProfile((p:any) => ({...p, pendingPayment: true}));
         setShowPayment(true); setPendingGen(true); return;
       }
     }
@@ -838,7 +836,11 @@ export default function App() {
               <p>{t("pay_msg")}</p>
               {!showVirement ? (
                 <div className="pay-btns">
-                  <button className="btn-paypal" onClick={()=>window.open("https://paypal.me/JaanusAalmaa/10EUR","_blank")}>
+                  <button className="btn-paypal" onClick={async ()=>{
+                    await saveAdminProfile(adminUser?.email!, {pendingPayment: true});
+                    setAdminProfile((p:any) => ({...p, pendingPayment: true}));
+                    window.open("https://paypal.me/JaanusAalmaa/10EUR","_blank");
+                  }}>
                     💳 {t("pay_paypal")} — {PAYPAL_EMAIL}
                   </button>
                   <button className="btn-virement" onClick={()=>setShowVirement(true)}>
