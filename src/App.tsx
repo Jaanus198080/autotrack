@@ -321,6 +321,7 @@ export default function App() {
   const [genBusy, setGenBusy] = useState(false);
   const [showPayment, setShowPayment] = useState(false);
   const [updBusy, setUpdBusy] = useState(false);
+  const [darkMode, setDarkMode] = useState(true);
 
   // MARQUES / ENTREPRISES (dynamique — l'admin peut en ajouter d'autres que AutoDeliv/AutoReach+)
   const [companies, setCompanies] = useState<string[]>(() => {
@@ -378,7 +379,7 @@ export default function App() {
     setForm(p => ({ ...p, dep: today, arr: next }));
     setUpd(p => ({ ...p, date: today, time: hhmm }));
     const params = new URLSearchParams(window.location.search);
-    const tid = params.get("track");
+    const tid = new URLSearchParams(window.location.search).get("track");
     if (tid) { setTrackInput(tid); doTrackById(tid); }
   }, []); // eslint-disable-line
 
