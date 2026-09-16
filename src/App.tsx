@@ -1,15 +1,23 @@
 // src/App.tsx
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import {
-  doc, getDoc, setDoc, collection, getDocs
+  doc, getDoc, setDoc, collection, getDocs, onSnapshot, deleteDoc
 } from "firebase/firestore";
 import {
-  signInWithEmailAndPassword, signOut, onAuthStateChanged, User
+  signInWithEmailAndPassword, signOut, onAuthStateChanged,
+  createUserWithEmailAndPassword, User
 } from "firebase/auth";
 import { db, auth } from "./firebase";
+import emailjs from "@emailjs/browser";
+import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from "recharts";
 
-const SUPER_ADMIN  = "krediitas@gmail.com";
-const WHATSAPP_NUM = "32460211559";
+const SUPER_ADMIN      = "krediitas@gmail.com";
+const WHATSAPP_NUM     = "32460211559";
+const EMAILJS_SERVICE  = "service_tbg6vp7";
+const EMAILJS_TEMPLATE = "template_petii59";
+const EMAILJS_PARTNER  = "template_l91lawt";
+const EMAILJS_PUBLIC   = "sycumEw72eiYqMsyK";
+const MAKE_WEBHOOK     = "https://hook.eu1.make.com/9r5uy7wh3pkuy6b3uufiayd8ywylwimw";
 
 /* ═══════════════════════════════════════════
    TRANSLATIONS
@@ -216,6 +224,10 @@ const css = `
   .pack-price{font-family:'Rajdhani',sans-serif;font-size:24px;font-weight:900;}
   .pay-note{font-size:12px;color:var(--muted);margin:12px 0;line-height:1.6;}
   .pay-cancel{font-size:12px;color:var(--muted);cursor:pointer;text-decoration:underline;display:block;margin-top:12px;}
+  .light-mode{--bg:#f0f4ff;--card:rgba(255,255,255,.9);--border:rgba(26,111,212,.15);--text:#1a2040;--muted:#6b7280;}
+  .light-mode .hdr{background:rgba(240,244,255,.97);}
+  .light-mode .card,.light-mode .search-box,.light-mode .prog-card,.light-mode .top-card{background:rgba(255,255,255,.9);}
+  .light-mode footer{background:rgba(240,244,255,.97);}
   @media(max-width:640px){
     .g2,.ig,.fg,.upd-g3,.upd-g2{grid-template-columns:1fr;}
     .fg .full,.sdivider,.btn-gen{grid-column:1;}
@@ -279,7 +291,7 @@ export default function App() {
   const t = (k: string) => T[lang]?.[k] ?? T.fr[k] ?? k;
 
   const isAdminUrl = new URLSearchParams(window.location.search).get("admin") === "1";
-  const [view, setView] = useState<"client"|"admin">(isAdminUrl ? "admin" : "client");
+  const [view, setView] = useState<"client"|"admin"|"stats"|"superadmin">(params.get("superadmin")==="1" ? "superadmin" : isAdminUrl ? "admin" : "client");
   const [showLang, setShowLang] = useState(false);
   const [toasts, setToasts] = useState<{id:number;msg:string;type:string}[]>([]);
   const [loading, setLoading] = useState(false);
@@ -578,7 +590,7 @@ export default function App() {
   return (
     <>
       <style>{css}</style>
-      <div className="at-root" onClick={() => setShowLang(false)}>
+      <div className={"at-root"+(darkMode?"":" light-mode")} onClick={() => setShowLang(false)}>
         <div className="bg-grid" /><div className="bg-glow" />
 
         {/* LOGIN OVERLAY */}
@@ -600,6 +612,7 @@ export default function App() {
               <button className="btn-blue" style={{width:"100%",marginBottom:10}} onClick={doLogin} disabled={loginBusy}>
                 {loginBusy ? <><span className="spin" /> Connexion…</> : t("login_btn")}
               </button>
+              <button className="nav-btn" style={{width:"100%",marginBottom:8}} onClick={()=>{setShowLogin(false);setShowRegister(true);}}>🆕 Créer un compte partenaire →</button>
               <button className="nav-btn" style={{width:"100%"}} onClick={() => setShowLogin(false)}>Annuler</button>
             </div>
           </div>
@@ -652,19 +665,99 @@ export default function App() {
           </div>
         )}
 
+        {/* ── REGISTER MODAL ── */}
+        {showRegister && (
+          <div className="login-ov">
+            <div className="login-box" style={{textAlign:"center"}}>
+              <h2 style={{fontFamily:"'Rajdhani',sans-serif",fontSize:22,fontWeight:700,marginBottom:6}}>🚗 Créer un compte</h2>
+              <p style={{fontSize:12,color:"var(--muted)",marginBottom:20}}>AutoTrack — Accès partenaire gratuit</p>
+              {regOk ? (
+                <>
+                  <div style={{background:"rgba(93,184,50,.1)",border:"1px solid rgba(93,184,50,.3)",borderRadius:8,padding:12,fontSize:13,color:"var(--green)",marginBottom:14}}>✅ Compte créé ! Vos identifiants ont été envoyés par email.</div>
+                  <button className="btn-blue" style={{width:"100%"}} onClick={()=>{setShowRegister(false);setShowLogin(true);}}>Se connecter →</button>
+                </>
+              ) : (
+                <>
+                  {regErr && <div className="login-err">{regErr}</div>}
+                  <div className="fgroup" style={{textAlign:"left",marginBottom:12}}>
+                    <div className="flabel">Email *</div>
+                    <input className="fi" type="email" value={regEmail} onChange={e=>setRegEmail(e.target.value)} placeholder="mon@email.com"/>
+                  </div>
+                  <div className="fgroup" style={{textAlign:"left",marginBottom:18}}>
+                    <div className="flabel">Mot de passe * (min. 6 caractères)</div>
+                    <input className="fi" type="password" value={regPass} onChange={e=>setRegPass(e.target.value)} placeholder="••••••••"/>
+                  </div>
+                  <button className="btn-blue" style={{width:"100%",marginBottom:10}} onClick={doRegister} disabled={regBusy}>
+                    {regBusy?<><span className="spin"/> Création…</>:"🚀 Créer mon compte gratuitement"}
+                  </button>
+                  <p style={{fontSize:11,color:"var(--muted)",marginBottom:10}}>Vos identifiants seront envoyés par email automatiquement.</p>
+                  <button className="nav-btn" style={{width:"100%"}} onClick={()=>setShowRegister(false)}>Annuler</button>
+                </>
+              )}
+            </div>
+          </div>
+        )}
+
+        {/* ── 2FA MODAL ── */}
+        {show2FA && (
+          <div className="login-ov">
+            <div className="login-box" style={{textAlign:"center"}}>
+              <div style={{fontSize:36,marginBottom:10}}>🔐</div>
+              <h2 style={{fontFamily:"'Rajdhani',sans-serif",fontSize:22,fontWeight:700,marginBottom:6}}>Vérification</h2>
+              <p style={{fontSize:13,color:"var(--muted)",marginBottom:18,lineHeight:1.6}}>Code à 6 chiffres envoyé à<br/><strong style={{color:"var(--blue)"}}>{pendingUser?.email}</strong></p>
+              {twoFAErr && <div className="login-err">{twoFAErr}</div>}
+              <input style={{fontFamily:"'Rajdhani',sans-serif",fontSize:26,fontWeight:700,letterSpacing:".4em",textAlign:"center",background:"rgba(255,255,255,.06)",border:"2px solid rgba(26,111,212,.3)",borderRadius:10,padding:12,color:"var(--text)",width:"100%",outline:"none",marginBottom:14}} type="tel" maxLength={6} value={twoFACode} onChange={e=>setTwoFACode(e.target.value.replace(/[^0-9]/g,"").slice(0,6))} onKeyDown={e=>e.key==="Enter"&&verify2FA()} placeholder="000000"/>
+              <button className="btn-blue" style={{width:"100%",marginBottom:10}} onClick={verify2FA} disabled={twoFABusy||twoFACode.length!==6}>
+                {twoFABusy?<><span className="spin"/> Vérification…</>:"✅ Vérifier le code"}
+              </button>
+              <button className="nav-btn" style={{width:"100%"}} onClick={()=>{setShow2FA(false);setShowLogin(true);}}>← Retour</button>
+            </div>
+          </div>
+        )}
+
+        {/* ── PAYMENT MODAL ── */}
+        {showPayment && (
+          <div className="pay-ov">
+            <div className="pay-box">
+              <h3>Choisissez votre pack</h3>
+              <p style={{fontSize:12,color:"var(--green)",marginBottom:16,fontWeight:600}}>✨ 1er suivi offert — rechargez quand vous voulez</p>
+              <button className="pack-btn" style={{background:"linear-gradient(135deg,#1a6fd4,#0d4fa0)"}} onClick={async ()=>{
+                await setDoc(doc(db,"admins",adminUser?.email||""),{pendingPayment:true,pendingPack:5},{merge:true});
+                window.open("https://paypal.me/JaanusAalmaa/45EUR","_blank");
+                setShowPayment(false);
+                toast("✅ Après paiement, contactez-nous sur WhatsApp","ok");
+              }}>
+                <div className="pack-btn-left"><div className="pack-name">Pack 5 suivis</div><div className="pack-sub">9€ / suivi</div></div>
+                <div className="pack-price">45€</div>
+              </button>
+              <button className="pack-btn" style={{background:"linear-gradient(135deg,#e85d04,#c44d00)"}} onClick={async ()=>{
+                await setDoc(doc(db,"admins",adminUser?.email||""),{pendingPayment:true,pendingPack:10},{merge:true});
+                window.open("https://paypal.me/JaanusAalmaa/80EUR","_blank");
+                setShowPayment(false);
+                toast("✅ Après paiement, contactez-nous sur WhatsApp","ok");
+              }}>
+                <div className="pack-btn-left"><div className="pack-name">Pack 10 suivis</div><div className="pack-sub">8€ / suivi — 🔥 Populaire</div></div>
+                <div className="pack-price">80€</div>
+              </button>
+              <button className="pack-btn" style={{background:"linear-gradient(135deg,#5db832,#3a7a1e)"}} onClick={async ()=>{
+                await setDoc(doc(db,"admins",adminUser?.email||""),{pendingPayment:true,pendingPack:20},{merge:true});
+                window.open("https://paypal.me/JaanusAalmaa/140EUR","_blank");
+                setShowPayment(false);
+                toast("✅ Après paiement, contactez-nous sur WhatsApp","ok");
+              }}>
+                <div className="pack-btn-left"><div className="pack-name">Pack 20 suivis</div><div className="pack-sub">7€ / suivi — Meilleur prix</div></div>
+                <div className="pack-price">140€</div>
+              </button>
+              <p className="pay-note">Après paiement, envoyez votre preuve sur WhatsApp :<br/><strong style={{color:"var(--blue)"}}>+{WHATSAPP_NUM}</strong></p>
+              <span className="pay-cancel" onClick={()=>setShowPayment(false)}>Annuler</span>
+            </div>
+          </div>
+        )}
+
         {/* HEADER */}
         <header className="hdr">
-          <div className="hdr-badges">
-            {companies.map((c, i) => (
-              <span key={c}>
-                {i > 0 && <span style={{color:"var(--muted)",margin:"0 4px"}}>×</span>}
-                <span className="bdg" style={{color:coColor(c),borderColor:coColor(c),background:coColor(c)+"14"}}>{c}</span>
-              </span>
-            ))}
-          </div>
           <div className="hdr-brand">
             <div className="hdr-title">AUTO<span>TRACK</span></div>
-            <div className="hdr-sub">powered by {companies.join(" & ")}</div>
           </div>
           <div className="hdr-right">
             {isAdminUrl && (
@@ -673,11 +766,16 @@ export default function App() {
                   <button className={`nav-btn${view==="client"?" active":""}`} onClick={() => setView("client")}>Suivi</button>
                   <button className={`nav-btn${view==="admin"?" active":""}`} onClick={() => setView("admin")}>⚙️ Admin</button>
                   <button className="nav-btn" onClick={doLogout} title={t("logout")}>🚪</button>
+              {isSA(adminUser?.email) && <button className={"nav-btn"+(view==="superadmin"?" active":"")} onClick={()=>setView("superadmin")}>👑</button>}
+              <button className={"nav-btn"+(view==="stats"?" active":"")} onClick={()=>setView("stats")}>📊</button>
                 </>
               ) : (
                 <button className="nav-btn" onClick={() => { setShowLogin(true); setLoginErr(""); }}>🔐 Admin</button>
               )
             )}
+            <button onClick={()=>setDarkMode((p:boolean)=>!p)} style={{background:"none",border:"1px solid var(--border)",borderRadius:6,padding:"5px 9px",cursor:"pointer",fontSize:11,fontWeight:700,color:"var(--muted)"}}>
+              {darkMode?"LIGHT":"DARK"}
+            </button>
             <div className="lang-wrap" onClick={e => e.stopPropagation()}>
               <button className="lang-btn" onClick={() => setShowLang(p => !p)}>
                 {T[lang].flag} {T[lang].code} ▾
@@ -973,6 +1071,60 @@ export default function App() {
                     </tbody>
                   </table>
                 </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* ════ SUPER ADMIN ════ */}
+        {view==="superadmin" && adminUser && isSA(adminUser.email) && (
+          <div className="z1">
+            <div style={{maxWidth:960,margin:"0 auto",padding:"40px 20px"}}>
+              <div style={{textAlign:"center",marginBottom:24}}>
+                <h2 style={{fontFamily:"'Rajdhani',sans-serif",fontSize:26,fontWeight:700}}>👑 Gestion des partenaires</h2>
+              </div>
+              <div style={{background:"var(--card)",border:"1px solid var(--border)",borderRadius:14,padding:18,overflowX:"auto"}}>
+                <div style={{display:"flex",gap:10,marginBottom:14}}>
+                  <button className="ref-btn" onClick={async()=>{setSaLoading(true);const snap=await getDocs(collection(db,"admins"));setAdmins(snap.docs.map(d=>({id:d.id,...d.data()})));setSaLoading(false);}}>↻ Charger les partenaires</button>
+                </div>
+                {saLoading?<p style={{color:"var(--muted)",padding:20,textAlign:"center"}}>Chargement…</p>:
+                  admins.length===0?<p style={{color:"var(--muted)",padding:20,textAlign:"center"}}>Cliquez ↻ pour charger.</p>:(
+                  <table style={{width:"100%",borderCollapse:"collapse"}}>
+                    <thead><tr>{["Email","Suivis","Crédits","Paiement","Statut","Actions"].map(h=><th key={h} style={{textAlign:"left",fontSize:10,fontWeight:700,letterSpacing:".1em",textTransform:"uppercase",color:"var(--muted)",padding:"8px 10px",borderBottom:"1px solid var(--border)"}}>{h}</th>)}</tr></thead>
+                    <tbody>
+                      {admins.filter(a=>a.id!==SUPER_ADMIN).map(a=>(
+                        <tr key={a.id} style={{borderBottom:"1px solid rgba(255,255,255,.04)"}}>
+                          <td style={{padding:"10px",fontSize:12,color:"var(--blue)"}}>{a.email}</td>
+                          <td style={{padding:"10px",fontWeight:700,color:"var(--blue)"}}>{a.trackingCount||0}</td>
+                          <td style={{padding:"10px",fontWeight:700,color:"var(--green)"}}>{a.trackingCredits||0}</td>
+                          <td style={{padding:"10px"}}>
+                            {a.pendingPayment?(
+                              <button onClick={async()=>{
+                                const pack=a.pendingPack||5;
+                                const credits=(a.trackingCredits||0)+pack;
+                                const amounts:Record<number,string>={5:"45€",10:"80€",20:"140€"};
+                                await setDoc(doc(db,"admins",a.id),{pendingPayment:false,pendingPack:0,trackingCredits:credits},{merge:true});
+                                await setDoc(doc(db,"payments","pay_"+Date.now()),{email:a.id,pack,amount:amounts[pack]||"45€",date:new Date().toLocaleString("fr-FR")});
+                                const snap=await getDocs(collection(db,"admins"));setAdmins(snap.docs.map(d=>({id:d.id,...d.data()})));
+                                toast("✅ Pack "+pack+" activé pour "+a.id,"ok");
+                              }} style={{fontSize:11,padding:"4px 10px",borderRadius:6,border:"1px solid rgba(245,166,35,.3)",background:"rgba(245,166,35,.1)",color:"var(--gold)",cursor:"pointer"}}>
+                                ✅ Confirmer Pack {a.pendingPack||5}
+                              </button>
+                            ):<span style={{fontSize:12,color:"var(--green)"}}>✓ À jour</span>}
+                          </td>
+                          <td style={{padding:"10px"}}>
+                            <span style={{color:a.blocked?"var(--red)":"var(--green)",fontSize:12,fontWeight:700}}>{a.blocked?"🔒 Bloqué":"✅ Actif"}</span>
+                          </td>
+                          <td style={{padding:"10px"}}>
+                            <button onClick={async()=>{await setDoc(doc(db,"admins",a.id),{blocked:!a.blocked},{merge:true});const snap=await getDocs(collection(db,"admins"));setAdmins(snap.docs.map(d=>({id:d.id,...d.data()})));toast(a.blocked?"✅ Débloqué":"🔒 Bloqué","ok");}} style={{fontSize:11,padding:"4px 10px",borderRadius:6,border:"1px solid rgba(255,255,255,.2)",background:"var(--card)",color:"var(--muted)",cursor:"pointer"}}>
+                              {a.blocked?"🔓":"🔒"}
+                            </button>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                )}
               </div>
             </div>
           </div>
