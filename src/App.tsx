@@ -406,6 +406,21 @@ export default function App() {
   useEffect(() => { if (view === "admin" && adminUser) loadHistory(); }, [view, adminUser, loadHistory]);
 
   /* ── LOGIN ── */
+  async function verify2FA() {
+    if (!pendingUser) return;
+    setTwoFABusy(true); setTwoFAErr("");
+    if (twoFACode.trim() !== pendingUser.code) {
+      setTwoFAErr("❌ Code incorrect."); setTwoFABusy(false); return;
+    }
+    try {
+      await signInWithEmailAndPassword(auth, pendingUser.email, pendingUser.pass);
+      setShow2FA(false); setPendingUser(null);
+      setView(pendingUser.isSA ? "superadmin" : "admin");
+      toast("✅ Connexion sécurisée !","ok");
+    } catch { setTwoFAErr("❌ Erreur."); }
+    setTwoFABusy(false);
+  }
+
   async function doRegister() {
     setRegErr(""); setRegBusy(true);
     if (!regEmail.trim()||!regPass.trim()) { setRegErr("⚠️ Email et mot de passe requis."); setRegBusy(false); return; }
