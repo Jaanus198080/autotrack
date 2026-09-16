@@ -289,6 +289,7 @@ function nowStr() {
 export default function App() {
   const [lang, setLangState] = useState("fr");
   const t = (k: string) => T[lang]?.[k] ?? T.fr[k] ?? k;
+  const isSA = (email?: string|null) => (email||"") === SUPER_ADMIN;
 
   const isAdminUrl   = new URLSearchParams(window.location.search).get("admin") === "1";
   const isSuperAdmin = new URLSearchParams(window.location.search).get("superadmin") === "1";
@@ -755,7 +756,7 @@ export default function App() {
               <h2 style={{fontFamily:"'Rajdhani',sans-serif",fontSize:22,fontWeight:700,marginBottom:6}}>Vérification</h2>
               <p style={{fontSize:13,color:"var(--muted)",marginBottom:18,lineHeight:1.6}}>Code à 6 chiffres envoyé à<br/><strong style={{color:"var(--blue)"}}>{pendingUser?.email}</strong></p>
               {twoFAErr && <div className="login-err">{twoFAErr}</div>}
-              <input style={{fontFamily:"'Rajdhani',sans-serif",fontSize:26,fontWeight:700,letterSpacing:".4em",textAlign:"center",background:"rgba(255,255,255,.06)",border:"2px solid rgba(26,111,212,.3)",borderRadius:10,padding:12,color:"var(--text)",width:"100%",outline:"none",marginBottom:14}} type="tel" maxLength={6} value={twoFACode} onChange={e=>setTwoFACode(e.target.value.replace(/[^0-9]/g,"").slice(0,6))} onKeyDown={e=>e.key==="Enter"&&verify2FA()} placeholder="000000"/>
+              <input style={{fontFamily:"'Rajdhani',sans-serif",fontSize:26,fontWeight:700,letterSpacing:".4em",textAlign:"center",background:"rgba(255,255,255,.06)",border:"2px solid rgba(26,111,212,.3)",borderRadius:10,padding:12,color:"var(--text)",width:"100%",outline:"none",marginBottom:14}} type="tel" maxLength={6} value={twoFACode} onChange={e=>{const v=e.target.value.split("").filter((x:string)=>"0123456789".includes(x)).join("").slice(0,6);setTwoFACode(v);}} onKeyDown={e=>e.key==="Enter"&&verify2FA()} placeholder="000000"/>
               <button className="btn-blue" style={{width:"100%",marginBottom:10}} onClick={verify2FA} disabled={twoFABusy||twoFACode.length!==6}>
                 {twoFABusy?<><span className="spin"/> Vérification…</>:"✅ Vérifier le code"}
               </button>
