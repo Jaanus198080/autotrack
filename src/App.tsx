@@ -507,19 +507,18 @@ export default function App() {
     const { name, from, to, veh } = form;
     if (!name||!from||!to||!veh) { toast(t("err_fill"),"err"); return; }
     if (!isSA(adminUser?.email)) {
-      const freshProfile = await getAdminProfile(adminUser?.email!);
-      const count = freshProfile?.trackingCount || 0;
-      // Block if payment pending and not yet confirmed
-      if (freshProfile?.pendingPayment === true) {
-        toast("⏳ Paiement en attente de confirmation. WhatsApp : +32460211559", "err");
+      // Use local adminProfile first, then verify with Firebase
+      const count = adminProfile?.trackingCount || 0;
+      const isPending = adminProfile?.pendingPayment === true;
+      // Block if payment pending
+      if (isPending) {
+        toast("⏳ Paiement en attente de confirmation. Contactez-nous sur WhatsApp : +32460211559", "err");
         return;
       }
       // 1st tracking free
       if (count === 0) { await doGenerate(); return; }
       // 2nd+ tracking - show payment modal
-      if (count >= 1) {
-        setShowPayment(true); setPendingGen(true); return;
-      }
+      setShowPayment(true); setPendingGen(true); return;
     }
     await doGenerate();
   }
@@ -667,11 +666,15 @@ export default function App() {
     } catch { setPayHistory([]); }
   }
   async function confirmPaymentWithHistory(email: string, name: string) {
-    await setDoc(doc(db,"payments","pay_"+Date.now()), {email,name,amount:"10€",date:new Date().toLocaleString("fr-FR"),status:"confirmed"});
-    await saveAdminProfile(email, {pendingPayment:false});
-    const a = await getAllAdmins(); setAdmins(a);
-    await loadPayHistory();
-    toast("✅ Paiement confirmé","ok");
+    // Run Firebase writes in parallel for speed
+    await Promise.all([
+      setDoc(doc(db,"payments","pay_"+Date.now()), {email,name,amount:"10€",date:new Date().toLocaleString("fr-FR"),status:"confirmed"}),
+      saveAdminProfile(email, {pendingPayment:false})
+    ]);
+    toast("✅ Paiement confirmé pour "+email,"ok");
+    // Reload data in background
+    getAllAdmins().then(a => setAdmins(a));
+    loadPayHistory();
   }
   async function loadLogs() {
     try {
@@ -1226,7 +1229,7 @@ export default function App() {
                           <td><span style={{color:"var(--blue)",fontWeight:700}}>{a.trackingCount||0}</span></td>
                           <td>
                             {a.pendingPayment
-                              ?<button className="btn-confirm-pay" onClick={()=>confirmPayment(a.id)}>✅ Confirmer paiement</button>
+                              ?<button className="btn-confirm-pay" onClick={()=>confirmPaymentWithHistory(a.id, a.name||a.email)}>✅ Confirmer paiement</button>
                               :<span style={{color:"var(--green)",fontSize:12}}>✓ À jour</span>
                             }
                           </td>
