@@ -637,17 +637,18 @@ async function doRegister() {
     const count   = profile?.trackingCount || 0;
 
     if (!isSA(adminUser?.email)) {
-      // First tracking is always free - never block
-      if (count === 0) {
-        await doGenerate();
-        return;
-      }
       // Block if pending payment not confirmed
       if (profile?.pendingPayment) {
         toast("⏳ Votre paiement est en attente de confirmation. Contactez-nous sur WhatsApp : +32460211559", "err");
         return;
       }
-      // From 2nd tracking onwards - payment required
+      // Check credits
+      const credits = profile?.trackingCredits || 0;
+      if (credits > 0) {
+        await doGenerate();
+        return;
+      }
+      // No credits - show payment modal
       setShowPayment(true);
       setPendingGen(true);
       return;
@@ -933,32 +934,41 @@ async function doRegister() {
             <div className="pay-box">
               <h3>Choisissez votre pack</h3>
               <p style={{fontSize:12,color:"var(--green)",marginBottom:14,fontWeight:600}}>✨ 1er suivi offert — rechargez quand vous voulez</p>
-              <button className="pack-btn" style={{background:"linear-gradient(135deg,#1a6fd4,#0d4fa0)"}} onClick={async ()=>{
-                await setDoc(doc(db,"admins",adminUser?.email||""),{pendingPayment:true,pendingPack:5},{merge:true});
-                window.open("https://paypal.me/JaanusAalmaa/45EUR","_blank");
+              <button className="pack-btn" style={{background:"linear-gradient(135deg,#7a5af8,#5a3ad8)"}} onClick={async ()=>{
+                await setDoc(doc(db,"admins",adminUser?.email||""),{pendingPayment:true,pendingPack:1},{merge:true});
+                window.open("https://monniz.shop/pay/f0320761-c4ee-4268-bcbb-0779257f7704","_blank");
                 setShowPayment(false);
                 toast("✅ Après paiement, contactez-nous sur WhatsApp","ok");
               }}>
-                <div className="pack-btn-left"><div className="pack-name">Pack 5 suivis</div><div className="pack-sub">9€ / suivi</div></div>
-                <div className="pack-price">45€</div>
+                <div className="pack-btn-left"><div className="pack-name">1 suivi</div><div className="pack-sub">9€ / suivi</div></div>
+                <div className="pack-price"><span style={{fontSize:14}}>5 900</span><span style={{fontSize:11,opacity:.7}}> FCFA</span></div>
+              </button>
+              <button className="pack-btn" style={{background:"linear-gradient(135deg,#1a6fd4,#0d4fa0)"}} onClick={async ()=>{
+                await setDoc(doc(db,"admins",adminUser?.email||""),{pendingPayment:true,pendingPack:5},{merge:true});
+                window.open("https://monniz.shop/pay/c5bf3736-9869-46ed-aed8-3d239ae77e0f","_blank");
+                setShowPayment(false);
+                toast("✅ Après paiement, contactez-nous sur WhatsApp","ok");
+              }}>
+                <div className="pack-btn-left"><div className="pack-name">Pack 5 suivis</div><div className="pack-sub">9€ · 5 900 FCFA / suivi</div></div>
+                <div className="pack-price"><span style={{fontSize:14}}>29 500</span><span style={{fontSize:11,opacity:.7}}> FCFA</span></div>
               </button>
               <button className="pack-btn" style={{background:"linear-gradient(135deg,#e85d04,#c44d00)"}} onClick={async ()=>{
                 await setDoc(doc(db,"admins",adminUser?.email||""),{pendingPayment:true,pendingPack:10},{merge:true});
-                window.open("https://paypal.me/JaanusAalmaa/80EUR","_blank");
+                window.open("https://monniz.shop/pay/f9222e7f-19af-4c4e-bcc0-ab2945806402","_blank");
                 setShowPayment(false);
                 toast("✅ Après paiement, contactez-nous sur WhatsApp","ok");
               }}>
-                <div className="pack-btn-left"><div className="pack-name">Pack 10 suivis</div><div className="pack-sub">8€ / suivi — 🔥 Populaire</div></div>
-                <div className="pack-price">80€</div>
+                <div className="pack-btn-left"><div className="pack-name">Pack 10 suivis</div><div className="pack-sub">8€ · 5 240 FCFA / suivi — 🔥</div></div>
+                <div className="pack-price"><span style={{fontSize:14}}>52 400</span><span style={{fontSize:11,opacity:.7}}> FCFA</span></div>
               </button>
               <button className="pack-btn" style={{background:"linear-gradient(135deg,#5db832,#3a7a1e)"}} onClick={async ()=>{
                 await setDoc(doc(db,"admins",adminUser?.email||""),{pendingPayment:true,pendingPack:20},{merge:true});
-                window.open("https://paypal.me/JaanusAalmaa/140EUR","_blank");
+                window.open("https://monniz.shop/pay/aca7151d-e497-4748-908a-1c0b8ab383af","_blank");
                 setShowPayment(false);
                 toast("✅ Après paiement, contactez-nous sur WhatsApp","ok");
               }}>
-                <div className="pack-btn-left"><div className="pack-name">Pack 20 suivis</div><div className="pack-sub">7€ / suivi — Meilleur prix</div></div>
-                <div className="pack-price">140€</div>
+                <div className="pack-btn-left"><div className="pack-name">Pack 20 suivis</div><div className="pack-sub">7€ · 4 585 FCFA / suivi — Meilleur prix</div></div>
+                <div className="pack-price"><span style={{fontSize:14}}>91 700</span><span style={{fontSize:11,opacity:.7}}> FCFA</span></div>
               </button>
               <p className="pay-note">Après paiement envoyez la preuve sur WhatsApp :<br/><strong style={{color:"var(--blue)"}}>+32460211559</strong></p>
               <span className="pay-cancel" onClick={()=>{setShowPayment(false);setPendingGen(false);}}>Annuler</span>
@@ -1074,7 +1084,7 @@ async function doRegister() {
                     </div>
                   </div>
                 </div>
-                <div className="price-free">✨ Premier suivi offert gratuitement</div>
+                <div className="price-free">✨ Démarrez dès 5 900 FCFA</div>
                 <ul className="price-features">
                   <li>Suivi illimité de vos véhicules</li>
                   <li>Notifications email automatiques</li>
@@ -1172,7 +1182,7 @@ async function doRegister() {
               <div className="adm-hdr">
                 <div className="op-chip" style={{marginBottom:12}}>⚙️ Admin — {adminUser.email}</div>
                 <h2>{t("adm_title")}</h2>
-                <p>{t("adm_sub")} · Suivis créés : <strong style={{color:"var(--blue)"}}>{adminProfile?.trackingCount||0}</strong> · Crédits : <strong style={{color:"var(--green)"}}>{adminProfile?.trackingCredits||0}</strong> {(adminProfile?.trackingCount||0)===0?"(1er gratuit)":""}</p>
+                <p>{t("adm_sub")} · Suivis créés : <strong style={{color:"var(--blue)"}}>{adminProfile?.trackingCount||0}</strong> · Crédits : <strong style={{color:"var(--green)"}}>{adminProfile?.trackingCredits||0}</strong> </p>
               </div>
               <div className="card">
                 <div className="fg">
