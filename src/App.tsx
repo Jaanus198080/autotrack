@@ -776,10 +776,21 @@ async function doRegister() {
     toast(blocked?"✅ Débloqué":"🔒 Bloqué","ok");
   }
   async function confirmPayment(email: string) {
-    await saveAdminProfile(email,{pendingPayment:false});
+    // Get current profile to read pendingPack and current credits
+    const snap = await getDoc(doc(db,"admins",email));
+    const profile = snap.exists() ? snap.data() : null;
+    const pack = profile?.pendingPack || 5;
+    const currentCredits = profile?.trackingCredits || 0;
+    const newCredits = currentCredits + pack;
+    // Add credits + clear pending payment
+    await setDoc(doc(db,"admins",email),{
+      pendingPayment: false,
+      pendingPack: 0,
+      trackingCredits: newCredits
+    },{merge:true});
     const a = await getAllAdmins();
     setAdmins(a);
-    toast("✅ Paiement confirmé pour "+email,"ok");
+    toast("✅ Pack "+pack+" crédits ajoutés pour "+email,"ok");
   }
   async function deleteAdmin(email: string) {
     await deleteDoc(doc(db,"admins",email));
