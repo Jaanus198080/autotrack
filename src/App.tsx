@@ -40,13 +40,13 @@ const T: Record<string, Record<string, string>> = {
 const css = `
   @import url('https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;600;700&family=Exo+2:wght@300;400;500;600;700&display=swap');
   *{margin:0;padding:0;box-sizing:border-box;}
-  :root{--blue:#2278e8;--orange:#f06120;--green:#5db832;--red:#e02020;--gold:#f5a623;--bg:#060a14;--card:rgba(255,255,255,0.04);--border:rgba(255,255,255,0.09);--text:#eaecf4;--muted:#7a8499;}
+  :root{--blue:#2278e8;--orange:#f06120;--green:#5db832;--red:#e02020;--gold:#f5a623;--bg:#f5f7fa;--card:#ffffff;--border:rgba(255,255,255,0.09);--text:#eaecf4;--muted:#7a8499;}
   body{font-family:'Exo 2',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;}
   .at-root{position:relative;min-height:100vh;display:flex;flex-direction:column;}
   .bg-grid{position:fixed;inset:0;background:linear-gradient(rgba(34,120,232,.03) 1px,transparent 1px),linear-gradient(90deg,rgba(34,120,232,.03) 1px,transparent 1px);background-size:40px 40px;pointer-events:none;z-index:0;}
   .bg-glow{position:fixed;inset:0;background:radial-gradient(ellipse 80% 50% at 50% -10%,rgba(34,120,232,.14),transparent);pointer-events:none;z-index:0;}
   .z1{position:relative;z-index:1;}
-  .hdr{position:sticky;top:0;z-index:50;padding:0 24px;height:64px;display:flex;align-items:center;justify-content:space-between;background:rgba(6,10,20,.97);border-bottom:1px solid var(--border);backdrop-filter:blur(20px);gap:12px;}
+  .hdr{position:sticky;top:0;z-index:50;padding:0 24px;height:64px;display:flex;align-items:center;justify-content:space-between;background:#ffffff;box-shadow:0 2px 8px rgba(0,0,0,0.08);border-bottom:1px solid var(--border);}
   .hdr-brand{text-align:center;flex:1;}
   .hdr-title{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:26px;letter-spacing:.28em;color:#fff;}
   .hdr-title span{color:var(--blue);}
@@ -488,6 +488,18 @@ export default function App() {
     const db2 = await dbRead(e && !isSA(e) ? e : undefined);
     setHistory(Object.entries(db2).reverse());
   }, [adminUser]);
+
+  // Crisp Chat
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      (window as any).$crisp = [];
+      (window as any).CRISP_WEBSITE_ID = "84a1ccd3-1130-4760-8669-56f85691e29a";
+      const s = document.createElement("script");
+      s.src = "https://client.crisp.chat/l.js";
+      s.async = true;
+      document.head.appendChild(s);
+    }
+  }, []);
 
   useEffect(() => {
     if ((view==="admin"||view==="stats") && adminUser) loadHistory(adminUser.email||undefined);
