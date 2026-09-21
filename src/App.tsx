@@ -1,4 +1,99 @@
-// src/App.tsx — VERSION MULTI-ADMIN FINALE
+// s
+  es: {
+    flag:"🇪🇸",
+    track:"Seguimiento",search:"Buscar",back:"Volver",loading:"Cargando...",
+    err_not_found:"Número no encontrado.",adm_title:"Crear seguimiento",
+    adm_sub:"Complete el formulario para generar un número de seguimiento",
+    err_fill:"Complete todos los campos obligatorios.",
+    gen_btn:"Generar número de seguimiento",upd_btn:"Actualizar posición",
+    login_title:"Acceso Admin",login_email:"Email",login_pass:"Contraseña",
+    login_btn:"Conectarse",login_err:"Email o contraseña incorrectos.",
+    logout:"Cerrar sesión",copy:"Copiar",copied:"¡Copiado!",
+    reg_title:"Crear cuenta",reg_email:"Email",reg_pass:"Contraseña",
+    reg_btn:"Crear mi cuenta gratis",reg_ok:"¡Cuenta creada! Sus credenciales han sido enviadas por email.",
+    reg_err:"Error al crear la cuenta.",pay_title:"Elegir pack",
+    lbl_client:"INFORMACIÓN DEL CLIENTE",lbl_vehicle:"VEHÍCULO",
+    lbl_route:"RUTA",lbl_mt:"Modo de transporte",lbl_carr:"Transportista",
+    lbl_dd:"Fecha de salida",lbl_eta:"Llegada estimada",lbl_vin:"VIN",lbl_pl:"Matrícula",
+    st0:"En espera de carga",st1:"Cargado",st2:"En tránsito",st3:"En aduana",
+    st4:"En entrega",st5:"Entregado",st6:"Suspendido",st7:"Retrasado",
+  },
+  pt: {
+    flag:"🇵🇹",
+    track:"Rastreamento",search:"Pesquisar",back:"Voltar",loading:"Carregando...",
+    err_not_found:"Número não encontrado.",adm_title:"Criar rastreamento",
+    adm_sub:"Preencha o formulário para gerar um número de rastreamento",
+    err_fill:"Preencha todos os campos obrigatórios.",
+    gen_btn:"Gerar número de rastreamento",upd_btn:"Atualizar posição",
+    login_title:"Acesso Admin",login_email:"Email",login_pass:"Senha",
+    login_btn:"Entrar",login_err:"Email ou senha incorretos.",
+    logout:"Sair",copy:"Copiar",copied:"Copiado!",
+    reg_title:"Criar conta",reg_email:"Email",reg_pass:"Senha",
+    reg_btn:"Criar minha conta grátis",reg_ok:"Conta criada! Suas credenciais foram enviadas por email.",
+    reg_err:"Erro ao criar conta.",pay_title:"Escolher pack",
+    lbl_client:"INFORMAÇÕES DO CLIENTE",lbl_vehicle:"VEÍCULO",
+    lbl_route:"ROTA",lbl_mt:"Modo de transporte",lbl_carr:"Transportadora",
+    lbl_dd:"Data de saída",lbl_eta:"Chegada estimada",lbl_vin:"VIN",lbl_pl:"Placa",
+    st0:"Aguardando carregamento",st1:"Carregado",st2:"Em trânsito",st3:"Na alfândega",
+    st4:"Em entrega",st5:"Entregue",st6:"Suspenso",st7:"Atrasado",
+  },
+  ar: {
+    flag:"🇸🇦",
+    track:"تتبع",search:"بحث",back:"رجوع",loading:"جاري التحميل...",
+    err_not_found:"الرقم غير موجود.",adm_title:"إنشاء تتبع",
+    adm_sub:"املأ النموذج لإنشاء رقم تتبع",
+    err_fill:"يرجى ملء جميع الحقول المطلوبة.",
+    gen_btn:"إنشاء رقم التتبع",upd_btn:"تحديث الموقع",
+    login_title:"دخول المشرف",login_email:"البريد الإلكتروني",login_pass:"كلمة المرور",
+    login_btn:"تسجيل الدخول",login_err:"بريد إلكتروني أو كلمة مرور غير صحيحة.",
+    logout:"تسجيل الخروج",copy:"نسخ",copied:"تم النسخ!",
+    reg_title:"إنشاء حساب",reg_email:"البريد الإلكتروني",reg_pass:"كلمة المرور",
+    reg_btn:"إنشاء حسابي مجاناً",reg_ok:"تم إنشاء الحساب! تم إرسال بياناتك بالبريد الإلكتروني.",
+    reg_err:"خطأ في إنشاء الحساب.",pay_title:"اختر الباقة",
+    lbl_client:"معلومات العميل",lbl_vehicle:"المركبة",
+    lbl_route:"المسار",lbl_mt:"وسيلة النقل",lbl_carr:"الناقل",
+    lbl_dd:"تاريخ المغادرة",lbl_eta:"الوصول المتوقع",lbl_vin:"رقم الهيكل",lbl_pl:"لوحة الترقيم",
+    st0:"في انتظار التحميل",st1:"تم التحميل",st2:"في العبور",st3:"في الجمارك",
+    st4:"قيد التسليم",st5:"تم التسليم",st6:"موقوف",st7:"متأخر",
+  },
+  nl: {
+    flag:"🇳🇱",
+    track:"Volgen",search:"Zoeken",back:"Terug",loading:"Laden...",
+    err_not_found:"Nummer niet gevonden.",adm_title:"Tracking aanmaken",
+    adm_sub:"Vul het formulier in om een trackingnummer te genereren",
+    err_fill:"Vul alle verplichte velden in.",
+    gen_btn:"Trackingnummer genereren",upd_btn:"Positie bijwerken",
+    login_title:"Admin toegang",login_email:"Email",login_pass:"Wachtwoord",
+    login_btn:"Inloggen",login_err:"Onjuist email of wachtwoord.",
+    logout:"Uitloggen",copy:"Kopiëren",copied:"Gekopieerd!",
+    reg_title:"Account aanmaken",reg_email:"Email",reg_pass:"Wachtwoord",
+    reg_btn:"Maak gratis account aan",reg_ok:"Account aangemaakt! Uw gegevens zijn per email verzonden.",
+    reg_err:"Fout bij aanmaken account.",pay_title:"Kies pakket",
+    lbl_client:"KLANTINFORMATIE",lbl_vehicle:"VOERTUIG",
+    lbl_route:"ROUTE",lbl_mt:"Vervoerswijze",lbl_carr:"Vervoerder",
+    lbl_dd:"Vertrekdatum",lbl_eta:"Geschatte aankomst",lbl_vin:"VIN",lbl_pl:"Kenteken",
+    st0:"Wachten op belading",st1:"Geladen",st2:"Onderweg",st3:"Bij de douane",
+    st4:"In bezorging",st5:"Bezorgd",st6:"Opgeschort",st7:"Vertraagd",
+  },
+  pl: {
+    flag:"🇵🇱",
+    track:"Śledzenie",search:"Szukaj",back:"Wróć",loading:"Ładowanie...",
+    err_not_found:"Numer nie znaleziony.",adm_title:"Utwórz śledzenie",
+    adm_sub:"Wypełnij formularz aby wygenerować numer śledzenia",
+    err_fill:"Wypełnij wszystkie wymagane pola.",
+    gen_btn:"Generuj numer śledzenia",upd_btn:"Aktualizuj pozycję",
+    login_title:"Dostęp Admin",login_email:"Email",login_pass:"Hasło",
+    login_btn:"Zaloguj się",login_err:"Nieprawidłowy email lub hasło.",
+    logout:"Wyloguj",copy:"Kopiuj",copied:"Skopiowano!",
+    reg_title:"Utwórz konto",reg_email:"Email",reg_pass:"Hasło",
+    reg_btn:"Utwórz darmowe konto",reg_ok:"Konto utworzone! Dane wysłane emailem.",
+    reg_err:"Błąd podczas tworzenia konta.",pay_title:"Wybierz pakiet",
+    lbl_client:"DANE KLIENTA",lbl_vehicle:"POJAZD",
+    lbl_route:"TRASA",lbl_mt:"Środek transportu",lbl_carr:"Przewoźnik",
+    lbl_dd:"Data wyjazdu",lbl_eta:"Szacowane przybycie",lbl_vin:"VIN",lbl_pl:"Tablice rejestracyjne",
+    st0:"Oczekiwanie na załadunek",st1:"Załadowany",st2:"W tranzycie",st3:"Na cle",
+    st4:"W dostawie",st5:"Dostarczony",st6:"Wstrzymany",st7:"Opóźniony",
+  },rc/App.tsx — VERSION MULTI-ADMIN FINALE
 import { useState, useEffect, useCallback, useRef } from "react";
 import {
   doc, getDoc, setDoc, collection, getDocs,
@@ -381,7 +476,12 @@ function nowStr() { return new Date().toLocaleString("fr-FR",{day:"2-digit",mont
    APP
 ══════════════════════════════════════════════ */
 export default function App() {
-  const [lang, setLangState] = useState("fr");
+  const detectLang = () => {
+    const supported = ["fr","en","de","hr","it","bg","ro","es","pt","ar","nl","pl"];
+    const browser = navigator.language?.slice(0,2).toLowerCase() || "fr";
+    return supported.includes(browser) ? browser : "fr";
+  };
+  const [lang, setLangState] = useState(detectLang);
   const t = (k: string) => T[lang]?.[k] ?? T.fr[k] ?? k;
   const params = new URLSearchParams(window.location.search);
   const isAdminUrl    = params.get("admin") === "1";
@@ -1013,7 +1113,7 @@ async function doRegister() {
                 <div className="lang-drop">
                   {Object.entries(T).map(([l,v])=>(
                     <div key={l} className={"lang-opt"+(lang===l?" active":"")} onClick={()=>{setLangState(l);setShowLang(false);}}>
-                      {v.flag} {l==="fr"?"Français":l==="en"?"English":l==="de"?"Deutsch":l==="hr"?"Hrvatski":l==="it"?"Italiano":l==="bg"?"Български":"Română"}
+                      {v.flag} {l==="fr"?"Français":l==="en"?"English":l==="de"?"Deutsch":l==="hr"?"Hrvatski":l==="it"?"Italiano":l==="bg"?"Български":l==="ro"?"Română":l==="es"?"Español":l==="pt"?"Português":l==="ar"?"العربية":l==="nl"?"Nederlands":"Polski"}
                     </div>
                   ))}
                 </div>
