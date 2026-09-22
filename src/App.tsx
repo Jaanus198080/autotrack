@@ -98,7 +98,7 @@ const css = `
   .susp-banner p{font-size:14px;font-weight:600;color:#ff6b6b;line-height:1.5;}
   .susp-contact-btn{display:inline-flex;align-items:center;gap:7px;font-size:13px;font-weight:700;padding:9px 18px;border-radius:8px;border:1px solid rgba(224,32,32,.4);background:rgba(224,32,32,.15);color:#ff6b6b;cursor:pointer;width:fit-content;transition:all .2s;}
   .prog-card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:18px 22px;margin-bottom:14px;}
-    .ctitle{font-size:10px;font-weight:700;letter-spacing:.14em;color:var(--muted);text-transform:uppercase;margin-bottom:12px;display:flex;align-items:center;gap:8px;}
+  .ctitle{font-family:'Rajdhani',sans-serif;font-size:11px;font-weight:700;letter-spacing:.14em;color:var(--muted);text-transform:uppercase;margin-bottom:12px;display:flex;align-items:center;gap:8px;}
   .ctitle::after{content:'';flex:1;height:1px;background:var(--border);}
   .pbar{background:rgba(255,255,255,.06);border-radius:6px;height:7px;overflow:hidden;}
   .pfill{height:100%;border-radius:6px;background:var(--blue);transition:width .8s ease;}
@@ -240,13 +240,11 @@ const css = `
 
   .pay-cancel{font-size:12px;color:var(--muted);cursor:pointer;margin-top:14px;text-decoration:underline;}
     .pack-btn{width:100%;display:flex;justify-content:space-between;align-items:center;padding:14px 16px;border-radius:12px;border:1px solid var(--border);background:rgba(255,255,255,0.03);cursor:pointer;margin-bottom:8px;transition:all .2s;text-align:left;}
-  .pack-btn:hover{border-color:var(--blue);background:rgba(34,120,232,0.08);}
+  .pack-btn:hover{border-color:var(--blue);background:rgba(34,120,232,0.06);}
   .pack-btn-left{display:flex;flex-direction:column;gap:3px;flex:1;}
   .pack-name{font-size:14px;font-weight:700;color:var(--text);}
   .pack-sub{font-size:11px;color:var(--muted);}
-  .pack-price-right{text-align:right;}
-  .pack-price{font-family:'Rajdhani',sans-serif;font-size:22px;font-weight:900;color:var(--text);}
-  .pack-fcfa{font-size:10px;color:var(--muted);display:block;}
+  .pack-price{font-family:'Rajdhani',sans-serif;font-size:22px;font-weight:900;color:var(--text);text-align:right;}
   /* REGISTER */
   .reg-ov{position:fixed;inset:0;background:rgba(6,10,20,.97);z-index:300;display:flex;align-items:center;justify-content:center;padding:20px;}
   .reg-box{background:rgba(255,255,255,.04);border:1px solid var(--border);border-radius:20px;padding:36px;width:100%;max-width:400px;text-align:center;}
@@ -489,6 +487,15 @@ export default function App() {
     const db2 = await dbRead(e && !isSA(e) ? e : undefined);
     setHistory(Object.entries(db2).reverse());
   }, [adminUser]);
+
+  useEffect(() => {
+    (window as any).$crisp = [];
+    (window as any).CRISP_WEBSITE_ID = "84a1ccd3-1130-4760-8669-56f85691e29a";
+    const s = document.createElement("script");
+    s.src = "https://client.crisp.chat/l.js";
+    s.async = true;
+    document.head.appendChild(s);
+  }, []);
 
   useEffect(() => {
     (window as any).$crisp = [];
@@ -957,8 +964,8 @@ async function doRegister() {
           <div className="pay-ov">
             <div className="pay-box">
               <h3>Choisissez votre pack</h3>
-              <div className="pay-green-badge"><div className="pay-green-dot"/><span className="pay-green-txt">Rechargez quand vous voulez</span></div>
-              <button className="pack-btn" style={{borderColor:"rgba(122,90,248,0.4)",background:"rgba(122,90,248,0.08)"}} onClick={()=>{
+              <p style={{fontSize:12,color:"var(--green)",marginBottom:14,fontWeight:600}}>✨ 1er suivi offert — rechargez quand vous voulez</p>
+              <button className="pack-btn" style={{background:"linear-gradient(135deg,#7a5af8,#5a3ad8)"}} onClick={()=>{
                 const win = window.open("https://monniz.shop/pay/f0320761-c4ee-4268-bcbb-0779257f7704","_blank");
                 if (!win) { window.location.href = "https://monniz.shop/pay/f0320761-c4ee-4268-bcbb-0779257f7704"; }
                 setDoc(doc(db,"admins",adminUser?.email||""),{pendingPayment:true,pendingPack:1},{merge:true});
@@ -966,29 +973,27 @@ async function doRegister() {
                 toast("✅ Après paiement, contactez-nous sur WhatsApp","ok");
               }}>
                 <div className="pack-btn-left"><div className="pack-name">1 suivi</div><div className="pack-sub">9€ / suivi</div></div>
-                <div style={{textAlign:"right"}}><div className="pack-price">5 900</div><span style={{fontSize:10,color:"var(--muted)"}}>FCFA</span></div>
+                <div className="pack-price"><span style={{fontSize:14}}>5 900</span><span style={{fontSize:11,opacity:.7}}> FCFA</span></div>
               </button>
-              <button className="pack-btn" style={{borderColor:"rgba(34,120,232,0.4)",background:"rgba(34,120,232,0.08)"}} onClick={()=>{
+              <button className="pack-btn" style={{background:"linear-gradient(135deg,#1a6fd4,#0d4fa0)"}} onClick={()=>{
                 const win = window.open("https://monniz.shop/pay/c5bf3736-9869-46ed-aed8-3d239ae77e0f","_blank");
                 if (!win) { window.location.href = "https://monniz.shop/pay/c5bf3736-9869-46ed-aed8-3d239ae77e0f"; }
                 setDoc(doc(db,"admins",adminUser?.email||""),{pendingPayment:true,pendingPack:5},{merge:true});
                 setShowPayment(false);
                 toast("✅ Après paiement, contactez-nous sur WhatsApp","ok");
               }}>
-                <div className="pack-btn-left"><div className="pack-name">Pack 5 suivis</div><div className="pack-sub">9€ / suivi</div></div>
-                <div style={{textAlign:"right"}}><div className="pack-price" style={{color:"var(--blue)"}}>29 500</div><span style={{fontSize:10,color:"var(--muted)"}}>FCFA</span></div>
+                <div className="pack-btn-left"><div className="pack-name">Pack 5 suivis</div><div className="pack-sub">9€ · 5 900 FCFA / suivi</div></div>
+                <div className="pack-price"><span style={{fontSize:14}}>29 500</span><span style={{fontSize:11,opacity:.7}}> FCFA</span></div>
               </button>
-              <div style={{position:"relative",marginBottom:0}}>
-              <div style={{position:"absolute",top:-11,left:"50%",transform:"translateX(-50%)",background:"var(--blue)",color:"#fff",fontSize:10,fontWeight:700,padding:"3px 14px",borderRadius:20,whiteSpace:"nowrap",zIndex:1}}>🔥 POPULAIRE</div>
-              <button className="pack-btn" style={{border:"2px solid var(--blue)",background:"rgba(34,120,232,0.1)",position:"relative",marginBottom:8}} onClick={()=>{
+              <button className="pack-btn" style={{background:"linear-gradient(135deg,#e85d04,#c44d00)"}} onClick={()=>{
                 const win = window.open("https://monniz.shop/pay/f9222e7f-19af-4c4e-bcc0-ab2945806402","_blank");
                 if (!win) { window.location.href = "https://monniz.shop/pay/f9222e7f-19af-4c4e-bcc0-ab2945806402"; }
                 setDoc(doc(db,"admins",adminUser?.email||""),{pendingPayment:true,pendingPack:10},{merge:true});
                 setShowPayment(false);
                 toast("✅ Après paiement, contactez-nous sur WhatsApp","ok");
               }}>
-                <div className="pack-btn-left"><div className="pack-name">Pack 10 suivis</div><div className="pack-sub" style={{color:"var(--blue)",fontWeight:600}}>8€ / suivi</div></div>
-                <div style={{textAlign:"right"}}><div className="pack-price" style={{color:"var(--blue)"}}>52 400</div><span style={{fontSize:10,color:"var(--muted)"}}>FCFA</span></div>
+                <div className="pack-btn-left"><div className="pack-name">Pack 10 suivis</div><div className="pack-sub">8€ · 5 240 FCFA / suivi — 🔥</div></div>
+                <div className="pack-price"><span style={{fontSize:14}}>52 400</span><span style={{fontSize:11,opacity:.7}}> FCFA</span></div>
               </button>
               <button className="pack-btn" style={{background:"linear-gradient(135deg,#5db832,#3a7a1e)"}} onClick={()=>{
                 const win = window.open("https://monniz.shop/pay/aca7151d-e497-4748-908a-1c0b8ab383af","_blank");
@@ -997,8 +1002,8 @@ async function doRegister() {
                 setShowPayment(false);
                 toast("✅ Après paiement, contactez-nous sur WhatsApp","ok");
               }}>
-                <div className="pack-btn-left"><div className="pack-name">Pack 20 suivis</div><div className="pack-sub" style={{color:"var(--green)",fontWeight:600}}>7€ / suivi — Meilleur prix</div></div>
-                <div style={{textAlign:"right"}}><div className="pack-price" style={{color:"var(--green)"}}>91 700</div><span style={{fontSize:10,color:"var(--muted)"}}>FCFA</span></div>
+                <div className="pack-btn-left"><div className="pack-name">Pack 20 suivis</div><div className="pack-sub">7€ · 4 585 FCFA / suivi — Meilleur prix</div></div>
+                <div className="pack-price"><span style={{fontSize:14}}>91 700</span><span style={{fontSize:11,opacity:.7}}> FCFA</span></div>
               </button>
               <p className="pay-note">Après paiement envoyez la preuve sur WhatsApp :<br/><strong style={{color:"var(--blue)"}}>+32460211559</strong></p>
               <span className="pay-cancel" onClick={()=>{setShowPayment(false);setPendingGen(false);}}>Annuler</span>
@@ -1312,17 +1317,15 @@ async function doRegister() {
                 <div style={{display:"flex",flexDirection:"column",gap:8}}>
                   {filteredHistory.length===0&&<div style={{textAlign:"center",color:"var(--muted)",padding:20,fontSize:13}}>Aucun résultat.</div>}
                   {filteredHistory.map(([id,d])=>{
-                    const co=d.company||"—";
-                    const stc=statusColor(d.statusKey||"st0");
                     const stClass=d.statusKey==="st5"?"s-done":d.statusKey==="st6"||d.statusKey==="st7"?"s-susp":d.statusKey==="st3"?"s-customs":d.statusKey==="st0"?"s-wait":"s-transit";
                     return (
-                      <div key={id} style={{border:"1px solid var(--border)",borderRadius:10,padding:14,background:selectedId===id?"rgba(34,120,232,0.06)":"rgba(255,255,255,0.02)",cursor:"pointer",transition:"all .2s",borderColor:selectedId===id?"var(--blue)":"var(--border)"}} onClick={()=>selectTracking(id)}>
+                      <div key={id} style={{border:"1px solid",borderColor:selectedId===id?"var(--blue)":"var(--border)",borderRadius:10,padding:14,background:selectedId===id?"rgba(34,120,232,0.06)":"rgba(255,255,255,0.02)",cursor:"pointer",transition:"all .2s"}} onClick={()=>selectTracking(id)}>
                         <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start",gap:8}}>
                           <div style={{flex:1,minWidth:0}}>
                             <div style={{fontSize:12,fontWeight:700,color:"var(--blue)",marginBottom:4,letterSpacing:".06em"}}>{id}</div>
                             <div style={{fontSize:14,fontWeight:600,color:"var(--text)",marginBottom:2}}>{d.client}</div>
                             <div style={{fontSize:12,color:"var(--muted)"}}>{d.vehicle} · {d.fromCity} → {d.toCity}</div>
-                            <div style={{fontSize:11,color:"var(--muted)",marginTop:2}}>{co}</div>
+                            <div style={{fontSize:11,color:"var(--muted)",marginTop:2}}>{d.company||"—"}</div>
                           </div>
                           <div style={{display:"flex",flexDirection:"column",alignItems:"flex-end",gap:6,flexShrink:0}}>
                             <span className={"sbadge "+stClass}><span className="sdot"/>{t((d.statusKey||"st0")+"f")}</span>
