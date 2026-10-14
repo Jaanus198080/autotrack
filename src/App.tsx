@@ -1115,8 +1115,8 @@ async function doRegister() {
               <div className="new-search-box">
                 <div style={{fontSize:12,fontWeight:700,color:"var(--muted)",marginBottom:8,letterSpacing:".06em",textTransform:"uppercase"}}>📦 Vous avez un numéro de suivi ?</div>
                 <div className="new-s-row">
-                  <input className="new-s-in" placeholder="ATK-2026-FR-00142" value={trackInput} onChange={e=>setTrackInput(e.target.value)} onKeyDown={e=>e.key==="Enter"&&doSearch()}/>
-                  <button className="new-s-btn" onClick={doSearch}>SUIVRE →</button>
+                  <input className="new-s-in" placeholder="ATK-2026-FR-00142" value={trackInput} onChange={e=>setTrackInput(e.target.value)} onKeyDown={e=>e.key==="Enter"&&doTrack()}/>
+                  <button className="new-s-btn" onClick={doTrack}>SUIVRE →</button>
                 </div>
                 {trackError&&<div style={{fontSize:12,color:"var(--red)",marginTop:8}}>{trackError}</div>}
                 <div style={{fontSize:11,color:"var(--muted)",marginTop:8,textAlign:"center"}}>Numéro reçu par email à la confirmation de commande</div>
