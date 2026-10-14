@@ -318,6 +318,51 @@ const css = `
     .hdr{flex-wrap:wrap;height:auto;padding:10px 14px;}
     .hdr-brand{order:-1;width:100%;}
   }
+  /* HAMBURGER MENU */
+  .hbg-ov{position:fixed;inset:0;background:rgba(6,10,20,.88);z-index:300;backdrop-filter:blur(4px);}
+  .hbg-menu{position:fixed;top:0;right:0;width:260px;height:100%;background:#0a1020;border-left:1px solid var(--border);z-index:301;display:flex;flex-direction:column;overflow-y:auto;}
+  .hbg-head{padding:20px;border-bottom:1px solid var(--border);}
+  .hbg-logo{font-family:'Rajdhani',sans-serif;font-size:18px;font-weight:700;letter-spacing:.15em;color:#fff;}
+  .hbg-logo span{color:var(--blue);}
+  .hbg-sub{font-size:11px;color:var(--muted);margin-top:3px;}
+  .hbg-section{font-size:10px;font-weight:700;letter-spacing:.1em;color:var(--muted);text-transform:uppercase;padding:12px 20px 4px;}
+  .hbg-item{display:flex;align-items:center;gap:12px;padding:12px 20px;cursor:pointer;transition:background .2s;}
+  .hbg-item:hover{background:rgba(34,120,232,0.08);}
+  .hbg-ico{font-size:18px;width:24px;text-align:center;}
+  .hbg-label{font-size:13px;font-weight:600;color:var(--text);}
+  .hbg-desc{font-size:10px;color:var(--muted);margin-top:1px;}
+  .hbg-divider{height:0.5px;background:var(--border);margin:4px 20px;}
+  .hbg-lock{background:rgba(34,120,232,0.06);border:1px solid rgba(34,120,232,0.2);border-radius:8px;padding:8px 12px;font-size:11px;color:var(--muted);display:flex;align-items:center;gap:6px;margin:4px 20px 8px;}
+  /* TOOLS */
+  .tool-wrap{max-width:680px;margin:0 auto;padding:20px 20px 60px;}
+  .tool-back{display:inline-flex;align-items:center;gap:6px;font-size:13px;color:var(--muted);cursor:pointer;padding:7px 0;margin-bottom:14px;background:none;border:none;}
+  .tool-back:hover{color:var(--blue);}
+  .est-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px;}
+  .est-box{background:rgba(255,255,255,0.03);border:1px solid var(--border);border-radius:10px;padding:14px;text-align:center;}
+  .est-num{font-size:26px;font-weight:700;color:var(--blue);}
+  .est-lbl{font-size:10px;color:var(--muted);margin-top:3px;}
+  .cert-doc{background:rgba(255,255,255,0.03);border:1px solid var(--border);border-radius:10px;padding:18px;margin-top:12px;}
+  .cert-logo{font-family:'Rajdhani',sans-serif;font-size:15px;font-weight:700;letter-spacing:.12em;color:var(--text);}
+  .cert-logo span{color:var(--blue);}
+  .cert-stamp{display:inline-flex;align-items:center;gap:4px;background:rgba(93,184,50,.1);border:1px solid rgba(93,184,50,.3);border-radius:6px;padding:4px 10px;font-size:10px;color:var(--green);font-weight:700;}
+  /* NEW LANDING */
+  .new-hero{text-align:center;padding:40px 20px 24px;}
+  .new-hero h1{font-size:28px;font-weight:700;color:var(--text);line-height:1.3;margin-bottom:10px;}
+  .new-hero h1 span{color:var(--blue);}
+  .new-hero p{font-size:14px;color:var(--muted);line-height:1.6;}
+  .new-search-box{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:18px;margin-bottom:20px;}
+  .new-s-row{display:flex;gap:8px;}
+  .new-s-in{flex:1;padding:11px 14px;border-radius:8px;border:1px solid var(--border);background:rgba(255,255,255,0.05);color:var(--text);font-size:14px;outline:none;}
+  .new-s-in:focus{border-color:var(--blue);}
+  .new-s-btn{padding:11px 16px;background:var(--blue);color:#fff;border:none;border-radius:8px;font-size:14px;font-weight:700;cursor:pointer;white-space:nowrap;}
+  .new-feats{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:20px;}
+  .new-feat{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:14px;}
+  .new-feat-ico{font-size:20px;margin-bottom:6px;}
+  .new-feat-title{font-size:13px;font-weight:700;color:var(--text);margin-bottom:3px;}
+  .new-feat-desc{font-size:11px;color:var(--muted);line-height:1.4;}
+  .new-partner-card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:22px;text-align:center;}
+  .new-partner-card h2{font-size:18px;font-weight:700;color:var(--text);margin-bottom:6px;}
+  .new-partner-card p{font-size:13px;color:var(--muted);margin-bottom:18px;}
 `;
 
 /* ══════════════════════════════════════════════
