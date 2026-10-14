@@ -445,6 +445,18 @@ export default function App() {
   const [inviteCodes, setInviteCodes] = useState<any[]>([]);
   const [newCode, setNewCode]       = useState<string|null>(null);
   const [saLoading, setSaLoading]   = useState(false);
+  const [toolView, setToolView] = useState<"none"|"vin"|"estimation"|"certificat"|"carte-grise">("none");
+  const [showHamburger, setShowHamburger] = useState(false);
+  const [vinInput, setVinInput] = useState("");
+  const [vinResult, setVinResult] = useState<any>(null);
+  const [estFrom, setEstFrom] = useState("");
+  const [estTo, setEstTo] = useState("");
+  const [estMode, setEstMode] = useState("maritime");
+  const [estResult, setEstResult] = useState<any>(null);
+  const [cgForm, setCgForm] = useState({client:"",vin:"",pays:"France",notes:""});
+  const [cgSent, setCgSent] = useState(false);
+  const [certInput, setCertInput] = useState("");
+  const [certResult, setCertResult] = useState<any>(null);
 
   const toast = (msg: string, type="ok") => {
     const id = Date.now();
@@ -857,6 +869,51 @@ async function doRegister() {
       <style>{css}</style>
       <div className="at-root" onClick={()=>setShowLang(false)}>
         <div className="bg-grid"/><div className="bg-glow"/>
+        {showHamburger && (
+          <>
+            <div className="hbg-ov" onClick={()=>setShowHamburger(false)}/>
+            <div className="hbg-menu">
+              <div className="hbg-head">
+                <div className="hbg-logo">AUTO<span>TRACK</span></div>
+                <div className="hbg-sub">Suivi de transport de véhicules</div>
+              </div>
+              <div className="hbg-section">Navigation</div>
+              <div className="hbg-item" onClick={()=>{setView("client");setToolView("none");setShowHamburger(false);}}>
+                <div className="hbg-ico">🏠</div><div><div className="hbg-label">Accueil</div><div className="hbg-desc">Page principale</div></div>
+              </div>
+              {trackData && (<>
+                <div className="hbg-divider"/>
+                <div className="hbg-section">Outils client</div>
+                <div className="hbg-item" onClick={()=>{setToolView("vin");setShowHamburger(false);}}>
+                  <div className="hbg-ico">🔍</div><div><div className="hbg-label">Vérification VIN</div><div className="hbg-desc">Infos & historique véhicule</div></div>
+                </div>
+                <div className="hbg-item" onClick={()=>{setToolView("estimation");setShowHamburger(false);}}>
+                  <div className="hbg-ico">📍</div><div><div className="hbg-label">Estimation livraison</div><div className="hbg-desc">Calculez vos délais</div></div>
+                </div>
+                <div className="hbg-item" onClick={()=>{setToolView("certificat");setShowHamburger(false);}}>
+                  <div className="hbg-ico">📄</div><div><div className="hbg-label">Certificat transport</div><div className="hbg-desc">Téléchargez votre certificat</div></div>
+                </div>
+              </>)}
+              {!trackData && <div className="hbg-lock"><span style={{color:"var(--blue)"}}>🔒</span>Outils disponibles après votre suivi</div>}
+              {adminUser && !isSA(adminUser.email) && (<>
+                <div className="hbg-divider"/>
+                <div className="hbg-section">Espace partenaire</div>
+                <div className="hbg-item" onClick={()=>{setToolView("carte-grise");setShowHamburger(false);}}>
+                  <div className="hbg-ico">📋</div><div><div className="hbg-label">Demande carte grise</div><div className="hbg-desc">Soumettez pour votre client</div></div>
+                </div>
+                <div className="hbg-item" onClick={()=>{setToolView("estimation");setShowHamburger(false);}}>
+                  <div className="hbg-ico">📍</div><div><div className="hbg-label">Estimation livraison</div><div className="hbg-desc">Calculez vos délais</div></div>
+                </div>
+                <div className="hbg-item" onClick={()=>{setToolView("certificat");setShowHamburger(false);}}>
+                  <div className="hbg-ico">📄</div><div><div className="hbg-label">Certificat transport</div><div className="hbg-desc">Générez pour votre client</div></div>
+                </div>
+              </>)}
+              <div className="hbg-divider"/>
+              {!adminUser && <div className="hbg-item" onClick={()=>{setShowLogin(true);setShowHamburger(false);}}><div className="hbg-ico">🔐</div><div><div className="hbg-label">Espace partenaire</div><div className="hbg-desc">Connexion admin</div></div></div>}
+              {adminUser && <div className="hbg-item" onClick={()=>{doLogout();setShowHamburger(false);}}><div className="hbg-ico">🚪</div><div><div className="hbg-label">Déconnexion</div></div></div>}
+            </div>
+          </>
+        )}
 
         {/* ── REGISTER MODAL ── */}
         {showRegister && (
@@ -1043,103 +1100,192 @@ async function doRegister() {
                 </div>
               )}
             </div>
+            <button style={{background:"rgba(255,255,255,0.1)",border:"1px solid rgba(255,255,255,0.2)",borderRadius:8,padding:"7px 11px",color:"#fff",fontSize:18,cursor:"pointer",lineHeight:1}} onClick={e=>{e.stopPropagation();setShowHamburger(true);}}>☰</button>
           </div>
         </header>
 
         {/* ════ CLIENT SEARCH + LANDING ════ */}
-        {view==="client" && !trackData && (
+        {view==="client" && !trackData && toolView==="none" && (
           <div className="z1">
-            <div className="landing">
-              <h1>Suivez votre <span className="ac">véhicule</span><br/>en temps réel</h1>
-              <p className="sub">AutoTrack permet à vos clients de suivre leur véhicule à chaque étape du transport. Simple, professionnel, disponible 24h/24.</p>
-
-              {/* SEARCH BOX */}
-              <div className="track-demo">
-                <h3>📦 Vous avez un numéro de suivi ?</h3>
-                <div className="search-box" style={{maxWidth:520,margin:"0 auto"}}>
-                  <div className="s-row">
-                    <input className="s-in" value={trackInput} onChange={e=>setTrackInput(e.target.value)} onKeyDown={e=>e.key==="Enter"&&doTrack()} placeholder="ATK-2026-FR-00142" maxLength={22}/>
-                    <button className="btn-blue" onClick={doTrack} disabled={loading}>{t("btn_track")}</button>
-                  </div>
-                  <p className="s-hint">{t("hint")}</p>
-                  {trackError && <div className="err-msg">{t("not_found")}</div>}
+            <div className="new-hero">
+              <h1>Suivez votre <span>véhicule</span><br/>en temps réel</h1>
+              <p>AutoTrack permet à vos clients de suivre leur véhicule à chaque étape du transport. Simple, professionnel, disponible 24h/24.</p>
+            </div>
+            <div style={{padding:"0 20px 28px",maxWidth:680,margin:"0 auto"}}>
+              <div className="new-search-box">
+                <div style={{fontSize:12,fontWeight:700,color:"var(--muted)",marginBottom:8,letterSpacing:".06em",textTransform:"uppercase"}}>📦 Vous avez un numéro de suivi ?</div>
+                <div className="new-s-row">
+                  <input className="new-s-in" placeholder="ATK-2026-FR-00142" value={trackInput} onChange={e=>setTrackInput(e.target.value)} onKeyDown={e=>e.key==="Enter"&&doSearch()}/>
+                  <button className="new-s-btn" onClick={doSearch}>SUIVRE →</button>
                 </div>
+                {trackError&&<div style={{fontSize:12,color:"var(--red)",marginTop:8}}>{trackError}</div>}
+                <div style={{fontSize:11,color:"var(--muted)",marginTop:8,textAlign:"center"}}>Numéro reçu par email à la confirmation de commande</div>
               </div>
-
-              {/* FEATURES */}
-              <div className="features">
-                <div className="feat">
-                  <div className="feat-ico">🚗</div>
-                  <div className="feat-title">Suivi en temps réel</div>
-                  <div className="feat-desc">Vos clients voient la position exacte de leur véhicule à chaque étape du transport, mise à jour instantanément.</div>
-                </div>
-                <div className="feat">
-                  <div className="feat-ico">📧</div>
-                  <div className="feat-title">Notifications email</div>
-                  <div className="feat-desc">À chaque mise à jour, votre client reçoit automatiquement un email avec le statut et la position de son véhicule.</div>
-                </div>
-                <div className="feat">
-                  <div className="feat-ico">📱</div>
-                  <div className="feat-title">QR Code & Mobile</div>
-                  <div className="feat-desc">Générez un QR Code pour chaque suivi. Vos clients scannent et accèdent directement à leur page de suivi.</div>
-                </div>
-                <div className="feat">
-                  <div className="feat-ico">🔐</div>
-                  <div className="feat-title">Accès sécurisé</div>
-                  <div className="feat-desc">Panneau admin protégé par email et mot de passe. Vos clients ne voient que leurs propres informations.</div>
-                </div>
-                <div className="feat">
-                  <div className="feat-ico">🌍</div>
-                  <div className="feat-title">Multilingue</div>
-                  <div className="feat-desc">Interface disponible en français, anglais, allemand, croate, italien, bulgare et roumain.</div>
-                </div>
-                <div className="feat">
-                  <div className="feat-ico">📊</div>
-                  <div className="feat-title">Tableau de bord</div>
-                  <div className="feat-desc">Statistiques complètes, recherche avancée, gestion des statuts et historique de toutes vos livraisons.</div>
-                </div>
+              <div className="new-feats">
+                {[["🚗","Suivi en temps réel","Position exacte à chaque étape"],["📧","Notifications email","Alertes automatiques à chaque update"],["📱","QR Code","Accès rapide au suivi par scan"],["🌍","Multilingue","7 langues disponibles"],["🔒","Accès sécurisé","Données protégées et chiffrées"],["📊","Statistiques","Tableau de bord complet"]].map(([ico,title,desc])=>(
+                  <div key={title} className="new-feat"><div className="new-feat-ico">{ico}</div><div className="new-feat-title">{title}</div><div className="new-feat-desc">{desc}</div></div>
+                ))}
               </div>
-
-              {/* PRICING */}
-              <div className="pricing-card">
-                <h3>💼 Devenir partenaire</h3>
-                <div style={{marginBottom:8}}>
-                  <div style={{display:"flex",justifyContent:"center",gap:12,marginBottom:8}}>
-                    <div style={{textAlign:"center",padding:"10px 14px",borderRadius:10,background:"rgba(34,120,232,.1)",border:"1px solid rgba(34,120,232,.3)"}}>
-                      <div style={{fontFamily:"'Rajdhani',sans-serif",fontSize:22,fontWeight:900,color:"var(--blue)"}}>45€</div>
-                      <div style={{fontSize:10,color:"var(--muted)"}}>5 suivis</div>
-                    </div>
-                    <div style={{textAlign:"center",padding:"10px 14px",borderRadius:10,background:"rgba(240,97,32,.1)",border:"1px solid rgba(240,97,32,.3)"}}>
-                      <div style={{fontFamily:"'Rajdhani',sans-serif",fontSize:22,fontWeight:900,color:"var(--orange)"}}>80€</div>
-                      <div style={{fontSize:10,color:"var(--muted)"}}>10 suivis 🔥</div>
-                    </div>
-                    <div style={{textAlign:"center",padding:"10px 14px",borderRadius:10,background:"rgba(93,184,50,.1)",border:"1px solid rgba(93,184,50,.3)"}}>
-                      <div style={{fontFamily:"'Rajdhani',sans-serif",fontSize:22,fontWeight:900,color:"var(--green)"}}>140€</div>
-                      <div style={{fontSize:10,color:"var(--muted)"}}>20 suivis</div>
-                    </div>
-                  </div>
-                </div>
-                <div className="price-free">✨ Démarrez dès 5 900 FCFA</div>
-                <ul className="price-features">
-                  <li>Suivi illimité de vos véhicules</li>
-                  <li>Notifications email automatiques</li>
-                  <li>QR Code téléchargeable</li>
-                  <li>Tableau de bord & statistiques</li>
-                  <li>Mises à jour en temps réel</li>
-                  <li>Support multilingue</li>
+              <div className="new-partner-card">
+                <h2>💼 Devenir partenaire</h2>
+                <p>Gérez vos suivis de véhicules en toute simplicité</p>
+                <ul style={{listStyle:"none",textAlign:"left",marginBottom:18}}>
+                  {["Suivi illimité de vos véhicules","Notifications email automatiques","QR Code téléchargeable","Tableau de bord & statistiques","Mises à jour en temps réel","Support multilingue"].map(f=>(
+                    <li key={f} style={{fontSize:13,color:"var(--muted)",padding:"6px 0",display:"flex",alignItems:"center",gap:8,borderBottom:"0.5px solid var(--border)"}}>
+                      <span style={{color:"var(--green)",fontWeight:700}}>✓</span>{f}
+                    </li>
+                  ))}
                 </ul>
-                <button className="btn-cta" onClick={()=>{setShowRegister(true);setRegOk(false);setRegErr("");}}>
-                  🚀 Créer mon compte gratuitement
-                </button>
-              </div>
-
-              <div style={{display:"flex",gap:16,justifyContent:"center",flexWrap:"wrap"}}>
-                <p style={{fontSize:12,color:"var(--muted)"}}>Déjà partenaire ? <span style={{color:"var(--blue)",cursor:"pointer",textDecoration:"underline"}} onClick={()=>{setShowLogin(true);setLoginErr("");}}>Se connecter →</span></p>
+                <button className="btn-blue" style={{width:"100%",marginBottom:10}} onClick={()=>{setShowRegister(true);setRegOk(false);setRegErr("");}}>🚀 Créer mon compte gratuitement</button>
+                <div style={{fontSize:12,color:"var(--muted)"}}>Déjà partenaire ? <span style={{color:"var(--blue)",cursor:"pointer"}} onClick={()=>setShowLogin(true)}>Se connecter →</span></div>
               </div>
             </div>
           </div>
         )}
 
+        {/* TOOLS */}
+        {toolView!=="none" && (
+          <div className="tool-wrap z1">
+            <button className="tool-back" onClick={()=>setToolView("none")}>← Retour</button>
+            {toolView==="vin" && (
+              <div>
+                <div className="card" style={{marginBottom:12}}>
+                  <div style={{fontSize:10,fontWeight:700,letterSpacing:".14em",color:"var(--muted)",textTransform:"uppercase",marginBottom:14,display:"flex",alignItems:"center",gap:8}}>🔍 Vérification VIN<div style={{flex:1,height:"0.5px",background:"var(--border)"}}></div></div>
+                  <div style={{fontSize:12,color:"var(--muted)",marginBottom:14,lineHeight:1.5}}>Entrez le numéro VIN pour vérifier les informations du véhicule.</div>
+                  <input className="fi" placeholder="Ex: WBA3A5C50DF287000" value={vinInput} onChange={e=>setVinInput(e.target.value.toUpperCase())} style={{letterSpacing:".08em",textTransform:"uppercase"}}/>
+                  <button className="btn-blue" onClick={async ()=>{
+                    if(!vinInput.trim()){return;}
+                    const snap = await getDoc(doc(db,"vin_database",vinInput.trim()));
+                    if(snap.exists()){setVinResult(snap.data());}else{setVinResult({error:true});}
+                  }}>🔍 Vérifier</button>
+                </div>
+                {vinResult && !vinResult.error && (
+                  <div className="card">
+                    <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:14}}>
+                      <div style={{fontSize:13,fontWeight:700,color:"var(--text)"}}>Résultat VIN</div>
+                      <span style={{display:"inline-flex",alignItems:"center",gap:4,padding:"3px 10px",borderRadius:20,fontSize:11,fontWeight:700,background:"rgba(93,184,50,.15)",color:"var(--green)",border:"1px solid rgba(93,184,50,.3)"}}>✓ Valide</span>
+                    </div>
+                    {[["Marque",vinResult.marque],["Modèle",vinResult.modele],["Année",vinResult.annee],["Pays d'origine",vinResult.pays],["Carburant",vinResult.carburant],["Couleur",vinResult.couleur],["Kilométrage",vinResult.kilometrage?vinResult.kilometrage+" km":"—"],["Entretien",vinResult.entretien_ok?"✓ À jour":"⚠️ Non renseigné"],["Numéro VIN",vinInput]].map(([l,v])=>(
+                      <div key={l as string} style={{display:"flex",justifyContent:"space-between",alignItems:"center",padding:"9px 0",borderBottom:"0.5px solid var(--border)"}}>
+                        <span style={{fontSize:11,color:"var(--muted)"}}>{l}</span>
+                        <span style={{fontSize:13,fontWeight:600,color:l==="Entretien"&&vinResult.entretien_ok?"var(--green)":"var(--text)"}}>{v as string||"—"}</span>
+                      </div>
+                    ))}
+                  </div>
+                )}
+                {vinResult?.error && <div style={{background:"rgba(224,32,32,.1)",border:"1px solid rgba(224,32,32,.3)",borderRadius:10,padding:16,textAlign:"center",color:"var(--red)",fontSize:13}}>❌ VIN non trouvé dans notre base de données.</div>}
+              </div>
+            )}
+            {toolView==="estimation" && (
+              <div>
+                <div className="card" style={{marginBottom:12}}>
+                  <div style={{fontSize:10,fontWeight:700,letterSpacing:".14em",color:"var(--muted)",textTransform:"uppercase",marginBottom:14,display:"flex",alignItems:"center",gap:8}}>📍 Estimation de livraison<div style={{flex:1,height:"0.5px",background:"var(--border)"}}></div></div>
+                  <label className="flabel">Ville de départ</label>
+                  <input className="fi" placeholder="Ex: Hambourg, Allemagne" value={estFrom} onChange={e=>setEstFrom(e.target.value)}/>
+                  <label className="flabel">Ville de destination</label>
+                  <input className="fi" placeholder="Ex: Cotonou, Bénin" value={estTo} onChange={e=>setEstTo(e.target.value)}/>
+                  <label className="flabel">Mode de transport</label>
+                  <select className="fi" value={estMode} onChange={e=>setEstMode(e.target.value)}>
+                    <option value="maritime">🚢 Transport maritime</option>
+                    <option value="aerien">✈️ Transport aérien</option>
+                    <option value="routier">🚛 Transport routier</option>
+                  </select>
+                  <button className="btn-blue" onClick={async ()=>{
+                    if(!estFrom.trim()||!estTo.trim()){return;}
+                    const snap = await getDoc(doc(db,"estimations",estMode));
+                    const data = snap.exists()?snap.data():{};
+                    const key = estFrom.trim().toLowerCase().split(",")[0];
+                    const route = (data as any)[key]||(data as any).default||{min:14,max:21};
+                    setEstResult({from:estFrom,to:estTo,mode:estMode,min:route.min,max:route.max});
+                  }}>📍 Calculer</button>
+                </div>
+                {estResult && (
+                  <div className="card">
+                    <div style={{fontSize:13,fontWeight:700,marginBottom:12,color:"var(--text)"}}>Résultat estimé</div>
+                    <div className="est-grid">
+                      <div className="est-box"><div className="est-num">{estResult.min}</div><div className="est-lbl">Jours minimum</div></div>
+                      <div className="est-box"><div className="est-num">{estResult.max}</div><div className="est-lbl">Jours maximum</div></div>
+                    </div>
+                    {[["Trajet",estResult.from+" → "+estResult.to],["Mode",estResult.mode==="maritime"?"🚢 Maritime":estResult.mode==="aerien"?"✈️ Aérien":"🚛 Routier"]].map(([l,v])=>(
+                      <div key={l} style={{display:"flex",justifyContent:"space-between",padding:"9px 0",borderBottom:"0.5px solid var(--border)"}}>
+                        <span style={{fontSize:11,color:"var(--muted)"}}>{l}</span>
+                        <span style={{fontSize:13,fontWeight:600,color:"var(--text)"}}>{v}</span>
+                      </div>
+                    ))}
+                    <div style={{fontSize:11,color:"var(--muted)",marginTop:10,lineHeight:1.5}}>⚠️ Estimation indicative. Les délais réels peuvent varier.</div>
+                  </div>
+                )}
+              </div>
+            )}
+            {toolView==="certificat" && (
+              <div>
+                <div className="card" style={{marginBottom:12}}>
+                  <div style={{fontSize:10,fontWeight:700,letterSpacing:".14em",color:"var(--muted)",textTransform:"uppercase",marginBottom:14,display:"flex",alignItems:"center",gap:8}}>📄 Certificat de transport<div style={{flex:1,height:"0.5px",background:"var(--border)"}}></div></div>
+                  <input className="fi" placeholder="Ex: ATK-2026-FR-00142" value={certInput} onChange={e=>setCertInput(e.target.value.toUpperCase())} style={{letterSpacing:".08em",textTransform:"uppercase"}}/>
+                  <button className="btn-blue" onClick={async ()=>{
+                    const snap = await getDoc(doc(db,"trackings",certInput.trim()));
+                    if(snap.exists()){const d=snap.data();setCertResult({id:certInput,...d});}else{setCertResult({error:true});}
+                  }}>📄 Générer le certificat</button>
+                </div>
+                {certResult && !certResult.error && (
+                  <div className="card">
+                    <div style={{fontSize:13,fontWeight:700,marginBottom:12,color:"var(--text)"}}>Aperçu certificat</div>
+                    <div className="cert-doc">
+                      <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start",marginBottom:12}}>
+                        <div><div className="cert-logo">AUTO<span>TRACK</span></div><div style={{fontSize:10,color:"var(--muted)",marginTop:2}}>Certificat de transport</div></div>
+                        <div style={{textAlign:"right"}}><div style={{fontSize:11,fontWeight:700,color:"var(--blue)"}}>{certResult.id}</div><div style={{fontSize:10,color:"var(--muted)",marginTop:2}}>Émis le {new Date().toLocaleDateString("fr-FR")}</div></div>
+                      </div>
+                      <div style={{height:"0.5px",background:"var(--border)",marginBottom:10}}/>
+                      {[["Client",certResult.client],["Véhicule",(certResult.vehicle||"")+(certResult.color&&certResult.color!=="—"?" · "+certResult.color:"")],["Départ",certResult.from],["Destination",certResult.to],["Statut",certResult.status||"—"],["Partenaire",certResult.company||"—"]].map(([l,v])=>(
+                        <div key={l as string} style={{display:"flex",justifyContent:"space-between",marginBottom:6}}>
+                          <span style={{fontSize:10,color:"var(--muted)"}}>{l}</span>
+                          <span style={{fontSize:11,fontWeight:600,color:"var(--text)"}}>{v as string||"—"}</span>
+                        </div>
+                      ))}
+                      <div style={{height:"0.5px",background:"var(--border)",margin:"10px 0"}}/>
+                      <div style={{display:"flex",justifyContent:"space-between",alignItems:"center"}}>
+                        <span className="cert-stamp">✓ Certifié AutoTrack</span>
+                        <div style={{fontSize:10,color:"var(--muted)"}}>autotrack.live</div>
+                      </div>
+                    </div>
+                    <button className="btn-blue" style={{marginTop:12}} onClick={()=>window.print()}>⬇️ Télécharger / Imprimer</button>
+                  </div>
+                )}
+                {certResult?.error && <div style={{background:"rgba(224,32,32,.1)",border:"1px solid rgba(224,32,32,.3)",borderRadius:10,padding:16,textAlign:"center",color:"var(--red)",fontSize:13}}>❌ Numéro de suivi non trouvé.</div>}
+              </div>
+            )}
+            {toolView==="carte-grise" && adminUser && !isSA(adminUser.email) && (
+              <div>
+                <div className="card" style={{marginBottom:12}}>
+                  <div style={{fontSize:10,fontWeight:700,letterSpacing:".14em",color:"var(--muted)",textTransform:"uppercase",marginBottom:14,display:"flex",alignItems:"center",gap:8}}>📋 Demande de carte grise<div style={{flex:1,height:"0.5px",background:"var(--border)"}}></div></div>
+                  <div style={{fontSize:12,color:"var(--muted)",marginBottom:14,lineHeight:1.5}}>Soumettez une demande pour votre client. AutoTrack la traitera manuellement.</div>
+                  {cgSent ? (
+                    <div style={{background:"rgba(93,184,50,.1)",border:"1px solid rgba(93,184,50,.3)",borderRadius:10,padding:16,textAlign:"center",color:"var(--green)",fontSize:13}}>✅ Demande envoyée ! Nous la traitons dans les plus brefs délais.</div>
+                  ) : (<>
+                    <label className="flabel">Nom du client</label>
+                    <input className="fi" placeholder="Mohammed Alami" value={cgForm.client} onChange={e=>setCgForm(p=>({...p,client:e.target.value}))}/>
+                    <label className="flabel">Numéro VIN</label>
+                    <input className="fi" placeholder="WBA3A5C50DF287000" value={cgForm.vin} onChange={e=>setCgForm(p=>({...p,vin:e.target.value.toUpperCase()}))} style={{letterSpacing:".08em",textTransform:"uppercase"}}/>
+                    <label className="flabel">Pays d'immatriculation</label>
+                    <select className="fi" value={cgForm.pays} onChange={e=>setCgForm(p=>({...p,pays:e.target.value}))}>
+                      {["France","Allemagne","Belgique","Pays-Bas","Espagne","Italie","Portugal","Autriche","Suisse","Serbie","Croatie","Bosnie","Roumanie","Bulgarie","Grèce","Slovénie","Macédoine","Albanie","Monténégro"].map(p=><option key={p}>{p}</option>)}
+                    </select>
+                    <label className="flabel">Notes supplémentaires</label>
+                    <textarea className="fi" style={{height:70,resize:"none"}} placeholder="Informations complémentaires..." value={cgForm.notes} onChange={e=>setCgForm(p=>({...p,notes:e.target.value}))}/>
+                    <button className="btn-blue" onClick={async ()=>{
+                      if(!cgForm.client.trim()||!cgForm.vin.trim()){toast("Remplissez les champs obligatoires","err");return;}
+                      await setDoc(doc(collection(db,"carte_grise_requests")),{
+                        client:cgForm.client,vin:cgForm.vin,pays:cgForm.pays,notes:cgForm.notes,
+                        partenaire:adminUser?.email,status:"pending",createdAt:new Date().toISOString()
+                      });
+                      setCgSent(true);toast("📋 Demande envoyée !","ok");
+                    }}>📋 Soumettre la demande</button>
+                  </>)}
+                </div>
+              </div>
+            )}
+          </div>
+        )}
         {/* ════ CLIENT RESULT ════ */}
         {view==="client" && trackData && (
           <div className="z1">
