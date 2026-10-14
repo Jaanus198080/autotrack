@@ -320,7 +320,7 @@ const css = `
   }
   /* HAMBURGER MENU */
   .hbg-ov{position:fixed;inset:0;background:rgba(6,10,20,.88);z-index:300;backdrop-filter:blur(4px);}
-  .hbg-menu{position:fixed;top:0;right:0;width:260px;height:100%;background:#0a1020;border-left:1px solid var(--border);z-index:301;display:flex;flex-direction:column;overflow-y:auto;}
+  .hbg-menu{position:fixed;top:0;right:0;width:270px;height:100vh;background:#0a1020;border-left:1px solid var(--border);z-index:301;display:flex;flex-direction:column;overflow-y:auto;animation:slideIn .25s ease;}
   .hbg-head{padding:20px;border-bottom:1px solid var(--border);}
   .hbg-logo{font-family:'Rajdhani',sans-serif;font-size:18px;font-weight:700;letter-spacing:.15em;color:#fff;}
   .hbg-logo span{color:var(--blue);}
@@ -332,6 +332,7 @@ const css = `
   .hbg-label{font-size:13px;font-weight:600;color:var(--text);}
   .hbg-desc{font-size:10px;color:var(--muted);margin-top:1px;}
   .hbg-divider{height:0.5px;background:var(--border);margin:4px 20px;}
+  @keyframes slideIn{from{transform:translateX(100%);}to{transform:translateX(0);}}
   .hbg-lock{background:rgba(34,120,232,0.06);border:1px solid rgba(34,120,232,0.2);border-radius:8px;padding:8px 12px;font-size:11px;color:var(--muted);display:flex;align-items:center;gap:6px;margin:4px 20px 8px;}
   /* TOOLS */
   .tool-wrap{max-width:680px;margin:0 auto;padding:20px 20px 60px;}
@@ -918,15 +919,59 @@ async function doRegister() {
           <>
             <div className="hbg-ov" onClick={()=>setShowHamburger(false)}/>
             <div className="hbg-menu">
-              <div className="hbg-head">
-                <div className="hbg-logo">AUTO<span>TRACK</span></div>
-                <div className="hbg-sub">Suivi de transport de véhicules</div>
+              {/* Header */}
+              <div className="hbg-head" style={{display:"flex",justifyContent:"space-between",alignItems:"center"}}>
+                <div>
+                  <div className="hbg-logo">AUTO<span>TRACK</span></div>
+                  <div className="hbg-sub">Suivi de transport de véhicules</div>
+                </div>
+                <button style={{background:"none",border:"none",color:"var(--muted)",fontSize:20,cursor:"pointer",padding:4}} onClick={()=>setShowHamburger(false)}>✕</button>
               </div>
+
+              {/* Admin connecté - ses outils en premier */}
+              {adminUser && (<>
+                <div className="hbg-section">{isSA(adminUser.email)?"Super Admin":"Espace partenaire"}</div>
+                {isSA(adminUser.email) ? (<>
+                  <div className="hbg-item" onClick={()=>{setView("superadmin");setShowHamburger(false);}}>
+                    <div className="hbg-ico">👑</div><div><div className="hbg-label">Gestion partenaires</div><div className="hbg-desc">Confirmer paiements, bloquer</div></div>
+                  </div>
+                  <div className="hbg-item" onClick={()=>{setView("superadmin");setShowHamburger(false);}}>
+                    <div className="hbg-ico">🔍</div><div><div className="hbg-label">Base VIN</div><div className="hbg-desc">Gérer les données VIN</div></div>
+                  </div>
+                  <div className="hbg-item" onClick={()=>{setView("superadmin");setShowHamburger(false);}}>
+                    <div className="hbg-ico">📋</div><div><div className="hbg-label">Demandes carte grise</div><div className="hbg-desc">Traiter les demandes</div></div>
+                  </div>
+                  <div className="hbg-item" onClick={()=>{setView("superadmin");setShowHamburger(false);}}>
+                    <div className="hbg-ico">📍</div><div><div className="hbg-label">Délais d'estimation</div><div className="hbg-desc">Configurer les routes</div></div>
+                  </div>
+                </>) : (<>
+                  <div className="hbg-item" onClick={()=>{setView("admin");setShowHamburger(false);}}>
+                    <div className="hbg-ico">⚙️</div><div><div className="hbg-label">Créer un suivi</div><div className="hbg-desc">Générer un numéro de suivi</div></div>
+                  </div>
+                  <div className="hbg-item" onClick={()=>{setView("stats");setShowHamburger(false);}}>
+                    <div className="hbg-ico">📊</div><div><div className="hbg-label">Statistiques</div><div className="hbg-desc">Tableau de bord</div></div>
+                  </div>
+                  <div className="hbg-item" onClick={()=>{setToolView("carte-grise");setShowHamburger(false);}}>
+                    <div className="hbg-ico">📋</div><div><div className="hbg-label">Demande carte grise</div><div className="hbg-desc">Soumettez pour votre client</div></div>
+                  </div>
+                  <div className="hbg-item" onClick={()=>{setToolView("estimation");setShowHamburger(false);}}>
+                    <div className="hbg-ico">📍</div><div><div className="hbg-label">Estimation livraison</div><div className="hbg-desc">Calculez vos délais</div></div>
+                  </div>
+                  <div className="hbg-item" onClick={()=>{setToolView("certificat");setShowHamburger(false);}}>
+                    <div className="hbg-ico">📄</div><div><div className="hbg-label">Certificat transport</div><div className="hbg-desc">Générez pour votre client</div></div>
+                  </div>
+                </>)}
+                <div className="hbg-divider"/>
+              </>)}
+
+              {/* Navigation générale */}
               <div className="hbg-section">Navigation</div>
               <div className="hbg-item" onClick={()=>{setView("client");setToolView("none");setShowHamburger(false);}}>
                 <div className="hbg-ico">🏠</div><div><div className="hbg-label">Accueil</div><div className="hbg-desc">Page principale</div></div>
               </div>
-              {trackData && (<>
+
+              {/* Outils client */}
+              {trackData ? (<>
                 <div className="hbg-divider"/>
                 <div className="hbg-section">Outils client</div>
                 <div className="hbg-item" onClick={()=>{setToolView("vin");setShowHamburger(false);}}>
@@ -938,24 +983,24 @@ async function doRegister() {
                 <div className="hbg-item" onClick={()=>{setToolView("certificat");setShowHamburger(false);}}>
                   <div className="hbg-ico">📄</div><div><div className="hbg-label">Certificat transport</div><div className="hbg-desc">Téléchargez votre certificat</div></div>
                 </div>
-              </>)}
-              {!trackData && <div className="hbg-lock"><span style={{color:"var(--blue)"}}>🔒</span>Outils disponibles après votre suivi</div>}
-              {adminUser && !isSA(adminUser.email) && (<>
+              </>) : (
+                <div className="hbg-lock"><span style={{color:"var(--blue)"}}>🔒</span>Outils disponibles après votre suivi</div>
+              )}
+
+              {/* Footer */}
+              <div style={{marginTop:"auto"}}>
                 <div className="hbg-divider"/>
-                <div className="hbg-section">Espace partenaire</div>
-                <div className="hbg-item" onClick={()=>{setToolView("carte-grise");setShowHamburger(false);}}>
-                  <div className="hbg-ico">📋</div><div><div className="hbg-label">Demande carte grise</div><div className="hbg-desc">Soumettez pour votre client</div></div>
-                </div>
-                <div className="hbg-item" onClick={()=>{setToolView("estimation");setShowHamburger(false);}}>
-                  <div className="hbg-ico">📍</div><div><div className="hbg-label">Estimation livraison</div><div className="hbg-desc">Calculez vos délais</div></div>
-                </div>
-                <div className="hbg-item" onClick={()=>{setToolView("certificat");setShowHamburger(false);}}>
-                  <div className="hbg-ico">📄</div><div><div className="hbg-label">Certificat transport</div><div className="hbg-desc">Générez pour votre client</div></div>
-                </div>
-              </>)}
-              <div className="hbg-divider"/>
-              {!adminUser && <div className="hbg-item" onClick={()=>{setShowLogin(true);setShowHamburger(false);}}><div className="hbg-ico">🔐</div><div><div className="hbg-label">Espace partenaire</div><div className="hbg-desc">Connexion admin</div></div></div>}
-              {adminUser && <div className="hbg-item" onClick={()=>{doLogout();setShowHamburger(false);}}><div className="hbg-ico">🚪</div><div><div className="hbg-label">Déconnexion</div></div></div>}
+                {!adminUser && (
+                  <div className="hbg-item" onClick={()=>{setShowLogin(true);setShowHamburger(false);}}>
+                    <div className="hbg-ico">🔐</div><div><div className="hbg-label">Espace partenaire</div><div className="hbg-desc">Connexion admin</div></div>
+                  </div>
+                )}
+                {adminUser && (
+                  <div className="hbg-item" onClick={()=>{doLogout();setShowHamburger(false);}}>
+                    <div className="hbg-ico">🚪</div><div><div className="hbg-label">Déconnexion</div><div className="hbg-desc">{adminUser.email}</div></div>
+                  </div>
+                )}
+              </div>
             </div>
           </>
         )}
